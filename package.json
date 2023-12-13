@@ -1,0 +1,29 @@
+{
+  "name": "e-furniture-capstone-project-be",
+  "version": "1.0.0",
+  "description": "Capstone project for the final destination at FPT university HCM Campus",
+  "main": "app.js",
+  "scripts": {
+    "test": "npx mocha tests/**/*test.js",
+    "start": "nodemon src/app.js"
+  },
+  "author": "koey",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "bcrypt": "^5.1.1",
+    "chai": "^4.3.10",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "mocha": "^10.2.0",
+    "moment": "^2.29.4",
+    "mongoose": "^8.0.3",
+    "nodemon": "^3.0.2",
+    "sinon": "^17.0.1"
+  }
+}
