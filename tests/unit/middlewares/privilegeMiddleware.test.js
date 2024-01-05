@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const {
   customerProtection,
   adminProtection,
-} = require("../../src/middlewares/privilegeMiddleware");
+} = require("../../../src/middlewares/privilegeMiddleware");
 
 describe("Auth Middlewares", () => {
   describe("customerProtection", () => {

@@ -1,8 +1,7 @@
 // src/services/authService.js
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
-const jwt = require("jsonwebtoken");
-
+const {generateToken} = require("../jwt/jwtUtils");
 class AuthService {
   static async login(username, password) {
     try {
@@ -17,14 +16,7 @@ class AuthService {
       if (!isMatch) {
         return { error: "Invalid credentials." };
       }
-
-      const token = jwt.sign(
-        { username: user.username, role: user.role },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "7d",
-        }
-      );
+      const token = generateToken(user);
 
       return { token, user };
     } catch (error) {
@@ -40,7 +32,7 @@ class AuthService {
     }
   }
 
-  static async register(username, password, admin) {
+  static async register(username, password) {
     try {
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -48,7 +40,6 @@ class AuthService {
       const newUser = new User({
         username,
         password: hashedPassword,
-        admin,
       });
 
       const savedUser = await newUser.save();

@@ -8,16 +8,11 @@ const validateEmail = (email) => {
 };
 
 const validateUsername = (username) => {
-  const schema = Joi.string()
-    .alphanum()
-    .min(3)
-    .max(30)
-    .required()
-    .messages({
-      'string.alphanum': 'Username must only contain alphanumeric characters.',
-      'string.min': 'Username must have at least {#limit} characters.',
-      'string.max': 'Username cannot exceed {#limit} characters.',
-    });
+  const schema = Joi.string().alphanum().min(3).max(30).required().messages({
+    "string.alphanum": "Username must only contain alphanumeric characters.",
+    "string.min": "Username must have at least {#limit} characters.",
+    "string.max": "Username cannot exceed {#limit} characters.",
+  });
 
   return schema.validate(username);
 };
@@ -35,5 +30,20 @@ const validatePassword = (password) => {
   return schema.validate(password);
 };
 
+const validatePhoneNumber = (phoneNumber) => {
+  const schema = Joi.string()
+    .pattern(/^((84|0)+([3|5|7|8|9]))+([0-9]{8,9})\b/)
+    .required()
+    .messages({
+      "string.pattern.base": "Please enter a valid Vietnam phone number.",
+    });
 
-module.exports = { validateEmail, validateUsername, validatePassword };
+  return schema.validate(phoneNumber);
+};
+
+module.exports = {
+  validateEmail,
+  validateUsername,
+  validatePassword,
+  validatePhoneNumber,
+};

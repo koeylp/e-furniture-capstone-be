@@ -4,7 +4,7 @@ const {
   formatDate,
   capitalizeFirstLetter,
   vndFormatCurrency,
-} = require("../../src/utils/format");
+} = require("../../../src/utils/format");
 
 describe("formatDate", () => {
   it("should format the date using the default format", () => {
