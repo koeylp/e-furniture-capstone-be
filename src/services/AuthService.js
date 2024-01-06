@@ -1,7 +1,10 @@
 // src/services/authService.js
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
-const {generateToken} = require("../jwt/jwtUtils");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../jwt/jwtUtils");
 class AuthService {
   static async login(username, password) {
     try {
@@ -16,11 +19,13 @@ class AuthService {
       if (!isMatch) {
         return { error: "Invalid credentials." };
       }
-      const token = generateToken(user);
 
-      return { token, user };
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+
+      return { accessToken, refreshToken, user };
     } catch (error) {
-      return { error: error.message, token: null };
+      return { error: error.message, accessToken: null, refreshToken: null };
     }
   }
 

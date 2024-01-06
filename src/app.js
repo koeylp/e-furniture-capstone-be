@@ -10,6 +10,12 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Internal Server Error" });
+});
+
 /* CONFIGURE ROUTES */
 config.routes.configureRoutes(app);
 

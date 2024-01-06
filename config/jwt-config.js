@@ -2,10 +2,16 @@
 const fs = require("fs");
 
 const privateKey = fs.readFileSync("private.key", "utf8");
+const publicKey = fs.readFileSync("public.key", "utf8");
 
-const verifyOptions = {
+const accessTokenOptions = {
   expiresIn: "1h",
   algorithm: "RS256",
 };
 
-module.exports = { verifyOptions, privateKey };
+const refreshTokenOptions = {
+  expiresIn: "7d",
+  algorithm: "RS256",
+};
+
+module.exports = { accessTokenOptions, refreshTokenOptions, privateKey, publicKey };

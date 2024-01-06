@@ -1,8 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { verifyOptions } = require('../../config/jwt-config');
-const fs = require('fs');
-
-const publicKey = fs.readFileSync('public.key', 'utf8');
+const { accessTokenOptions, publicKey } = require('../../config/jwt-config');
 
 const authenticateUser = (req, res, next) => {
   const token = req.headers.authorization;
@@ -12,7 +9,7 @@ const authenticateUser = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, publicKey, verifyOptions);
+    const decoded = jwt.verify(token, publicKey, accessTokenOptions);
     req.user = decoded;
     next();
   } catch (err) {
