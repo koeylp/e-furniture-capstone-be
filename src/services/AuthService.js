@@ -1,7 +1,15 @@
 // src/services/authService.js
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
-const {generateToken} = require("../jwt/jwtUtils");
+const { 
+  generateAccessToken,
+  generateRefreshToken ,
+} = require("../jwt/jwtUtils");
+const {
+  InternalServerError,
+  NotFoundError,
+  BadRequestError,
+} = require("../utils/errorHanlder");
 class AuthService {
   static async login(username, password) {
     try {
@@ -16,11 +24,13 @@ class AuthService {
       if (!isMatch) {
         return { error: "Invalid credentials." };
       }
-      const token = generateToken(user);
 
-      return { token, user };
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+
+      return { accessToken, refreshToken, user };
     } catch (error) {
-      return { error: error.message, token: null };
+      return { error: error.message, accessToken: null, refreshToken: null };
     }
   }
 
@@ -33,20 +43,16 @@ class AuthService {
   }
 
   static async register(username, password) {
-    try {
-      const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash(password, salt);
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-      const newUser = new User({
-        username,
-        password: hashedPassword,
-      });
-
-      const savedUser = await newUser.save();
-      return { error: null, user: savedUser };
-    } catch (error) {
-      return { error: error.message, user: null };
-    }
+    const newUser = new User({
+      username,
+      password: hashedPassword,
+    });
+    const savedUser = await newUser.save();
+    if (!savedUser) throw new InternalServerError("Cannot Register User!");
+    return savedUser;
   }
 }
 

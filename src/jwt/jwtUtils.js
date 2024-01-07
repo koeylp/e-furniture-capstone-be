@@ -1,15 +1,28 @@
 const jwt = require("jsonwebtoken");
-const { verifyOptions, privateKey } = require("../../config/jwt-config");
+const {
+  accessTokenOptions,
+  refreshTokenOptions,
+  privateKey,
+} = require("../../config/jwt-config");
 
-const generateToken = (user) => {
-
+const generateAccessToken = (user) => {
   const payload = {
     userId: user._id,
     username: user.username,
   };
 
-  const token = jwt.sign(payload, privateKey, verifyOptions);
-  return token;
+  const accessToken = jwt.sign(payload, privateKey, accessTokenOptions);
+  return accessToken;
 };
 
-module.exports = { generateToken };
+const generateRefreshToken = (user) => {
+  const payload = {
+    userId: user._id,
+    username: user.username,
+  };
+
+  const refreshToken = jwt.sign(payload, privateKey, refreshTokenOptions);
+  return refreshToken;
+};
+
+module.exports = { generateAccessToken, generateRefreshToken };
