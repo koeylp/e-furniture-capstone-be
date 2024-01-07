@@ -11,17 +11,6 @@ app.use(cors());
 app.use(cookieParser());
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Internal Server Error" });
-});
-
-/* CONFIGURE ROUTES */
-config.routes.configureRoutes(app);
-
-/* START SERVER */
-config.server.startServer(app);
-
 app.use((req, res, next) => {
   next({
     error: {
@@ -38,3 +27,9 @@ app.use((error, req, res, next) => {
     },
   });
 });
+
+/* CONFIGURE ROUTES */
+config.routes.configureRoutes(app);
+
+/* START SERVER */
+config.server.startServer(app);
