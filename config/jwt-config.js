@@ -14,4 +14,17 @@ const refreshTokenOptions = {
   algorithm: "RS256",
 };
 
-module.exports = { accessTokenOptions, refreshTokenOptions, privateKey, publicKey };
+const jwtConfig = Object.freeze({
+  SECRET:"SECRET_E_FURNITURE",
+  SECRET_REFRESH: "SECRET_REFRESH_E_FURNITURE",
+  tokenLife: 10,
+  refreshTokenLife: 120
+})
+
+module.exports = {
+  accessTokenOptions,
+  refreshTokenOptions,
+  privateKey,
+  publicKey,
+  jwtConfig
+};
