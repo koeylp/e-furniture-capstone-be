@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const logger = require("../utils/logger");
 const {
   accessTokenOptions,
   refreshTokenOptions,
@@ -25,4 +26,19 @@ const generateRefreshToken = (user) => {
   return refreshToken;
 };
 
-module.exports = { generateAccessToken, generateRefreshToken };
+const markRefreshTokensAsUsed = async (userId) => {
+  try {
+    await RefreshToken.updateMany(
+      { user: userId },
+      { $push: { refreshTokenUsed: new Date() } }
+    );
+  } catch (error) {
+    logger(error.message);
+  }
+};
+
+module.exports = {
+  generateAccessToken,
+  generateRefreshToken,
+  markRefreshTokensAsUsed,
+};

@@ -6,12 +6,12 @@ const { OK } = require("../utils/successHandler");
 class AuthController {
   static async login(req, res) {
     const { username, password } = req.body;
-    console.log(username, password);
     return new OK({
       message: "Success",
       metaData: await AuthService.login(username, password),
     }).send(res);
   }
+  
   static async logout(req, res) {
     const { error, message } = await AuthService.logout();
 

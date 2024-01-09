@@ -1,4 +1,7 @@
 "use strict";
+
+const logger = require("./logger");
+
 const StatusCode = {
   FORBIDDEN: 403,
   NOTFOUND: 404,
@@ -8,7 +11,7 @@ const StatusCode = {
   INTERNAL: 500,
 };
 const ReasonStatusCode = {
-  BADREQUEST: "Bad Request!",
+  BADREQUEST: "Bad Request",
   NOTFOUND: "Not Found",
   CONFLICT: "Your Account Had Been Login From Another Location!",
   FORBIDDEN: "Access denied",
@@ -19,6 +22,9 @@ class ErrorResponse extends Error {
   constructor(message, status) {
     super(message);
     this.status = status;
+
+    // winston logger
+    logger.error(`${this.status} -- ${this.message}`);
   }
 }
 class ConflictRequestError extends ErrorResponse {
@@ -30,10 +36,10 @@ class ConflictRequestError extends ErrorResponse {
   }
 }
 class BadRequestError extends ErrorResponse {
-  constructor({
+  constructor(
     message = ReasonStatusCode.BADREQUEST,
-    status = StatusCode.BADREQUEST,
-  }) {
+    status = StatusCode.BADREQUEST
+  ) {
     super(message, status);
   }
 }
