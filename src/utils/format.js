@@ -11,9 +11,9 @@ const dollarFormatCurrency = (amount) => {
 };
 
 const vndFormatCurrency = (amount) => {
-  const formatter = new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
+  const formatter = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
   });
 
   if (amount == null) {
@@ -23,17 +23,35 @@ const vndFormatCurrency = (amount) => {
   return formatter.format(amount);
 };
 
-
-const formatDate = (date, formatString = 'YYYY-MM-DD HH:mm:ss') => {
+const formatDate = (date, formatString = "YYYY-MM-DD HH:mm:ss") => {
   if (!moment(date).isValid()) {
-    return 'Invalid date';
+    return "Invalid date";
   }
   return moment(date).format(formatString);
+};
+
+const formatToken = (decodedToken) => {
+  const iatDate = moment
+    .unix(decodedToken.iat)
+    .format("MMMM Do YYYY, h:mm:ss a");
+
+  const expDate = moment
+    .unix(decodedToken.exp)
+    .format("MMMM Do YYYY, h:mm:ss a");
+
+  const formattedToken = {
+      userId: decodedToken.userId,
+      username: decodedToken.username,
+      iat: iatDate,
+      exp: expDate,
+  };
+  return formattedToken;
 };
 
 module.exports = {
   capitalizeFirstLetter,
   dollarFormatCurrency,
   vndFormatCurrency,
-  formatDate
+  formatDate,
+  formatToken,
 };
