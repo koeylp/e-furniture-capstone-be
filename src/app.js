@@ -2,7 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const config = require("../config");
+const _CONF = require("../config");
 
 const app = express();
 
@@ -12,10 +12,10 @@ app.use(cookieParser());
 
 
 /* CONFIGURE ROUTES */
-config.routes.configureRoutes(app);
+_CONF.routes.configureRoutes(app);
 
 /* START SERVER */
-config.server.startServer(app);
+_CONF.server.startServer(app);
 
 // Error handling middleware
 app.use((req, res, next) => {

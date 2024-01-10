@@ -1,10 +1,7 @@
+// src/jwt/jwtUtils.js
 const jwt = require("jsonwebtoken");
 const logger = require("../utils/logger");
-const {
-  accessTokenOptions,
-  refreshTokenOptions,
-  privateKey,
-} = require("../../config/jwt-config");
+const { privateKey, accessTokenOptions, refreshTokenOptions } = require("./jwtConfig");
 
 const generateAccessToken = (user) => {
   const payload = {

@@ -1,5 +1,6 @@
 // src/services/authService.js
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const RefreshToken = require("../models/refreshTokenModel");
 const {
@@ -11,48 +12,41 @@ const {
   NotFoundError,
   BadRequestError,
 } = require("../utils/errorHanlder");
-const { validateUsername, validatePassword } = require("../utils/validation");
-const { error } = require("winston");
+const { formatToken } = require("../utils/format");
+const { publicKey, accessTokenOptions, refreshTokenOptions } = require("../jwt/jwtConfig");
+
 class AuthService {
   static async login(username, password) {
-    try {
-      // validation 
-      // const usernameValidation = validateUsername(username);
-      // if (usernameValidation) {
-      //   throw new BadRequestError(usernameValidation.error);
-      // }
+    // find user by username
+    const user =
+      (await User.findOne({ username })) ||
+      (() => {
+        throw new NotFoundError(`User not found with username: ${username}`);
+      })();
 
-      // const passwordValidation = validatePassword(password);
-      // if (passwordValidation) {
-      //   throw new BadRequestError(passwordValidation.error);
-      // }
+    // check if user's password is correct
+    const isMatch =
+      (await bcrypt.compare(password, user.password)) ||
+      (() => {
+        throw new BadRequestError("Incorrect password");
+      })();
 
-      // Check if username or password is missing
-      if (!username || !password) {
-        throw new BadRequestError("Username or password is missing");
-      }
+    const newAccessToken = generateAccessToken(user);
 
-      // find user by username
-      const user =
-        (await User.findOne({ username })) ||
-        (() => {
-          throw new NotFoundError(`User not found with username: ${username}`);
-        })();
+    const decodedAccessToken = jwt.verify(newAccessToken, publicKey, accessTokenOptions);
+    const accessToken = {
+      token: newAccessToken,
+      exp: formatToken(decodedAccessToken).exp,
+    };
 
-      // check if user's password is correct
-      const isMatch =
-        (await bcrypt.compare(password, user.password)) ||
-        (() => {
-          throw new BadRequestError("Incorrect password");
-        })();
+    const newRefreshToken = generateRefreshToken(user);
+    const decodedRefreshToken = jwt.verify(newRefreshToken, publicKey, refreshTokenOptions);
+    const refreshToken = {
+      token: newRefreshToken,
+      exp: formatToken(decodedRefreshToken).exp,
+    };
 
-      const newAccessToken = generateAccessToken(user);
-      const newRefreshToken = generateRefreshToken(user);
-
-      return { newAccessToken, newRefreshToken, user };
-    } catch (error) {
-      return { error: error.message };
-    }
+    return { accessToken, refreshToken, user };
   }
 
   static async logout() {
@@ -64,12 +58,6 @@ class AuthService {
   }
 
   static async register(username, password) {
-
-    // Check if username or password is missing
-    if (!username || !password) {
-      throw new BadRequestError("Username or password is missing");
-    }
-
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 

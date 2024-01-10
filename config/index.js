@@ -8,5 +8,5 @@ const routeConfig = require("./routeConfig");
 module.exports = {
   database: databaseConfig,
   server: serverConfig,
-  routes: routeConfig
+  routes: routeConfig,
 };
