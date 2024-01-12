@@ -2,8 +2,8 @@
 const apiVersion = 'v1'; // Change this to your desired version
 
 const routes = [
-  { path: '/auth', route: require('../src/routes/authRouter') },
-  { path: '/', route: require('../src/routes/protectedRouter') },
+  { path: '/auth', route: require('../routes/authRouter') },
+  { path: '/', route: require('../routes/protectedRouter') },
 ];
 
 const configureRoutes = (app) => {
