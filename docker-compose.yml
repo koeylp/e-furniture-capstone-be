@@ -7,17 +7,31 @@ services:
     ports:
       - 4646:4646
     environment:
-      DB_URL: $MONGO_URL
-  db:
+      - DB_URL: $MONGO_URL
+      - REDIS_HOST: $REDIS_HOST
+      - REDIS_PORT: $REDIS_PORT
+  mongodb:
     image: mongo
     container_name: capstone-mongo
     ports:
       - 27018:27018
     volumes:
       - capstone:/data/db
-      
+  redis:
+    image: redis:3.2-alpine
+    networks:
+      - backend
+    volumes:
+      - redis:/data/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
 volumes:
-  capstone:
+  mongodb:
+  redis:
 
 
 

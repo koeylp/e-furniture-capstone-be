@@ -1,8 +1,8 @@
-// src/app.js
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const _CONF = require("../config");
+const _CONF = require("./config");
+const { startServer } = require("../server");
 
 const app = express();
 
@@ -10,12 +10,11 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
-
 /* CONFIGURE ROUTES */
 _CONF.routes.configureRoutes(app);
 
 /* START SERVER */
-_CONF.server.startServer(app);
+startServer(app);
 
 // Error handling middleware
 app.use((req, res, next) => {
@@ -34,3 +33,5 @@ app.use((error, req, res, next) => {
     },
   });
 });
+
+module.exports = app;

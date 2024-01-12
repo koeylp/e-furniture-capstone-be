@@ -32,7 +32,6 @@ class AuthService {
       })();
 
     const newAccessToken = generateAccessToken(user);
-
     const decodedAccessToken = jwt.verify(newAccessToken, publicKey, accessTokenOptions);
     const accessToken = {
       token: newAccessToken,

@@ -1,12 +1,12 @@
 // config/index.js
 require("dotenv").config();
 
-const databaseConfig = require("./database");
-const serverConfig = require("./server");
 const routeConfig = require("./routeConfig");
+const mongoConfig = require("./mongoConfig");
+const redisConfig = require("./redisConfig");
 
 module.exports = {
-  database: databaseConfig,
-  server: serverConfig,
   routes: routeConfig,
+  mongo: mongoConfig,
+  redis: redisConfig,
 };

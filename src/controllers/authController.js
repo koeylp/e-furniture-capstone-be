@@ -9,17 +9,15 @@ class AuthController {
     const { username, password } = req.body;
 
     // validation
-    // const usernameError = validateUsername(username).error;
-    // if (usernameError) {
-    //   throw new BadRequestError(usernameError);
-    // }
+    const usernameError = validateUsername(username).error;
+    if (usernameError) {
+      throw new BadRequestError(usernameError);
+    }
 
-
-    // const passwordError = validatePassword(password).error;
-    // console.log(passwordError);
-    // if (passwordError) {
-    //   throw new BadRequestError(passwordError);
-    // }
+    const passwordError = validatePassword(password).error;
+    if (passwordError) {
+      throw new BadRequestError(passwordError);
+    }
 
     // Check if username or password is missing
     if (!username || !password) {
@@ -45,7 +43,6 @@ class AuthController {
 
   static async register(req, res) {
     const { username, password } = req.body;
-
 
     // Check if username or password is missing
     if (!username || !password) {
