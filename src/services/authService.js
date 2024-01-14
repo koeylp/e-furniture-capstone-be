@@ -13,13 +13,12 @@ const {
   BadRequestError,
 } = require("../utils/errorHanlder");
 const { formatToken } = require("../utils/format");
-const { publicKey, accessTokenOptions, refreshTokenOptions } = require("../jwt/jwtConfig");
-// const client = require("../databases/initRedis");
-
-// client.set("foo", "khoi");
-// client.get("foo", (err, result) => {
-//   console.log(result);
-// })
+const {
+  publicKey,
+  accessTokenOptions,
+  refreshTokenOptions,
+} = require("../jwt/jwtConfig");
+const client = require("../databases/initRedis");
 
 class AuthService {
   static async login(username, password) {
@@ -38,18 +37,30 @@ class AuthService {
       })();
 
     const newAccessToken = generateAccessToken(user);
-    const decodedAccessToken = jwt.verify(newAccessToken, publicKey, accessTokenOptions);
+    const decodedAccessToken = jwt.verify(
+      newAccessToken,
+      publicKey,
+      accessTokenOptions
+    );
     const accessToken = {
       token: newAccessToken,
       exp: formatToken(decodedAccessToken).exp,
     };
 
     const newRefreshToken = generateRefreshToken(user);
-    const decodedRefreshToken = jwt.verify(newRefreshToken, publicKey, refreshTokenOptions);
+    const decodedRefreshToken = jwt.verify(
+      newRefreshToken,
+      publicKey,
+      refreshTokenOptions
+    );
     const refreshToken = {
       token: newRefreshToken,
       exp: formatToken(decodedRefreshToken).exp,
     };
+
+    client.set("token", accessToken.token, 'EX', 60*60*24, (err) => {
+      console.log(err);
+    });
 
     return { accessToken, refreshToken };
   }
