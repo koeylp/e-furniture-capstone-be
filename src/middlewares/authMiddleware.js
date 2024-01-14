@@ -9,14 +9,10 @@ const authenticateUser = (req, res, next) => {
   if (!token) {
     throw new UnAuthorizedError("Unauthorized - Missing token");
   }
-
-  try {
     const decoded = jwt.verify(token, publicKey, accessTokenOptions);
     req.user = formatToken(decoded);
     next();
-  } catch (err) {
-    throw new UnAuthorizedError("Invalid token");
-  }
+  
 };
 
 module.exports = authenticateUser;
