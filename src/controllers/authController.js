@@ -4,6 +4,7 @@ const { OK } = require("../utils/successHandler");
 const { validateUsername, validatePassword } = require("../utils/validation");
 const { BadRequestError } = require("../utils/errorHanlder");
 
+
 class AuthController {
   static async login(req, res) {
     const { username, password } = req.body;

@@ -14,6 +14,12 @@ const {
 } = require("../utils/errorHanlder");
 const { formatToken } = require("../utils/format");
 const { publicKey, accessTokenOptions, refreshTokenOptions } = require("../jwt/jwtConfig");
+// const client = require("../databases/initRedis");
+
+// client.set("foo", "khoi");
+// client.get("foo", (err, result) => {
+//   console.log(result);
+// })
 
 class AuthService {
   static async login(username, password) {
