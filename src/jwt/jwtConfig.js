@@ -1,6 +1,10 @@
 // config/jwt-config.js
 const fs = require("fs");
+const { generatePrivateKey } = require("../utils/generatePrivateKey");
 
+if (!fs.existsSync("private.key")) {
+  generatePrivateKey();
+}
 const privateKey = fs.readFileSync("private.key", "utf8");
 const publicKey = fs.readFileSync("public.key", "utf8");
 

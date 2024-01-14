@@ -51,7 +51,7 @@ class AuthService {
       exp: formatToken(decodedRefreshToken).exp,
     };
 
-    return { accessToken, refreshToken, user };
+    return { accessToken, refreshToken };
   }
 
   static async logout() {
