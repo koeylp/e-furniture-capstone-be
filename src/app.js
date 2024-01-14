@@ -3,7 +3,11 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const _CONF = require("./config");
 const { startServer } = require("../server");
+// const client = require("./databases/initRedis");
 
+// client.get("foo", (err, result) => {
+//   console.log(result);
+// });
 
 const app = express();
 
@@ -34,8 +38,5 @@ app.use((error, req, res, next) => {
     },
   });
 });
-
-
-
 
 module.exports = app;
