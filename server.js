@@ -1,4 +1,5 @@
 // config/server.js
+
 const { connectToDatabase } = require("./src/databases/initMongodb");
 
 const startServer = async (app) => {

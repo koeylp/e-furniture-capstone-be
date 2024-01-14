@@ -1,19 +1,27 @@
 const redis = require("redis");
-const _CONF = require("../config");
+// const _CONF = require("../config");
+const redisConfig = require("../config/redisConfig");
 
-const redisClient = redis.createClient(_CONF.redis.redisConfig.url);
+const REDIS_URL = redisConfig.uri;
 
-redisClient.on("error", (error) => {
-  console.error("Error connecting to Redis:", error);
+const client = redis.createClient({
+  url: REDIS_URL,
+  legacyMode: true,
+});
+
+client.on("error", (err) => {
+  console.log("Redis Client Error", err);
   process.exit(1);
 });
 
-redisClient.ping((err, result) => {
+client.connect();
+
+client.ping((err) => {
   if (!err) {
-    console.log("Connected to Redis with URI: " + _CONF.redis.redisConfig.url);
+    console.log("Connected to Redis with URI: " + REDIS_URL);
   } else {
     console.error("Error pinging Redis:", err);
   }
 });
 
-module.exports = redisClient;
+module.exports = client;
