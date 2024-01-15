@@ -4,7 +4,6 @@ const fs = require("fs");
 
 const generatePrivateKey = () => {
   openssl.generateRSAPrivateKey({}, function (err, key, cmd) {
-    console.log(key);
     fs.writeFile("private.key", key, (err) => {
         if (err) {
             console.log(err);
