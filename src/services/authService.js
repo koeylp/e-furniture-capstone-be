@@ -67,6 +67,7 @@ class AuthService {
 
   static async logout() {
     try {
+      client.del("token");
       return { error: null, message: "Logged out successfully." };
     } catch (error) {
       return { error: error.message, message: null };
