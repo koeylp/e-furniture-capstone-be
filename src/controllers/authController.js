@@ -4,19 +4,20 @@ const { OK } = require("../utils/successHandler");
 const { validateUsername, validatePassword } = require("../utils/validation");
 const { BadRequestError } = require("../utils/errorHanlder");
 
+
 class AuthController {
   static async login(req, res) {
     const { username, password } = req.body;
     // validation
-    const usernameError = validateUsername(username).error;
-    if (usernameError) {
-      throw new BadRequestError(usernameError);
-    }
+    // const usernameError = validateUsername(username).error;
+    // if (usernameError) {
+    //   throw new BadRequestError(usernameError);
+    // }
 
-    const passwordError = validatePassword(password).error;
-    if (passwordError) {
-      throw new BadRequestError(passwordError);
-    }
+    // const passwordError = validatePassword(password).error;
+    // if (passwordError) {
+    //   throw new BadRequestError(passwordError);
+    // }
 
     // Check if username or password is missing
     if (!username || !password) {

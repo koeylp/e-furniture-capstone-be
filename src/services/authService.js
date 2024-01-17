@@ -13,7 +13,12 @@ const {
   BadRequestError,
 } = require("../utils/errorHanlder");
 const { formatToken } = require("../utils/format");
-const { publicKey, accessTokenOptions, refreshTokenOptions } = require("../jwt/jwtConfig");
+const {
+  publicKey,
+  accessTokenOptions,
+  refreshTokenOptions,
+} = require("../jwt/jwtConfig");
+const client = require("../databases/initRedis");
 
 class AuthService {
   static async login(username, password) {
@@ -32,24 +37,51 @@ class AuthService {
       })();
 
     const newAccessToken = generateAccessToken(user);
-    const decodedAccessToken = jwt.verify(newAccessToken, publicKey, accessTokenOptions);
+    const decodedAccessToken = jwt.verify(
+      newAccessToken,
+      publicKey,
+      accessTokenOptions
+    );
     const accessToken = {
       token: newAccessToken,
       exp: formatToken(decodedAccessToken).exp,
     };
 
     const newRefreshToken = generateRefreshToken(user);
-    const decodedRefreshToken = jwt.verify(newRefreshToken, publicKey, refreshTokenOptions);
+    const decodedRefreshToken = jwt.verify(
+      newRefreshToken,
+      publicKey,
+      refreshTokenOptions
+    );
     const refreshToken = {
       token: newRefreshToken,
       exp: formatToken(decodedRefreshToken).exp,
     };
 
-    return { accessToken, refreshToken, user };
+    const existRefreshToken = await RefreshToken.findOne({ user: user._id });
+
+    if (!existRefreshToken) {
+      await RefreshToken.create({
+        user: user._id,
+        refreshToken: newRefreshToken,
+      });
+    }
+
+    client.set("token", accessToken.token, "EX", 60 * 60, (err) => {
+      if (err) console.log(err);
+    });
+
+    client.set("refreshToken", newRefreshToken, "EX", 60 * 60 * 24 * 7, (err) => {
+      if (err) console.log(err);
+    });
+
+    return { accessToken, refreshToken };
   }
 
   static async logout() {
     try {
+      client.del("token");
+      client.del("refreshToken");
       return { error: null, message: "Logged out successfully." };
     } catch (error) {
       return { error: error.message, message: null };

@@ -8,5 +8,5 @@ const redisConfig = require("./redisConfig");
 module.exports = {
   routes: routeConfig,
   mongo: mongoConfig,
-  redis: redisConfig,
+  _redis: redisConfig,
 };
