@@ -1,9 +1,10 @@
 // config/index.js
-const apiVersion = 'v1'; // Change this to your desired version
+const apiVersion = "v1"; // Change this to your desired version
 
 const routes = [
-  { path: '/auth', route: require('../routes/authRouter') },
-  { path: '/', route: require('../routes/protectedRouter') },
+  { path: "/auth", route: require("../routes/authRouter") },
+  { path: "/product", route: require("../routes/productRouter") },
+  { path: "/", route: require("../routes/protectedRouter") },
 ];
 
 const configureRoutes = (app) => {

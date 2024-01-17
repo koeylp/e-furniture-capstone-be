@@ -1,13 +1,14 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Revenue";
-const DOCUMENT_NAME = "Revenues";
+const COLLECTION_NAME = "Notification";
+const DOCUMENT_NAME = "Notifications";
 
 const schema = new Schema(
   {
-    profit: { type: Number, default: 0 },
-    date: { type: Date, default: () => new Date().setUTCHours(0, 0, 0, 0) },
+    account_id: { type: String, required: true, ref: "Accounts" },
+    title: { type: String, required: true },
+    message: { type: String, required: true },
     status: { type: Number, default: 0 },
   },
   {

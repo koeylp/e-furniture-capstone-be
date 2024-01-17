@@ -1,14 +1,14 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Room";
-const DOCUMENT_NAME = "Rooms";
+const COLLECTION_NAME = "ApiKey";
+const DOCUMENT_NAME = "ApiKeys";
 
 const schema = new Schema(
   {
-    name: { type: String, required: true },
-    description: { type: String, required: true },
-    thumb: { type: String, required: true },
+    key: { type: String, required: true },
+    version: { type: String, required: true },
+    đescription: { type: String, default: "" },
     status: { type: Boolean, default: false },
   },
   {

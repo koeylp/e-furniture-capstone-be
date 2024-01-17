@@ -7,7 +7,6 @@ const { BadRequestError } = require("../utils/errorHanlder");
 class AuthController {
   static async login(req, res) {
     const { username, password } = req.body;
-
     // validation
     const usernameError = validateUsername(username).error;
     if (usernameError) {
