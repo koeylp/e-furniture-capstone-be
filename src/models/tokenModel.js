@@ -1,19 +1,19 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Inventory";
-const DOCUMENT_NAME = "Inventories";
+const COLLECTION_NAME = "Token";
+const DOCUMENT_NAME = "Tokens";
 
 const schema = new Schema(
   {
-    product_id: {
+    account_id: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "Products",
+      ref: "Accounts",
     },
-    location: { type: String, default: "unKnow" },
-    stock: { type: Number, default: 1 },
-    isSystem: { type: Number, required: true },
+    public_key: { type: String, required: true },
+    refresh_token: { type: String, required: true },
+    token_used: { type: Array, default: [] },
   },
   {
     collection: COLLECTION_NAME,
