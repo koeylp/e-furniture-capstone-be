@@ -43,7 +43,7 @@ class BadRequestError extends ErrorResponse {
     super(message, status);
   }
 }
-class ForBiddienError extends ErrorResponse {
+class ForbiddenError extends ErrorResponse {
   constructor(
     message = ReasonStatusCode.FORBIDDEN,
     statusCode = StatusCode.FORBIDDEN
@@ -79,7 +79,7 @@ module.exports = {
   ConflictRequestError,
   BadRequestError,
   NotFoundError,
-  ForBiddienError,
+  ForbiddenError,
   UnAuthorizedError,
   InternalServerError,
 };

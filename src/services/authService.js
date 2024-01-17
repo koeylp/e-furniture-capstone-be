@@ -58,8 +58,21 @@ class AuthService {
       exp: formatToken(decodedRefreshToken).exp,
     };
 
-    client.set("token", accessToken.token, 'EX', 60*60*24, (err) => {
-      console.log(err);
+    const existRefreshToken = await RefreshToken.findOne({ user: user._id });
+
+    if (!existRefreshToken) {
+      await RefreshToken.create({
+        user: user._id,
+        refreshToken: newRefreshToken,
+      });
+    }
+
+    client.set("token", accessToken.token, "EX", 60 * 60, (err) => {
+      if (err) console.log(err);
+    });
+
+    client.set("refreshToken", newRefreshToken, "EX", 60 * 60 * 24 * 7, (err) => {
+      if (err) console.log(err);
     });
 
     return { accessToken, refreshToken };
@@ -68,6 +81,7 @@ class AuthService {
   static async logout() {
     try {
       client.del("token");
+      client.del("refreshToken");
       return { error: null, message: "Logged out successfully." };
     } catch (error) {
       return { error: error.message, message: null };
