@@ -1,14 +1,16 @@
 const Joi = require("joi");
 const { BadRequestError } = require("../../utils/errorHanlder");
 const validateSubType = (data, subTypeEnum) => {
-  const schema = Joi.object().keys(
-    Object.keys(subTypeEnum).reduce((acc, subType) => {
-      const typeValidator =
-        subTypeEnum[subType] === "string" ? Joi.string() : Joi.number();
-      acc[subType] = typeValidator.required();
-      return acc;
-    }, {})
-  );
+  const schema = Joi.object()
+    .keys(
+      subTypeEnum.reduce((acc, subType) => {
+        const { _id, type } = subType;
+        const typeValidator = type === "String" ? Joi.string() : Joi.number();
+        acc[_id.name] = typeValidator.required();
+        return acc;
+      }, {})
+    )
+    .unknown(true);
   const result = schema.validate(data);
   if (result.error) throw new BadRequestError(result.error.details[0].message);
   return null;

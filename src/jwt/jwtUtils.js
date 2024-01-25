@@ -1,26 +1,17 @@
 // src/jwt/jwtUtils.js
-const jwt = require("jsonwebtoken");
+const JWT = require("jsonwebtoken");
 const logger = require("../utils/logger");
-const { privateKey, accessTokenOptions, refreshTokenOptions } = require("./jwtConfig");
 
-const generateAccessToken = (user) => {
-  const payload = {
-    userId: user._id,
-    username: user.username,
-  };
-
-  const accessToken = jwt.sign(payload, privateKey, accessTokenOptions);
-  return accessToken;
-};
-
-const generateRefreshToken = (user) => {
-  const payload = {
-    userId: user._id,
-    username: user.username,
-  };
-
-  const refreshToken = jwt.sign(payload, privateKey, refreshTokenOptions);
-  return refreshToken;
+const generateToken = async ({ payload, privateKey }) => {
+  const access_token = await JWT.sign(payload, privateKey, {
+    algorithm: "RS256",
+    expiresIn: "5m",
+  });
+  const refresh_token = await JWT.sign(payload, privateKey, {
+    algorithm: "RS256",
+    expiresIn: "7d",
+  });
+  return { access_token, refresh_token };
 };
 
 const markRefreshTokensAsUsed = async (userId) => {
@@ -35,7 +26,6 @@ const markRefreshTokensAsUsed = async (userId) => {
 };
 
 module.exports = {
-  generateAccessToken,
-  generateRefreshToken,
+  generateToken,
   markRefreshTokensAsUsed,
 };

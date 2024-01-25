@@ -1,8 +1,8 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Discount";
-const DOCUMENT_NAME = "Discounts";
+const COLLECTION_NAME = "Discounts";
+const DOCUMENT_NAME = "Discount";
 
 const schema = new Schema(
   {
@@ -22,7 +22,6 @@ const schema = new Schema(
     users_used: { type: Array, default: [] },
     max_uses_per_user: { type: Number, default: 1 },
     min_order_value: { type: Number, default: 0 },
-    shop: { type: Schema.Types.ObjectId, ref: "Shops" },
     is_system: { type: Number, default: 0 },
     is_active: { type: Number, default: 0 },
     applies_to: { type: String, required: true, enum: ["all", "specific"] },

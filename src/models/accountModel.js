@@ -1,8 +1,8 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Account";
-const DOCUMENT_NAME = "Accounts";
+const COLLECTION_NAME = "Accounts";
+const DOCUMENT_NAME = "Account";
 
 const schema = new Schema(
   {
@@ -18,4 +18,5 @@ const schema = new Schema(
     timestamps: true,
   }
 );
+schema.index({ full_name: "text" });
 module.exports = model(DOCUMENT_NAME, schema);

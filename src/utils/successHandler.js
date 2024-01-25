@@ -23,8 +23,15 @@ class SuccessRespone {
   }
 }
 class OK extends SuccessRespone {
-  constructor({ message, metaData = [] }) {
+  constructor({
+    message,
+    metaData = [],
+    accessToken = null,
+    refreshToken = null,
+  }) {
     super({ message, metaData });
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
   }
 }
 class CREATED extends SuccessRespone {

@@ -1,15 +1,15 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Inventory";
-const DOCUMENT_NAME = "Inventories";
+const COLLECTION_NAME = "Inventories";
+const DOCUMENT_NAME = "Inventory";
 
 const schema = new Schema(
   {
     product_id: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "Products",
+      ref: "Product",
     },
     location: { type: String, default: "unKnow" },
     stock: { type: Number, default: 1 },

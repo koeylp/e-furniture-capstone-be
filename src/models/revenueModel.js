@@ -1,8 +1,8 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Revenue";
-const DOCUMENT_NAME = "Revenues";
+const COLLECTION_NAME = "Revenues";
+const DOCUMENT_NAME = "Revenue";
 
 const schema = new Schema(
   {

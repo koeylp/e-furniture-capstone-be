@@ -42,10 +42,52 @@ const validatePhoneNumber = (phoneNumber) => {
 
   return schema.validate(phoneNumber);
 };
-
+const validateCreateRoom = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(20).required(),
+    description: Joi.string().min(3).required(),
+    thumb: Joi.string().min(3).required(),
+    status: Joi.number(),
+  });
+  return schema.validate(data);
+};
+const validateEditRoom = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(20),
+    description: Joi.string().min(3),
+    thumb: Joi.string().min(3),
+  });
+  return schema.validate(data);
+};
+const validateCreateAddress = (data) => {
+  const schema = Joi.object({
+    phone: Joi.string().required(),
+    province: Joi.string().required(),
+    district: Joi.string().required(),
+    ward: Joi.string().required(),
+    address: Joi.string().required(),
+    isDefault: Joi.boolean(),
+  });
+  return schema.validate(data);
+};
+const validateCreateAccount = (data) => {
+  const schema = Joi.object({
+    username: Joi.string().required(),
+    password: Joi.string().required(),
+    confirm_password: Joi.string().required(),
+    full_name: Joi.string().required(),
+    avatar: Joi.string(),
+    status: Joi.number(),
+  });
+  return schema.validate(data);
+};
 module.exports = {
   validateEmail,
   validateUsername,
   validatePassword,
   validatePhoneNumber,
+  validateCreateRoom,
+  validateEditRoom,
+  validateCreateAddress,
+  validateCreateAccount,
 };

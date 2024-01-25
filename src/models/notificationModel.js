@@ -1,12 +1,12 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Notification";
-const DOCUMENT_NAME = "Notifications";
+const COLLECTION_NAME = "Notifications";
+const DOCUMENT_NAME = "Notification";
 
 const schema = new Schema(
   {
-    account_id: { type: String, required: true, ref: "Accounts" },
+    account_id: { type: String, required: true, ref: "Account" },
     title: { type: String, required: true },
     message: { type: String, required: true },
     status: { type: Number, default: 0 },

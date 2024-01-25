@@ -1,17 +1,11 @@
-const { default: mongoose } = require("mongoose");
-const {
-  _Product,
-  _Sofa,
-  _Armchair,
-  _Chair,
-} = require("../../models/productModel");
+const SubTypeRepository = require("../../models/Repository/subTypeRepository");
+const { _Product } = require("../../models/productModel");
 const {
   InternalServerError,
   BadRequestError,
 } = require("../../utils/errorHanlder");
-const { returnSofaSubTypeMap } = require("./enum");
 const { validateSubType } = require("./validateSubType");
-const Repository = require("../../models/Repository/repository");
+const TypeRepository = require("../../models/Repository/typeRepository");
 class Product {
   constructor({
     name,
@@ -21,11 +15,11 @@ class Product {
     variation,
     width,
     height,
-    // shop,
-    // room,
+    room,
     attributes,
     model3D,
-    status = 0,
+    isDraf = true,
+    isPublished = false,
   }) {
     (this.name = name),
       (this.thumb = thumb),
@@ -34,11 +28,11 @@ class Product {
       (this.variation = variation),
       (this.width = width),
       (this.height = height),
-      //   (this.shop = shop),
-      //   (this.room = room),
+      (this.room = room),
       (this.attributes = attributes),
       (this.model3D = model3D),
-      (this.status = status);
+      (this.isDraf = isDraf),
+      (this.isPublished = isPublished);
   }
   async createProduct() {
     const newProduct = await _Product.create({
@@ -48,34 +42,31 @@ class Product {
     return newProduct;
   }
 }
-class Sofa extends Product {
-  async createSubType() {
-    const subType = await _Sofa.create({
-      name: this.name,
-      description: this.description,
-      thumb: this.thumb,
-      products: [],
-    });
-  }
-  async createProduct() {
-    const sofaSubType = returnSofaSubTypeMap(this.attributes.type);
-    if (!sofaSubType) throw new BadRequestError();
-    validateSubType(this.attributes.attributeType, sofaSubType.subTypeEnum);
+class TypeProduct extends Product {
+  async createProduct(typeModel) {
+    const type = await TypeRepository.findTypeByName(this.type);
+    if (!type) throw new BadRequestError("Cannot Find Any Type For Adding!");
+    const subType = await SubTypeRepository.findSubTypeByName(
+      this.attributes.type,
+      typeModel
+    );
+    if (!subType)
+      throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
+    validateSubType(this.attributes.attributeType, subType.attributes);
+    this.type = type._id;
     const newProduct = await super.createProduct();
     if (!newProduct) throw new BadRequestError("Create Sofa Error!");
-    let query = {
-      type: sofaSubType.key,
-    };
-    let update = {
-      $push: {
-        products: newProduct._id,
-      },
-    };
-    return await Repository.update({ query, update, MODEL: _Sofa });
+    const result = await SubTypeRepository.addProductSubType(
+      newProduct._id,
+      typeModel,
+      this.attributes.type
+    );
+    if (!result) throw new InternalServerError();
+    return newProduct;
   }
 }
 
 module.exports = {
   Product,
-  Sofa,
+  TypeProduct,
 };

@@ -1,19 +1,19 @@
-"use strict";
 const { model, Schema } = require("mongoose");
+const { generateSubTypeSchema } = require("./subTypeModel");
 
-const COLLECTION_NAME = "Rooms";
-const DOCUMENT_NAME = "Room";
+const COLLECTION_NAME = "Type";
+const DOCUMENT_NAME = "Types";
 
 const schema = new Schema(
   {
     name: { type: String, required: true },
-    description: { type: String, required: true },
-    thumb: { type: String, required: true },
-    status: { type: Number, default: false },
+    subTypes: { type: Array, default: [] },
+    isPublished: { type: Boolean, default: true },
   },
   {
     collection: COLLECTION_NAME,
     timestamps: true,
   }
 );
+
 module.exports = model(DOCUMENT_NAME, schema);

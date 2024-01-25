@@ -2,11 +2,13 @@ const {
   getSelectData,
   getUnSelectData,
   removeUndefineObject,
+  checkValidId,
 } = require("../../utils/index");
-const { NotFoundError } = require("../../utils/error.handle");
+const { NotFoundError } = require("../../utils/errorHanlder");
+const { default: mongoose } = require("mongoose");
 
 class Repository {
-  static async checkOne({ query, MODEL }) {
+  static async exist({ query, MODEL }) {
     return await MODEL.findOne(query).lean();
   }
   static async findOne({ query, filter = [], MODEL }) {
@@ -23,7 +25,7 @@ class Repository {
     if (!result) throw new NotFoundError("Cannot Find Any Result!");
     return result;
   }
-  static async findAll({
+  static async getAll({
     limit = 50,
     sort = "ctime",
     page = 1,
@@ -40,8 +42,8 @@ class Repository {
       .select(getSelectData(filter))
       .lean();
   }
-  static async update({ query, update, isTrue = true, MODEL }) {
-    const result = await MODEL.findOneAndUpdate(query, update, { new: isTrue });
+  static async update({ query, update, options = { new: isTrue }, MODEL }) {
+    const result = await MODEL.findOneAndUpdate(query, update, options);
     if (!result) throw new NotFoundError("Cannot Update Any Result!");
     return result;
   }
@@ -68,32 +70,11 @@ class Repository {
       .lean();
     return result;
   }
-  static async enableDisAble({ query, MODEL }) {
-    const entityCheck = await MODEL.findOne(query);
-    if (!entityCheck) throw new NotFoundError();
-    const result = await MODEL.findOneAndUpdate(
-      query,
-      {
-        $set: {
-          status: entityCheck.status === 1 ? 0 : 1,
-        },
-      },
-      { new: true }
-    );
-    if (!result) throw new NotFoundError("Cannot Update Any Result!");
-    return result;
-  }
-  static async updateOrInsert({ query, updateOrInsert, options, MODEL }) {
-    const result = await MODEL.findOneAndUpdate(
-      query,
-      updateOrInsert,
-      options
-    ).lean();
-    if (!result) throw new NotFoundError();
-    return result;
-  }
-  static async removeOne({ query }) {
+  static async removeOne({ query, MODEL }) {
     return await MODEL.deleteOne(query);
+  }
+  static async add({ query, MODEL }) {
+    return await MODEL.create(query);
   }
 }
 

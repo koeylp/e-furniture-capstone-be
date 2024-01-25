@@ -1,105 +1,57 @@
 // src/services/authService.js
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/userModel");
-const RefreshToken = require("../models/refreshTokenModel");
-const {
-  generateAccessToken,
-  generateRefreshToken,
-} = require("../jwt/jwtUtils");
 const {
   InternalServerError,
-  NotFoundError,
   BadRequestError,
 } = require("../utils/errorHanlder");
-const { formatToken } = require("../utils/format");
-const {
-  publicKey,
-  accessTokenOptions,
-  refreshTokenOptions,
-} = require("../jwt/jwtConfig");
+const TokenService = require("../services/tokenService");
+const AccountRepository = require("../models/Repository/accountRepository");
 const client = require("../databases/initRedis");
+const { promisify } = require("util");
+const { hashCode, encryptCode } = require("../utils/hashCode");
+const { createToken } = require("../jwt/jwtHandler");
 
 class AuthService {
   static async login(username, password) {
-    // find user by username
-    const user =
-      (await User.findOne({ username })) ||
-      (() => {
-        throw new NotFoundError(`User not found with username: ${username}`);
-      })();
-
-    // check if user's password is correct
-    const isMatch =
-      (await bcrypt.compare(password, user.password)) ||
-      (() => {
-        throw new BadRequestError("Incorrect password");
-      })();
-
-    const newAccessToken = generateAccessToken(user);
-    const decodedAccessToken = jwt.verify(
-      newAccessToken,
-      publicKey,
-      accessTokenOptions
-    );
-    const accessToken = {
-      token: newAccessToken,
-      exp: formatToken(decodedAccessToken).exp,
-    };
-
-    const newRefreshToken = generateRefreshToken(user);
-    const decodedRefreshToken = jwt.verify(
-      newRefreshToken,
-      publicKey,
-      refreshTokenOptions
-    );
-    const refreshToken = {
-      token: newRefreshToken,
-      exp: formatToken(decodedRefreshToken).exp,
-    };
-
-    const existRefreshToken = await RefreshToken.findOne({ user: user._id });
-
-    if (!existRefreshToken) {
-      await RefreshToken.create({
-        user: user._id,
-        refreshToken: newRefreshToken,
-      });
-    }
-
-    client.set("token", accessToken.token, "EX", 60 * 60, (err) => {
-      if (err) console.log(err);
+    const setAsync = promisify(client.set).bind(client);
+    const userCheck = await AccountRepository.findAccountByUsername(username);
+    if (!userCheck) throw new BadRequestError("Invalid Username!");
+    const isValid = await encryptCode(password, userCheck.password);
+    if (!isValid) throw new BadRequestError();
+    const token = await createToken({
+      account_id: userCheck._id.toString(),
+      username: userCheck.username,
+      role: userCheck.role,
     });
 
-    client.set("refreshToken", newRefreshToken, "EX", 60 * 60 * 24 * 7, (err) => {
-      if (err) console.log(err);
-    });
-
-    return { accessToken, refreshToken };
+    await setAsync(
+      `access_token_efurniture_${userCheck._id.toString()}`,
+      token.access_token
+    );
+    await setAsync(
+      `refresh_token_efurniture_${userCheck._id.toString()}`,
+      token.refresh_token
+    );
+    return token;
   }
 
-  static async logout() {
-    try {
-      client.del("token");
-      client.del("refreshToken");
-      return { error: null, message: "Logged out successfully." };
-    } catch (error) {
-      return { error: error.message, message: null };
-    }
+  static async logout(account_id) {
+    await Promise.all([
+      TokenService.deleteToken(account_id),
+      client.del(`access_token_efurniture_${account_id}`),
+      client.del(`refresh_token_efurniture_${account_id}`),
+    ]);
+    return 1;
   }
-
-  static async register(username, password) {
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({
-      username,
-      password: hashedPassword,
-    });
-    const savedUser = await newUser.save();
-    if (!savedUser) throw new InternalServerError("Cannot Register User!");
-
-    return savedUser;
+  static async register(payload) {
+    if (payload.password !== payload.confirm_password)
+      throw new BadRequestError();
+    const userCheck = await AccountRepository.findAccountByUsername(
+      payload.username
+    );
+    if (userCheck) throw new BadRequestError("Username is already in use!");
+    const hashPassword = await hashCode(payload.password);
+    payload.password = hashPassword;
+    return await AccountRepository.createAccount(payload);
   }
 }
 

@@ -3,7 +3,7 @@ const { InternalServerError } = require("./errorHanlder");
 const hashCode = async (password) => {
   try {
     const salt = await bcrypt.genSalt(10);
-    const hashCode = await bcrypt.hash(salt, password);
+    const hashCode = await bcrypt.hash(password, salt);
     return hashCode;
   } catch (error) {
     throw new InternalServerError("Error Hashed Code!");

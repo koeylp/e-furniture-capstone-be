@@ -45,18 +45,27 @@ const checkMaxNumber = ({ value, max }) => {
   if (value > min)
     throw new BadRequestError(`Number Should Greater Than ${min}`);
 };
-const arrayProduct = (products) => {
+const checkRoleNumber = (role) => {
+  return role % 2 === 0;
+};
+const handleProducts = (products) => {
   const productMap = {};
   for (const product of products) {
     const productId = product._id;
-    if (!productMap[productId]) {
-      productMap[productId] = { ...product };
-    } else {
+    if (productMap.hasOwnProperty(productId)) {
       productMap[productId].quantity += product.quantity;
+    } else {
+      productMap[productId] = { ...product };
     }
   }
   return Object.values(productMap);
 };
+function removeDuplicates(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return [];
+  }
+  return Array.from(new Set(arr));
+}
 
 module.exports = {
   getSelectData,
@@ -67,5 +76,7 @@ module.exports = {
   removeInsideUndefineObject,
   checkMinNumber,
   checkMaxNumber,
-  arrayProduct,
+  checkRoleNumber,
+  handleProducts,
+  removeDuplicates,
 };
