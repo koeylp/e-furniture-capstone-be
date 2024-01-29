@@ -30,7 +30,7 @@ const schema = new Schema(
     },
     attributes: { type: Schema.Types.Mixed, required: true },
     model3D: { type: String },
-    isDraf: { type: Boolean, default: true },
+    isDraft: { type: Boolean, default: true },
     isPublished: { type: Boolean, default: false },
   },
   {
