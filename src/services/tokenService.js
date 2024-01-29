@@ -1,5 +1,5 @@
 const { ConflictRequestError } = require("../utils/errorHanlder");
-const TokenRepository = require("../models/Repository/tokenRepository");
+const TokenRepository = require("../models/repositories/tokenRepository");
 class TokenService {
   static async createTokenContain({ account_id, public_key, refresh_token }) {
     return await TokenRepository.insertOrUpdate(

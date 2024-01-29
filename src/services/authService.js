@@ -4,7 +4,7 @@ const {
   BadRequestError,
 } = require("../utils/errorHanlder");
 const TokenService = require("../services/tokenService");
-const AccountRepository = require("../models/Repository/accountRepository");
+const AccountRepository = require("../models/repositories/accountRepository");
 const client = require("../databases/initRedis");
 const { promisify } = require("util");
 const { hashCode, encryptCode } = require("../utils/hashCode");

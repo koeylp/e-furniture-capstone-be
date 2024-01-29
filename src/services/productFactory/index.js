@@ -1,11 +1,11 @@
-const SubTypeRepository = require("../../models/Repository/subTypeRepository");
+const SubTypeRepository = require("../../models/repositories/subTypeRepository");
 const { _Product } = require("../../models/productModel");
 const {
   InternalServerError,
   BadRequestError,
 } = require("../../utils/errorHanlder");
 const { validateSubType } = require("./validateSubType");
-const TypeRepository = require("../../models/Repository/typeRepository");
+const TypeRepository = require("../../models/repositories/typeRepository");
 class Product {
   constructor({
     name,

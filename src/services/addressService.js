@@ -1,5 +1,5 @@
-const AccountRepository = require("../models/Repository/accountRepository");
-const AddressRepository = require("../models/Repository/addressRepository");
+const AccountRepository = require("../models/repositories/accountRepository");
+const AddressRepository = require("../models/repositories/addressRepository");
 class AddressService {
   static async createAddress(account_id, payload) {
     await AccountRepository.findAccountById(account_id);
