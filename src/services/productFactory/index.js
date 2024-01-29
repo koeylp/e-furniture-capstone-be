@@ -18,7 +18,7 @@ class Product {
     room,
     attributes,
     model3D,
-    isDraf = true,
+    isDraft = true,
     isPublished = false,
   }) {
     (this.name = name),
@@ -31,7 +31,7 @@ class Product {
       (this.room = room),
       (this.attributes = attributes),
       (this.model3D = model3D),
-      (this.isDraf = isDraf),
+      (this.isDraft = isDraft),
       (this.isPublished = isPublished);
   }
   async createProduct() {

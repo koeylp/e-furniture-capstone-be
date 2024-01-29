@@ -21,8 +21,8 @@ class ProductFactory {
     return new TypeProduct(payload).createProduct(typeModel);
   }
 
-  static async getAllDraf() {
-    return await ProductRepository.getAllDraf();
+  static async getAllDraft() {
+    return await ProductRepository.getAllDraft();
   }
 
   static async getAllPublished() {
