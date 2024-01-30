@@ -1,11 +1,16 @@
-const _Cart = require("../models/cartModel");
 const mongoose = require("mongoose");
 const { NotFoundError } = require("../utils/errorHanlder");
 const { handleProducts } = require("../utils");
+const CartRepository = require("../models/repositories/cartRepository");
+
 class CartService {
   static async addToCart({ account_id, product }) {
-    
-    return 
+    // check cart model whether existting if not create new one
+    const cart = await CartRepository.findByAccountId(account_id);
+    if (!cart) 
+      await CartRepository.createCart(account_id);
+    // add to cart 
+    return await CartRepository.addToCart(account_id, product);
   }
   static async removeItem({ account_id, productId }) {
     const cartCheck = await this.checkCartExist({ account_id });

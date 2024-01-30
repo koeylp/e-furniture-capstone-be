@@ -1,28 +1,29 @@
 const _Cart = require("../cartModel");
 const { getSelectData, getUnSelectData } = require("../../utils/index");
-const { BadRequestError } = require("../../utils/errorHanlder");
+const {
+  BadRequestError,
+  InternalServerError,
+} = require("../../utils/errorHanlder");
 class CartRepository {
-  static async addToCart(query, filter = []) {
+  static async createCart(account_id) {
+    const cart = await _Cart.create({
+      account_id: account_id,
+      status: 1,
+    });
+    if (!cart) throw new InternalServerError();
+    return cart;
+  }
+  static async findByAccountId(query) {
     return await _Cart
-      .findOne(query)
-      .select(getSelectData(filter))
-      .populate("room")
-      .lean()
-      .exec();
+      .find(query)
+      .select(getUnSelectData(["__v"]))
+      .lean();
   }
-  static async updateIsDraft(query, options = { new: true }) {
-    const product = await this.findProductById(query);
-    if (!product) throw new BadRequestError();
-    product.isDraft = false;
-    product.isPublished = true;
-    return await _Product.update(product);
-  }
-  static async updateIsPublished(query, options) {
-    const product = await this.findProductById(query);
-    if (!product) throw new BadRequestError();
-    product.isDraft = true;
-    product.isPublished = false;
-    return await _Product.update(product);
+  static async addToCart(account_id, product) {
+    const cart = await this.findByAccountId(account_id);
+    if (!cart) throw new InternalServerError();
+    cart.products.push(product);
+    return await _Cart.update(cart);
   }
   static async getAlls(query) {
     return await _Product
