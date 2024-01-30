@@ -1,9 +1,9 @@
 //for staff
 const express = require("express");
 const router = express.Router();
-const ProductController = require("../../controllers/productController");
+const TypeController = require("../../controllers/typeController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
-router.post("/", asyncHandler(ProductController.createProduct));
+router.get("/", asyncHandler(TypeController.getAllType));
 
 module.exports = router;
