@@ -47,6 +47,12 @@ class TypeService {
   static async getTypes(page = 1, limit = 12) {
     return await TypeRepository.getTypes(page, limit);
   }
+  static async getPublishedType(page = 1, limit = 12) {
+    return await TypeRepository.getPublishedTypes(page, limit);
+  }
+  static async getUnPublishedType(page = 1, limit = 12) {
+    return await TypeRepository.getUnPublishedTypes(page, limit);
+  }
   static async removeType(type_id) {}
 }
 module.exports = TypeService;

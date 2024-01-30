@@ -23,12 +23,12 @@ class ProductFactory {
   }
 
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
-    const sortType = returnSortType(sortType);
+    sortType = returnSortType(sortType);
     return await ProductRepository.getAllDraft(page, limit, sortType);
   }
 
   static async getAllPublished(page = 1, limit = 12, sortType = "default") {
-    const sortType = returnSortType(sortType);
+    sortType = returnSortType(sortType);
     return await ProductRepository.getAllPublished(page, limit, sortType);
   }
 }
