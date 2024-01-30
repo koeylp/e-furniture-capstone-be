@@ -1,4 +1,4 @@
-const _Product = require("../productModel");
+const { _Product } = require("../productModel");
 const { getSelectData, getUnSelectData } = require("../../utils/index");
 const { BadRequestError } = require("../../utils/errorHanlder");
 class ProductRepository {

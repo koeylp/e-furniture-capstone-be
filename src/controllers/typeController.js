@@ -27,5 +27,19 @@ class TypeController {
       ),
     }).send(res);
   }
+  static async getAllType(req, res) {
+    const { page, limit } = req.query;
+    return new OK({
+      message: "List Of Type!",
+      metaData: await TypeService.getTypes(page, limit),
+    });
+  }
+  static async getPublishedType(req, res) {
+    const { page, limit } = req.query;
+    return new OK({
+      message: "List Of Type!",
+      metaData: await TypeService.getPublishedType(page, limit),
+    });
+  }
 }
 module.exports = TypeController;

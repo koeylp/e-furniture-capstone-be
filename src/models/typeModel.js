@@ -1,5 +1,4 @@
 const { model, Schema } = require("mongoose");
-const { generateSubTypeSchema } = require("./subTypeModel");
 
 const COLLECTION_NAME = "Type";
 const DOCUMENT_NAME = "Types";

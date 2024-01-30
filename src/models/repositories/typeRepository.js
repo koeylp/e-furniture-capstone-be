@@ -11,8 +11,26 @@ const {
 } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
 class TypeRepository {
-  static async getTypes(query = {}) {
-    return await _Type.find(query).lean();
+  static async getTypes(query = {}, page, limit) {
+    const skip = (page - 1) * limit;
+    return await _Type
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .select(getUnSelectData(["__v"]))
+      .lean();
+  }
+  static async getPublishedTypes(page, limit) {
+    const query = {
+      is_published: true,
+    };
+    return await this.getTypes(query, page, limit);
+  }
+  static async getUnPublishedTypes(page, limit) {
+    const query = {
+      is_published: false,
+    };
+    return await this.getTypes(query, page, limit);
   }
   static async createType(typeName, subTypes) {
     const type = await _Type.create({
