@@ -1,9 +1,9 @@
 const SubTypeService = require("../../services/subTypeService");
 const { TypeProduct } = require("../../services/productFactory/index");
 const { BadRequestError } = require("../../utils/errorHanlder");
+const ProductRepository = require("../../models/Repository/productRepository");
 class ProductFactory {
   static productRegistry = {};
-
   static registerProductType(type, modelRef) {
     if (!ProductFactory.productRegistry[type])
       ProductFactory.productRegistry[type] = modelRef;

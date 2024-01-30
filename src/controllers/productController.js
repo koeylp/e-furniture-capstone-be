@@ -10,11 +10,6 @@ class ProductController {
       metaData: await ProductFactory.createProduct(type, payload),
     }).send(res);
   }
-  static async check(req, res) {
-    return new OK({
-      message: "Create Product Successfully!",
-      metaData: await ProductFactory.checkProductType(),
-    }).send(res);
-  }
+  static async get() {}
 }
 module.exports = ProductController;
