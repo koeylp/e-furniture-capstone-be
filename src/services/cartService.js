@@ -1,35 +1,11 @@
-const Repository = require("../models/Repository/repository");
 const _Cart = require("../models/cartModel");
 const mongoose = require("mongoose");
 const { NotFoundError } = require("../utils/errorHanlder");
 const { handleProducts } = require("../utils");
-const ProductService = require("../services/productService");
 class CartService {
-  static async checkCartExist({ account_id }) {
-    const cartCheck = await Repository.checkOne({
-      query: { account_id: new mongoose.Types.ObjectId(account_id) },
-      MODEL: _Cart,
-    });
-    if (cartCheck && cartCheck.state !== "active")
-      throw new NotFoundError("You Cannot Interact With Cart!");
-    return cartCheck;
-  }
   static async addToCart({ account_id, product }) {
-    const cartCheck = await this.checkCartExist({ account_id });
-    const productId = product._id;
-    await ProductService.findProduct(productId);
-    const newListProduct = cartCheck
-      ? handleProducts([...cartCheck.products, product])
-      : [product];
-    let query = {
-      _id: new mongoose.Types.ObjectId(cartCheck._id),
-    };
-    let update = {
-      products: newListProduct,
-      count_product: newListProduct.length,
-    };
-    let options = { upsert: true, new: true };
-    return await Repository.update({ query, update, options, MODEL: _Cart });
+    
+    return 
   }
   static async removeItem({ account_id, productId }) {
     const cartCheck = await this.checkCartExist({ account_id });
