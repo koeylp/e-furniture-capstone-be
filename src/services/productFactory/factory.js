@@ -2,6 +2,7 @@ const SubTypeService = require("../../services/subTypeService");
 const { TypeProduct } = require("../../services/productFactory/index");
 const { BadRequestError } = require("../../utils/errorHanlder");
 const ProductRepository = require("../../models/repositories/productRepository");
+const { returnSortType } = require("./sortType");
 class ProductFactory {
   static productRegistry = {};
   static registerProductType(type, modelRef) {
@@ -22,10 +23,12 @@ class ProductFactory {
   }
 
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
+    const sortType = returnSortType(sortType);
     return await ProductRepository.getAllDraft(page, limit, sortType);
   }
 
   static async getAllPublished(page = 1, limit = 12, sortType = "default") {
+    const sortType = returnSortType(sortType);
     return await ProductRepository.getAllPublished(page, limit, sortType);
   }
 }
