@@ -41,6 +41,7 @@ class Product {
     if (!newProduct) throw new InternalServerError();
     return newProduct;
   }
+  async updateProduct() {}
 }
 class TypeProduct extends Product {
   async createProduct(typeModel) {

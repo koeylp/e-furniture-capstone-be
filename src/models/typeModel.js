@@ -8,7 +8,7 @@ const schema = new Schema(
   {
     name: { type: String, required: true },
     subTypes: { type: Array, default: [] },
-    isPublished: { type: Boolean, default: true },
+    is_published: { type: Boolean, default: true },
   },
   {
     collection: COLLECTION_NAME,

@@ -12,7 +12,7 @@ const schema = new Schema(
     district: { type: String, required: true },
     ward: { type: String, required: true },
     address: { type: String, required: true },
-    isDefault: { type: Boolean, default: false },
+    is_default: { type: Boolean, default: false },
   },
   {
     collection: COLLECTION_NAME,

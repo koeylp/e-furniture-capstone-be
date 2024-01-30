@@ -100,7 +100,7 @@ class TypeRepository {
   static async unPublishedType(type_id) {
     checkValidId(type_id);
     const type = await this.findTypeById(type_id);
-    type.isPublished = false;
+    type.is_published = false;
     return await _Type.updateOne(type);
   }
   static async publishedType(type_id) {
@@ -108,7 +108,7 @@ class TypeRepository {
     const type = await this.findTypeById(type_id);
     const typeCheck = await this.existTypeName(type.name);
     if (typeCheck) throw new BadRequestError(`${type.name} is already in use!`);
-    type.isPublished = true;
+    type.is_published = true;
     return await _Type.updateOne(type);
   }
 }

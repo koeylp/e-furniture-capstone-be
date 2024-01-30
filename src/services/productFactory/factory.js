@@ -1,9 +1,9 @@
 const SubTypeService = require("../../services/subTypeService");
 const { TypeProduct } = require("../../services/productFactory/index");
 const { BadRequestError } = require("../../utils/errorHanlder");
+const ProductRepository = require("../../models/repositories/productRepository");
 class ProductFactory {
   static productRegistry = {};
-
   static registerProductType(type, modelRef) {
     if (!ProductFactory.productRegistry[type])
       ProductFactory.productRegistry[type] = modelRef;
@@ -21,12 +21,12 @@ class ProductFactory {
     return new TypeProduct(payload).createProduct(typeModel);
   }
 
-  static async getAllDraft() {
-    return await ProductRepository.getAllDraft();
+  static async getAllDraft(page = 1, limit = 12, sortType = "default") {
+    return await ProductRepository.getAllDraft(page, limit, sortType);
   }
 
-  static async getAllPublished() {
-    return await ProductRepository.getAllPublished();
+  static async getAllPublished(page = 1, limit = 12, sortType = "default") {
+    return await ProductRepository.getAllPublished(page, limit, sortType);
   }
 }
 ProductFactory.registerSubTypesFromMap();
