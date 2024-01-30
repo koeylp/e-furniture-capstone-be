@@ -1,8 +1,8 @@
 "use strict";
 const { model, Schema } = require("mongoose");
 
-const COLLECTION_NAME = "Inventories";
-const DOCUMENT_NAME = "Inventory";
+const COLLECTION_NAME = "Warehouses";
+const DOCUMENT_NAME = "Warehouse";
 
 const schema = new Schema(
   {
@@ -13,7 +13,6 @@ const schema = new Schema(
     },
     location: { type: String, default: "unKnow" },
     stock: { type: Number, default: 1 },
-    isSystem: { type: Number, required: true },
   },
   {
     collection: COLLECTION_NAME,

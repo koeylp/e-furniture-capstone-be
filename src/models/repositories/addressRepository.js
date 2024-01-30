@@ -39,7 +39,7 @@ class AddressRepository {
     checkValidId(account_id);
     const query = {
       account_id: new mongoose.Types.ObjectId(account_id),
-      isDefault: true,
+      is_default: true,
     };
     return await _Address
       .findOne(query)
@@ -51,10 +51,10 @@ class AddressRepository {
     checkValidId(account_id);
     const query = {
       account_id: new mongoose.Types.ObjectId(account_id),
-      isDefault: true,
+      is_default: true,
     };
     const update = {
-      $set: { isDefault: false },
+      $set: { is_default: false },
     };
     return await _Address.updateMany(query, update, { isNew: true });
   }
@@ -66,7 +66,7 @@ class AddressRepository {
       _id: new mongoose.Types.ObjectId(address_id),
     };
     const update = {
-      $set: { isDefault: true },
+      $set: { is_default: true },
     };
     return await _Address.updateMany(query, update, { isNew: true });
   }

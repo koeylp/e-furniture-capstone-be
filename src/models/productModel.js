@@ -21,7 +21,7 @@ const schema = new Schema(
         subPrice: { type: Number, required: true },
       },
     ],
-    ratingAvarage: {
+    rating_avarage: {
       type: Number,
       default: 4.5,
       min: [1, "Rating must be above 1.0"],
@@ -30,8 +30,8 @@ const schema = new Schema(
     },
     attributes: { type: Schema.Types.Mixed, required: true },
     model3D: { type: String },
-    isDraft: { type: Boolean, default: true },
-    isPublished: { type: Boolean, default: false },
+    is_draft: { type: Boolean, default: true },
+    is_published: { type: Boolean, default: false },
   },
   {
     collection: COLLECTION_NAME,
