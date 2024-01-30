@@ -13,8 +13,15 @@ class ProductController {
   static async getDraftProduct(req, res) {
     const { page, limit, sortType } = req.query;
     return new OK({
-      message: "Create Product Successfully!",
-      metaData: await ProductFactory.createProduct(type, payload),
+      message: "List Draft Product!",
+      metaData: await ProductFactory.getAllDraft(page, limit, sortType),
+    }).send(res);
+  }
+  static async getPublishedProduct(req, res) {
+    const { page, limit, sortType } = req.query;
+    return new OK({
+      message: "List Published Product!!",
+      metaData: await ProductFactory.getAllPublished(page, limit, sortType),
     }).send(res);
   }
 }

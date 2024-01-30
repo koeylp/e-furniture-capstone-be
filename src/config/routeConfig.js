@@ -5,7 +5,7 @@ const routes = [
   { path: "/auth", route: require("../routes/authRouter") },
   { path: "/address", route: require("../routes/addressRouter") },
   { path: "/type", route: require("../routes/typeRouter") },
-  { path: "/product", route: require("../routes/productRouter") },
+  { path: "/product", route: require("../routes/product/index") },
   { path: "/room", route: require("../routes/roomRouter") },
   { path: "/", route: require("../routes/protectedRouter") },
 ];
