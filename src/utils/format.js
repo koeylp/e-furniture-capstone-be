@@ -40,13 +40,17 @@ const formatToken = (decodedToken) => {
     .format("MMMM Do YYYY, h:mm:ss a");
 
   const formattedToken = {
-      userId: decodedToken.userId,
-      username: decodedToken.username,
-      iat: iatDate,
-      exp: expDate,
+    userId: decodedToken.userId,
+    username: decodedToken.username,
+    iat: iatDate,
+    exp: expDate,
   };
   return formattedToken;
 };
+
+const capitalizeAllLetter = (str) => {
+  return _.upperCase(str);
+}
 
 module.exports = {
   capitalizeFirstLetter,
@@ -54,4 +58,5 @@ module.exports = {
   vndFormatCurrency,
   formatDate,
   formatToken,
+  capitalizeAllLetter,
 };

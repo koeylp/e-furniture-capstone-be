@@ -1,6 +1,6 @@
 const { BadRequestError } = require("../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
-const RoomRepository = require("../models/Repository/roomRepository");
+const RoomRepository = require("../models/repositories/roomRepository");
 const sortPhase = new Map([
   ["name_asc", { name: 1 }],
   ["name_desc", { name: -1 }],

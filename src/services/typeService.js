@@ -1,8 +1,8 @@
-const TypeRepository = require("../models/Repository/typeRepository");
+const TypeRepository = require("../models/repositories/typeRepository");
 const { BadRequestError } = require("../utils/errorHanlder");
 const ProductFactory = require("../services/productFactory/factory");
 const { generateSubTypeSchema } = require("../models/subTypeModel");
-const AttributeRepository = require("../models/Repository/attributeRepository");
+const AttributeRepository = require("../models/repositories/attributeRepository");
 class TypeService {
   static async createType(typeName, subTypes = []) {
     const checkType = await TypeRepository.existTypeName(typeName);

@@ -1,5 +1,5 @@
-const SubTypeRepository = require("../models/Repository/subTypeRepository");
-const TypeRepository = require("../models/Repository/typeRepository");
+const SubTypeRepository = require("../models/repositories/subTypeRepository");
+const TypeRepository = require("../models/repositories/typeRepository");
 const { generateSubTypeSchema } = require("../models/subTypeModel");
 const { BadRequestError } = require("../utils/errorHanlder");
 

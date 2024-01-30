@@ -1,11 +1,11 @@
-const SubTypeRepository = require("../../models/Repository/subTypeRepository");
+const SubTypeRepository = require("../../models/repositories/subTypeRepository");
 const { _Product } = require("../../models/productModel");
 const {
   InternalServerError,
   BadRequestError,
 } = require("../../utils/errorHanlder");
 const { validateSubType } = require("./validateSubType");
-const TypeRepository = require("../../models/Repository/typeRepository");
+const TypeRepository = require("../../models/repositories/typeRepository");
 class Product {
   constructor({
     name,
@@ -18,7 +18,7 @@ class Product {
     room,
     attributes,
     model3D,
-    isDraf = true,
+    isDraft = true,
     isPublished = false,
   }) {
     (this.name = name),
@@ -31,7 +31,7 @@ class Product {
       (this.room = room),
       (this.attributes = attributes),
       (this.model3D = model3D),
-      (this.isDraf = isDraf),
+      (this.isDraft = isDraft),
       (this.isPublished = isPublished);
   }
   async createProduct() {

@@ -1,5 +1,5 @@
-const Repository = require("../models/Repository/repository");
-const AccountRepository = require("../models/Repository/accountRepository");
+const Repository = require("../models/repositories/repository");
+const AccountRepository = require("../models/repositories/accountRepository");
 const mongoose = require("mongoose");
 const { checkValidId, checkRoleNumber } = require("../utils");
 const { BadRequestError } = require("../utils/errorHanlder");

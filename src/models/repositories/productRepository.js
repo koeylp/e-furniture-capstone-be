@@ -10,32 +10,32 @@ class ProductRepository {
       .lean()
       .exec();
   }
-  static async updateIsDraf(query, options = { new: true }) {
+  static async updateIsDraft(query, options = { new: true }) {
     const product = await this.findProductById(query);
     if (!product) throw new BadRequestError();
-    product.isDraf = false;
+    product.isDraft = false;
     product.isPublished = true;
     return await _Product.update(product);
   }
-  static async updateIsPublish(query, options) {
+  static async updateIsPublished(query, options) {
     const product = await this.findProductById(query);
     if (!product) throw new BadRequestError();
-    product.isDraf = true;
+    product.isDraft = true;
     product.isPublished = false;
     return await _Product.update(product);
   }
   static async getAlls(query) {
     return await _Product
       .find(query)
-      .select(getUnSelectData(["__v", "isDraf", "isPublished"]))
+      .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
       .lean();
   }
-  static async getAllDraf() {
-    const query = { isDraf: true, isPublished: false };
+  static async getAllDraft() {
+    const query = { isDraft: true, isPublished: false };
     return await this.getAlls(query);
   }
   static async getAllPublished() {
-    const query = { isPublished: true, isDraf: false };
+    const query = { isPublished: true, isDraft: false };
     return await this.getAlls(query);
   }
   static async removeMany(query) {}
