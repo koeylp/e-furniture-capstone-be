@@ -1,117 +1,62 @@
-const mongoose = require("mongoose");
-const { NotFoundError } = require("../utils/errorHanlder");
-const { handleProducts } = require("../utils");
+const { NotFoundError, BadRequestError } = require("../utils/errorHanlder");
 const CartRepository = require("../models/repositories/cartRepository");
 
 class CartService {
-  static async addToCart({ account_id, product }) {
+  static async handleCart(account_id) {
+    const cart = await CartRepository.findByAccountId({
+      account_id: account_id,
+    });
+    if (!cart) {
+      throw new NotFoundError("Cart not found");
+    }
+    return cart;
+  }
+
+  static async addToCart(account_id, product) {
+    const cart = await CartRepository.findByAccountId({
+      account_id: account_id,
+    });
     // check cart model whether existting if not create new one
-    const cart = await CartRepository.findByAccountId(account_id);
-    if (!cart) 
-      await CartRepository.createCart(account_id);
-    // add to cart 
+    if (!cart) await CartRepository.createCart(account_id);
+    // add to cart
     return await CartRepository.addToCart(account_id, product);
   }
-  static async removeItem({ account_id, productId }) {
-    const cartCheck = await this.checkCartExist({ account_id });
-    if (!cartCheck) throw new NotFoundError();
-    const newProducts = cartCheck.products.filter(
-      (product) => product._id !== productId
+
+  static async removeItem(account_id, product) {
+    await CartService.handleCart(account_id);
+    return await CartRepository.removeItem(account_id, product);
+  }
+
+  static async removeAll(account_id) {
+    await CartService.handleCart(account_id);
+    return await CartRepository.removeAll(account_id);
+  }
+
+  static async updateItemQuantity(account_id, product, newQuantity) {
+    await CartService.handleCart(account_id);
+    if (newQuantity < 0)
+      throw new BadRequestError("quantity must be greater than or equal to 0");
+    if (newQuantity === 0) this.removeItem(account_id, product);
+    return await CartRepository.updateItemQuantity(
+      account_id,
+      product,
+      newQuantity
     );
-    let query = {
-      _id: new mongoose.Types.ObjectId(cartCheck._id),
-    };
-    let update = {
-      products: newProducts,
-      count_product: newProducts.length,
-    };
-    return await Repository.update({ query, update, MODEL: _Cart });
   }
-  static async removeItems({ account_id, products }) {
-    const cartCheck = await this.checkCartExist({ account_id });
-    if (!cartCheck) throw new NotFoundError();
-    const newProducts = cartCheck.products.filter(
-      (product) => !products.includes(product._id)
-    );
-    let query = {
-      _id: new mongoose.Types.ObjectId(cartCheck._id),
-    };
-    let update = {
-      products: newProducts,
-      count_product: newProducts.length,
-    };
-    return await Repository.update({ query, update, MODEL: _Cart });
+
+  static async getCart(account_id) {
+    return await CartRepository.getCartWithPrice({ account_id: account_id });
   }
-  static async removeAll({ account_id }) {
-    const cartCheck = await this.checkCartExist({ account_id });
-    if (!cartCheck) throw new NotFoundError();
-    let query = {
-      _id: new mongoose.Types.ObjectId(cartCheck._id),
-    };
-    let update = {
-      products: [],
-      count_product: 0,
-    };
-    return await Repository.update({ query, update, MODEL: _Cart });
+
+  static async decreaseItemQuantity(account_id, product) {
+    await CartService.handleCart(account_id);
+    return await CartRepository.decreaseItemQuantity(account_id, product);
   }
-  static async updateItemQuantity({ account_id, productId, quantity }) {
-    const cartCheck = await this.checkCartExist({ account_id });
-    if (!cartCheck) throw new NotFoundError();
-    let products = cartCheck.products;
-    for (var product of products) {
-      if (product._id === productId) product.quantity = quantity;
-      break;
-    }
-    let query = {
-      _id: new mongoose.Types.ObjectId(cartCheck._id),
-    };
-    let update = {
-      products: products,
-      count_product: products.length,
-    };
-    return await Repository.update({ query, update, MODEL: _Cart });
-  }
-  static async minusItemQuantity({ account_id, productId }) {
-    const cartCheck = await this.checkCartExist({ account_id });
-    if (!cartCheck) throw new NotFoundError();
-    let products = cartCheck.products;
-    for (var product of products) {
-      if (product._id === productId) product.quantity -= 1;
-      if (product.quantity === 0)
-        products = products.filter((p) => p._id !== productId);
-      break;
-    }
-    let query = {
-      _id: new mongoose.Types.ObjectId(cartCheck._id),
-    };
-    let update = {
-      products: products,
-      count_product: products.length,
-    };
-    return await Repository.update({ query, update, MODEL: _Cart });
-  }
-  static async increaseItemQuantity({ account_id, productId }) {
-    const cartCheck = await this.checkCartExist({ account_id });
-    if (!cartCheck) throw new NotFoundError();
-    let products = cartCheck.products;
-    for (var product of products) {
-      if (product._id === productId) product.quantity += 1;
-      break;
-    }
-    let query = {
-      _id: new mongoose.Types.ObjectId(cartCheck._id),
-    };
-    let update = {
-      products: products,
-      count_product: products.length,
-    };
-    return await Repository.update({ query, update, MODEL: _Cart });
-  }
-  static async getCart({ account_id }) {
-    let query = {
-      account_id: new mongoose.Types.ObjectId(account_id),
-    };
-    return await Repository.findOne({ query, MODEL: _Cart });
+
+  static async increaseItemQuantity(account_id, product) {
+    await CartService.handleCart(account_id);
+    return await CartRepository.increaseItemQuantity(account_id, product);
   }
 }
+
 module.exports = CartService;
