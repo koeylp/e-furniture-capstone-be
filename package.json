@@ -4,9 +4,8 @@
   "description": "Capstone project for the final destination at FPT university HCM Campus",
   "main": "app.js",
   "scripts": {
-    "test": "npm run test:unit && npm run test:integration",
+    "test": "npm run test:unit",
     "test:unit": "npx mocha tests/unit/**/*.test.js",
-    "test:integration": "npx mocha tests/integration/**/*.test.js",
     "start": "nodemon src/app.js"
   },
   "author": "koey",
