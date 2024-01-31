@@ -5,9 +5,10 @@ const routes = [
   { path: "/auth", route: require("../routes/authRouter") },
   { path: "/address", route: require("../routes/addressRouter") },
   { path: "/type", route: require("../routes/typeRouter") },
-  { path: "/product", route: require("../routes/product/index") },
+  { path: "/product", route: require("../routes/product") },
   { path: "/room", route: require("../routes/roomRouter") },
   { path: "/", route: require("../routes/protectedRouter") },
+  { path: "/cart", route: require("../routes/cart") },
 ];
 
 const configureRoutes = (app) => {
