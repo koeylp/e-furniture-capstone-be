@@ -37,6 +37,10 @@ class SubTypeService {
       thumb
     );
   }
+  static async getSubTypeDetail(slug, type) {
+    const typeSchema = global.subTypeSchemasMap.get(type);
+    return await SubTypeRepository.findSubTypeBySlug(slug, typeSchema);
+  }
 }
 
 module.exports = SubTypeService;

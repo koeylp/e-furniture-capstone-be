@@ -17,7 +17,9 @@ class TypeRepository {
       .find(query)
       .skip(skip)
       .limit(limit)
-      .select(getUnSelectData(["__v"]))
+      .select(
+        getUnSelectData(["__v", "createdAt", "updatedAt", "is_published"])
+      )
       .lean();
   }
   static async getPublishedTypes(page, limit) {

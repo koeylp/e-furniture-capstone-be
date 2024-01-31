@@ -1,7 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const { checkValidId, getUnSelectData } = require("../../utils");
+const { checkValidId, getUnSelectData, getSelectData } = require("../../utils");
 
 class SubTypeRepository {
+  static async getSubTypes(subTypeModel, option = ["_id", "type", "slug"]) {
+    return await subTypeModel.find().select(getSelectData(option));
+  }
   static async findSubTypeById(subtype_id, subTypeModel) {
     checkValidId(subtype_id);
     const query = {
@@ -10,6 +13,22 @@ class SubTypeRepository {
     return await subTypeModel
       .findOne(query)
       .select(getUnSelectData(["products", "attributes"]));
+  }
+  static async findSubTypeBySlug(slug, subTypeModel) {
+    const query = {
+      slug: slug,
+    };
+    return await subTypeModel
+      .findOne(query)
+      .select(
+        getUnSelectData([
+          "products",
+          "attributes",
+          "updatedAt",
+          "createdAt",
+          "__v",
+        ])
+      );
   }
   static async findSubTypeByName(name, subTypeModel) {
     const query = {

@@ -3,6 +3,7 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const ProductFactory = require("../services/productFactory/factory");
 const { generateSubTypeSchema } = require("../models/subTypeModel");
 const AttributeRepository = require("../models/repositories/attributeRepository");
+const SubTypeRepository = require("../models/repositories/subTypeRepository");
 class TypeService {
   static async createType(typeName, subTypes = []) {
     const checkType = await TypeRepository.existTypeName(typeName);
@@ -52,6 +53,11 @@ class TypeService {
   }
   static async getUnPublishedType(page = 1, limit = 12) {
     return await TypeRepository.getUnPublishedTypes(page, limit);
+  }
+  static async getSubTypeByType(type_id) {
+    const type = await TypeRepository.findTypeById(type_id);
+    const subTypeModel = global.subTypeSchemasMap.get(type.name);
+    return await SubTypeRepository.getSubTypes(subTypeModel);
   }
   static async removeType(type_id) {}
 }

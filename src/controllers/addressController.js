@@ -4,7 +4,6 @@ const { validateCreateAddress } = require("../utils/validation");
 const AddressService = require("../services/addressService");
 class AddressController {
   static async createAddress(req, res) {
-    console.log(req);
     const { account_id } = req.payload;
     const { error } = validateCreateAddress(req.body);
     if (error) throw new BadRequestError(error.details[0].message);

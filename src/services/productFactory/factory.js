@@ -21,6 +21,7 @@ class ProductFactory {
     if (!typeModel) throw new BadRequestError("Invalid Type Product");
     return new TypeProduct(payload).createProduct(typeModel);
   }
+  static async getProductsByType(type) {}
 
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
     sortType = returnSortType(sortType);
