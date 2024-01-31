@@ -1,9 +1,12 @@
 const CartService = require("../services/cartService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
+
+const CLIENT_ID = "x-client-id";
+
 class CartController {
   static async addToCart(req, res) {
-    const account_id = req.headers["account_id"];
+    const account_id = req.headers[CLIENT_ID];
     const product = req.body;
     if (!account_id) throw new BadRequestError();
     return new OK({
@@ -13,17 +16,17 @@ class CartController {
   }
 
   static async removeItem(req, res) {
-    const account_id = req.headers["account_id"];
+    const account_id = req.headers[CLIENT_ID];
     const product = req.body;
     if (!account_id) throw new BadRequestError();
     return new OK({
-      message: "Added to cart",
+      message: "Removed",
       metaData: await CartService.removeItem(account_id, product),
     }).send(res);
   }
 
   static async removeAll(req, res) {
-    const account_id = req.headers["account_id"];
+    const account_id = req.headers[CLIENT_ID];
     return new OK({
       message: "Removed all",
       metaData: await CartService.removeAll(account_id),
@@ -31,7 +34,7 @@ class CartController {
   }
 
   static async getCart(req, res) {
-    const account_id = req.headers["account_id"];
+    const account_id = req.headers[CLIENT_ID];
     return new OK({
       message: "Your cart",
       metaData: await CartService.getCart(account_id),
@@ -39,7 +42,7 @@ class CartController {
   }
 
   static async updateItemQuantity(req, res) {
-    const account_id = req.headers["account_id"];
+    const account_id = req.headers[CLIENT_ID];
     const { product, newQuantity } = req.body;
     return new OK({
       message: "Updated quantity",
@@ -52,7 +55,7 @@ class CartController {
   }
 
   static async increaseItemQuantity(req, res) {
-    const account_id = req.headers["account_id"];
+    const account_id = req.headers[CLIENT_ID];
     const product = req.body;
     return new OK({
       message: "Updated quantity",
@@ -61,7 +64,7 @@ class CartController {
   }
 
   static async decreaseItemQuantity(req, res) {
-    const account_id = req.headers["account_id"];
+    const account_id = req.headers[CLIENT_ID];
     const product = req.body;
     return new OK({
       message: "Updated quantity",
