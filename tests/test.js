@@ -1,185 +1,40 @@
-// const getProducts = (page = 1, limit = 12, subTypes) => {
-//   let skip = (page - 1) * limit;
-//   let productResult = [];
-//   for (var { products } of subTypes) {
-//     if (products.length <= skip) {
-//       skip = skip - products.length;
-//       continue;
-//     }
-//     let productPush = products.length - skip;
-//     if (productPush == 0) continue;
-//     if (productPush >= limit) {
-//       let productResult1 = products.slice(skip);
-//       productResult1 = products.slice(0, limit);
-//       productResult = [...productResult, ...productResult1];
-//       return productResult;
-//     }
-//     limit = limit - productPush;
-//     productResult = [...productResult, ...products.slice(0, productPush)];
-//     skip = 0;
-//   }
-//   return productResult;
-// };
-const subTypesData = [
-  {
-    _id: "subType1Id",
-    type: "type1",
-    slug: "subType1",
-    products: [
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-    ],
-  },
-  {
-    _id: "subType1Id",
-    type: "type1",
-    slug: "subType1",
-    products: [
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-    ],
-  },
-  {
-    _id: "subType1Id",
-    type: "type1",
-    slug: "subType1",
-    products: [
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-    ],
-  },
-  {
-    _id: "subType1Id",
-    type: "type1",
-    slug: "subType1",
-    products: [
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-    ],
-  },
-  {
-    _id: "subType1Id",
-    type: "type1",
-    slug: "subType1",
-    products: [
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-    ],
-  },
-  {
-    _id: "subType1Id",
-    type: "type1",
-    slug: "subType1",
-    products: [
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-      { _id: "product1Id", name: "Product 1", price: 20 },
-      { _id: "product2Id", name: "Product 2", price: 25 },
-    ],
-  },
-];
+const cron = require("node-cron");
+const moment = require("moment");
 
-const getProducts = (page = 1, limit = 12, subTypes) => {
-  let skip = (page - 1) * limit;
-  let productResult = [];
-  for (const { products } of subTypes) {
-    if (products.length <= skip) {
-      skip -= products.length;
-      continue;
-    }
-    const productPush = Math.max(products.length - skip, 0);
-    if (productPush === 0) continue;
-    if (productPush >= limit) {
-      productResult.push(...products.slice(skip, skip + limit));
-      return productResult;
-    }
-    limit -= productPush;
-    productResult.push(...products.slice(skip, skip + productPush));
-    skip = 0;
+const processDateRange = (startDate, endDate, products) => {
+  if (!startDate || !endDate) {
+    console.error("Vui lòng cung cấp cả startDate và endDate");
+    return;
   }
-  return productResult;
+  const momentStartDate = moment(startDate);
+  const momentEndDate = moment(endDate);
+  if (momentStartDate.isAfter(momentEndDate)) {
+    console.error("startDate không thể lớn hơn endDate");
+    return;
+  }
+  console.log(
+    `Khoảng thời gian từ ${momentStartDate.format(
+      "YYYY-MM-DD"
+    )} đến ${momentEndDate.format("YYYY-MM-DD")}`
+  );
+  cron.schedule(
+    `49 10 ${momentStartDate.format("D")} ${momentStartDate.format("M")} *`,
+    () => {
+      console.log("Thực hiện công việc tại 12h ngày startDate");
+    }
+  );
+  cron.schedule(
+    `50 10 ${momentEndDate.format("D")} ${momentEndDate.format("M")} *`,
+    () => {
+      console.log("Thực hiện công việc tại 12h ngày endDate");
+    }
+  );
 };
-const product = getProducts((page = 8), (limit = 12), subTypesData);
-console.log(product);
+
+// Sử dụng hàm với giá trị startDate, endDate và products cụ thể
+const startDateValue = "2024-02-01"; // Đặt giá trị startDate mong muốn
+const endDateValue = "2024-02-01"; // Đặt giá trị endDate mong muốn
+const productsToAdjust = [];
+
+// Gọi hàm và truyền giá trị startDate, endDate và products
+processDateRange(startDateValue, endDateValue, productsToAdjust);

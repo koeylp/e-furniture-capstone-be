@@ -65,27 +65,6 @@ class TypeProduct extends Product {
     if (!result) throw new InternalServerError();
     return newProduct;
   }
-  async getProducts(page = 1, limit = 12, typeModel) {
-    const option = ["_id", "type", "slug", "products"];
-    const subTypes = await SubTypeRepository.getSubTypes(typeModel, option);
-    const skip = (page - 1) * limit;
-    const productResult = [];
-    for (var { products } of subTypes) {
-      if (products.length < skip) {
-        skip = skip - products.length;
-        continue;
-      }
-      let productPush = products.length - skip;
-      if (productPush > limit) {
-        productResult = products.length.slice(skip);
-        productResult = productResult.slice(0, limit);
-        return productResult;
-      }
-      limit = limit - productPush;
-      productResult = [...productResult, ...products.length];
-      skip = 0;
-    }
-  }
 }
 
 module.exports = {

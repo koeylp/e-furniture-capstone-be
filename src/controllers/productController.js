@@ -1,4 +1,5 @@
 const ProductFactory = require("../services/productFactory/factory");
+const ProductService = require("../services/productService");
 const { OK } = require("../utils/successHandler");
 
 class ProductController {
@@ -14,14 +15,42 @@ class ProductController {
     const { page, limit, sortType } = req.query;
     return new OK({
       message: "List Draft Product!",
-      metaData: await ProductFactory.getAllDraft(page, limit, sortType),
+      metaData: await ProductService.getAllDraft(page, limit, sortType),
     }).send(res);
   }
   static async getPublishedProduct(req, res) {
     const { page, limit, sortType } = req.query;
     return new OK({
       message: "List Published Product!!",
-      metaData: await ProductFactory.getAllPublished(page, limit, sortType),
+      metaData: await ProductService.getAllPublished(page, limit, sortType),
+    }).send(res);
+  }
+  static async getProductsByType(req, res) {
+    const { type } = req.params;
+    const { page, limit } = req.query;
+    return new OK({
+      message: "List Published Product!!",
+      metaData: await ProductFactory.getProductsByType(page, limit, type),
+    }).send(res);
+  }
+  static async getProductsBySubType(req, res) {
+    const { type, slug } = req.params;
+    const { page, limit } = req.query;
+    return new OK({
+      message: "List Published Product!!",
+      metaData: await ProductFactory.getProductsBySubType(
+        page,
+        limit,
+        type,
+        slug
+      ),
+    }).send(res);
+  }
+  static async findProduct(req, res) {
+    const { slug } = req.params;
+    return new OK({
+      message: "Product Detail!!",
+      metaData: await ProductService.findProduct(slug),
     }).send(res);
   }
 }

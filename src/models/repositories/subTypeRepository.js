@@ -2,8 +2,19 @@ const { default: mongoose } = require("mongoose");
 const { checkValidId, getUnSelectData, getSelectData } = require("../../utils");
 
 class SubTypeRepository {
-  static async getSubTypes(subTypeModel, option = ["_id", "type", "slug"]) {
-    return await subTypeModel.find().select(getSelectData(option));
+  static async getSubTypes(
+    subTypeModel,
+    option = ["_id", "type", "slug", "products"]
+  ) {
+    return await subTypeModel
+      .find()
+      .populate({
+        path: "products.productId",
+        model: "Product",
+        select:
+          "-is_draft -is_published -createdAt -updatedAt -__v -attributes -variation ",
+      })
+      .select(getSelectData(option));
   }
   static async findSubTypeById(subtype_id, subTypeModel) {
     checkValidId(subtype_id);
@@ -14,21 +25,29 @@ class SubTypeRepository {
       .findOne(query)
       .select(getUnSelectData(["products", "attributes"]));
   }
-  static async findSubTypeBySlug(slug, subTypeModel) {
+  static async findSubTypeBySlug(
+    slug,
+    subTypeModel,
+    option = ["products", "attributes", "updatedAt", "createdAt", "__v"]
+  ) {
+    const query = {
+      slug: slug,
+    };
+    return await subTypeModel.findOne(query).select(getUnSelectData(option));
+  }
+  static async findSubTypeBySlugWithPopulate(slug, subTypeModel) {
     const query = {
       slug: slug,
     };
     return await subTypeModel
       .findOne(query)
-      .select(
-        getUnSelectData([
-          "products",
-          "attributes",
-          "updatedAt",
-          "createdAt",
-          "__v",
-        ])
-      );
+      .select(getUnSelectData(["createdAt", "updatedAt", "__v", "attributes"]))
+      .populate({
+        path: "products.productId",
+        model: "Product",
+        select:
+          "-is_draft -is_published -createdAt -updatedAt -__v -attributes -variation ",
+      });
   }
   static async findSubTypeByName(name, subTypeModel) {
     const query = {
@@ -43,7 +62,7 @@ class SubTypeRepository {
     };
     const update = {
       $push: {
-        products: new mongoose.Types.ObjectId(product_id),
+        products: { productId: new mongoose.Types.ObjectId(product_id) },
       },
     };
     return await subTypeModel.updateOne(query, update, { isNew: true });

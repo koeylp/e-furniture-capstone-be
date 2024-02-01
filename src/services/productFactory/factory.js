@@ -2,7 +2,13 @@ const SubTypeService = require("../../services/subTypeService");
 const { TypeProduct } = require("../../services/productFactory/index");
 const { BadRequestError } = require("../../utils/errorHanlder");
 const ProductRepository = require("../../models/repositories/productRepository");
+const SubTypeRepository = require("../../models/repositories/subTypeRepository");
 const { returnSortType } = require("./sortType");
+const {
+  getProducts,
+  getProductsBySubType,
+} = require("../../utils/skipLimitForProduct");
+
 class ProductFactory {
   static productRegistry = {};
   static registerProductType(type, modelRef) {
@@ -21,16 +27,21 @@ class ProductFactory {
     if (!typeModel) throw new BadRequestError("Invalid Type Product");
     return new TypeProduct(payload).createProduct(typeModel);
   }
-  static async getProductsByType(type) {}
-
-  static async getAllDraft(page = 1, limit = 12, sortType = "default") {
-    sortType = returnSortType(sortType);
-    return await ProductRepository.getAllDraft(page, limit, sortType);
+  static async getProductsByType(page = 1, limit = 1, type) {
+    const typeModel = ProductFactory.productRegistry[type];
+    if (!typeModel) throw new BadRequestError("Invalid Type Product");
+    const option = ["_id", "type", "slug", "products"];
+    const subTypes = await SubTypeRepository.getSubTypes(typeModel, option);
+    return getProducts(page, limit, subTypes);
   }
-
-  static async getAllPublished(page = 1, limit = 12, sortType = "default") {
-    sortType = returnSortType(sortType);
-    return await ProductRepository.getAllPublished(page, limit, sortType);
+  static async getProductsBySubType(page = 1, limit = 1, type, slug) {
+    const typeModel = ProductFactory.productRegistry[type];
+    if (!typeModel) throw new BadRequestError("Invalid Type Product");
+    const subTypes = await SubTypeRepository.findSubTypeBySlugWithPopulate(
+      slug,
+      typeModel
+    );
+    return getProductsBySubType(page, limit, subTypes);
   }
 }
 ProductFactory.registerSubTypesFromMap();
