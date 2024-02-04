@@ -2,7 +2,6 @@ const _Cart = require("../cartModel");
 const { getUnSelectData } = require("../../utils/index");
 const {
   InternalServerError,
-  NotFoundError,
 } = require("../../utils/errorHanlder");
 class CartRepository {
   static async createCart(account_id) {
