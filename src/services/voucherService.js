@@ -61,7 +61,6 @@ class VoucherService {
 
     var order_total_after_voucher = 0; // initalize variable for the order of total after discount
     var order_total = 0; // total of the chosen products in cart for checkout || before discount
-    let temp_minus_order_voucher = 0; // initalize variable for minusing total after discount
     voucher.items.forEach((el) => {
       order_total += el.price * el.quantity;
     });
@@ -95,19 +94,16 @@ class VoucherService {
       };
     } else {
       // -------- all --------
-      switch (found_voucher.type) {
-        case TYPE.FIXED_AMOUNT:
-          temp_minus_order_voucher = found_voucher.value;
-          break;
-        case TYPE.PERCENTAGE:
-          temp_minus_order_voucher = (order_total * found_voucher.value) / 100;
-          break;
-      }
+      const discountFactor =
+        found_voucher.type === TYPE.FIXED_AMOUNT
+          ? found_voucher.value
+          : (order_total * found_voucher.value) / 100;
+
       if (order_total < found_voucher.minimum_order_value)
         throw new ForbiddenError(
           `The total of the total is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
         );
-      order_total_after_voucher = order_total - temp_minus_order_voucher; // minus discount factor
+      order_total_after_voucher = order_total - discountFactor; // minus discount factor
       var result = {
         voucher: found_voucher,
         total_after_applying_voucher: order_total_after_voucher,
