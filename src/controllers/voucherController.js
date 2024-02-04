@@ -25,11 +25,20 @@ class VoucherController {
 
   static async applyVoucher(req, res) {
     const account_id = req.headers[CLIENT_ID];
-    const voucher_id = req.body;
-
+    const products = req.body;
+    const voucher_id = req.params.voucher_id;
     return new OK({
       message: "Apply voucher successfully",
-      metaData: await VoucherSerivce.applyVoucher(account_id, voucher_id),
+      metaData: await VoucherSerivce.applyVoucher(account_id, voucher_id, products),
+    }).send(res);
+  }
+
+  static async getBySpecified(req, res) {
+    const account_id = req.headers[CLIENT_ID];
+    const products = req.body;
+    return new OK({
+      message: "Your voucher",
+      metaData: await VoucherSerivce.getBySpecified(account_id, voucher_id, products),
     }).send(res);
   }
 }
