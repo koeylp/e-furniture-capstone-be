@@ -21,13 +21,6 @@ const schema = new Schema(
         subPrice: { type: Number, required: true },
       },
     ],
-    rating_avarage: {
-      type: Number,
-      default: 4.5,
-      min: [1, "Rating must be above 1.0"],
-      max: [5, "Rating muse be above 5.0"],
-      set: (val) => Math.round(val * 10) / 10,
-    },
     attributes: { type: Schema.Types.Mixed, required: true },
     model3D: { type: String },
     is_draft: { type: Boolean, default: true },

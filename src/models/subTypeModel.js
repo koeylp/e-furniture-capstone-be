@@ -1,12 +1,13 @@
 // subtype-factory.js
-const { model, Schema } = require("mongoose");
-
+const { model, Schema, default: mongoose } = require("mongoose");
+const slugify = require("slugify");
 function generateSubTypeSchema(type) {
   const subTypeCollectionName = `${type.name}`;
 
   const subTypeSchema = new Schema(
     {
       type: { type: String, required: true },
+      slug: { type: String },
       description: { type: String, default: "" },
       thumb: { type: String, default: "" },
       attributes: [
@@ -31,14 +32,23 @@ function generateSubTypeSchema(type) {
           },
         },
       ],
+      is_draft: { type: Boolean, default: true },
+      is_published: { type: Boolean, default: false },
     },
     {
       collection: subTypeCollectionName,
       timestamps: true,
     }
   );
-
+  subTypeSchema.pre("save", function (next) {
+    this.slug = slugify(this.type, { lower: true });
+    next();
+  });
   return model(subTypeCollectionName, subTypeSchema);
 }
-
-module.exports = { generateSubTypeSchema };
+async function deleteSubTypeSchema(type) {
+  const collectionName = `${type.name}`;
+  // Xóa collection
+  const mon = await mongoose.connection.db.dropCollection(collectionName);
+}
+module.exports = { generateSubTypeSchema, deleteSubTypeSchema };

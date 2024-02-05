@@ -1,28 +1,45 @@
 const { _Product } = require("../productModel");
-const { getSelectData, getUnSelectData } = require("../../utils/index");
-const { BadRequestError } = require("../../utils/errorHanlder");
+const {
+  getSelectData,
+  getUnSelectData,
+  checkValidId,
+} = require("../../utils/index");
+const { InternalServerError } = require("../../utils/errorHanlder");
+const { default: mongoose } = require("mongoose");
 class ProductRepository {
-  static async findProductById(query, filter = []) {
+  static async createProduct(payload) {
+    const product = await _Product.create(payload);
+    if (!product) throw new InternalServerError();
+    return product;
+  }
+  static async findProductById(product_id, filter = []) {
+    checkValidId(product_id);
     return await _Product
-      .findOne(query)
+      .findOne({
+        _id: new mongoose.Types.ObjectId(product_id),
+      })
       .select(getSelectData(filter))
+      .lean()
+      .exec();
+  }
+  static async findProductBySlug(slug) {
+    return await _Product
+      .findOne({
+        slug: slug,
+      })
+      .select(getUnSelectData(["__v", "createdAt", "updatedAt"]))
       .populate("room")
       .lean()
       .exec();
   }
-  static async updateIsDraft(query, options = { new: true }) {
-    const product = await this.findProductById(query);
-    if (!product) throw new BadRequestError();
-    product.is_draft = false;
-    product.is_published = true;
-    return await _Product.update(product);
+  static async updateProduct(product) {
+    return await _Product.updateOne(product);
   }
-  static async updateIsPublished(query, options) {
-    const product = await this.findProductById(query);
-    if (!product) throw new BadRequestError();
-    product.is_draft = true;
-    product.is_published = false;
-    return await _Product.update(product);
+  static async updateProductBySlug(product_slug, update) {
+    const query = {
+      slug: product_slug,
+    };
+    return await _Product.updateOne(query, update, { new: true });
   }
   static async getAlls(query, page, limit, sortType) {
     const skip = (page - 1) * limit;
@@ -42,6 +59,29 @@ class ProductRepository {
     const query = { is_published: true, is_draft: false };
     return await this.getAlls(query, page, limit, sortType);
   }
+  static async removeProduct(product_id) {
+    let query = {
+      _id: new mongoose.Types.ObjectId(product_id),
+    };
+    return await _Product.deleteOne(query);
+  }
+  static async removeProductBySlug(product_slug) {
+    let query = {
+      slug: product_slug,
+    };
+    return await _Product.deleteOne(query);
+  }
   static async removeMany(query) {}
+  static async draftRangeProductByType(type_id) {
+    const query = {
+      type: type_id,
+      is_published: true,
+    };
+    const update = {
+      is_draft: true,
+      is_published: false,
+    };
+    return await _Product.updateMany(query, update);
+  }
 }
 module.exports = ProductRepository;

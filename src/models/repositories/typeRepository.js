@@ -11,23 +11,38 @@ const {
 } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
 class TypeRepository {
-  static async getTypes(query = {}, page, limit) {
+  static async getTypes(
+    query = {},
+    page,
+    limit,
+    option = ["__v", "createdAt", "updatedAt", "is_published"]
+  ) {
     const skip = (page - 1) * limit;
     return await _Type
       .find(query)
       .skip(skip)
       .limit(limit)
-      .select(getUnSelectData(["__v"]))
+      .select(getUnSelectData(option))
       .lean();
   }
   static async getPublishedTypes(page, limit) {
+    const option = [
+      "__v",
+      "createdAt",
+      "updatedAt",
+      "is_published",
+      "is_draft",
+      "subTypes",
+    ];
     const query = {
+      is_draft: false,
       is_published: true,
     };
-    return await this.getTypes(query, page, limit);
+    return await this.getTypes(query, page, limit, option);
   }
   static async getUnPublishedTypes(page, limit) {
     const query = {
+      is_draft: true,
       is_published: false,
     };
     return await this.getTypes(query, page, limit);
@@ -43,6 +58,8 @@ class TypeRepository {
   static async existTypeName(typeName) {
     const query = {
       name: typeName,
+      is_published: true,
+      is_draft: false,
     };
     return await _Type.findOne(query).lean().exec();
   }
@@ -58,7 +75,20 @@ class TypeRepository {
     if (!type) throw new BadRequestError();
     return type;
   }
+  static async findTypeBySlug(type_slug) {
+    const query = {
+      slug: type_slug,
+    };
+    const type = await _Type
+      .findOne(query)
+      .select(getUnSelectData(["__v"]))
+      .lean()
+      .exec();
+    if (!type) throw new BadRequestError();
+    return type;
+  }
   static async findTypeById(type_id) {
+    checkValidId(type_id);
     const query = {
       _id: new mongoose.Types.ObjectId(type_id),
     };
@@ -70,7 +100,7 @@ class TypeRepository {
     if (!type) throw new BadRequestError();
     return type;
   }
-  static async addSubType(type_id, subType) {
+  static async pushSubType(type_id, subType) {
     checkValidId(type_id);
     const query = {
       _id: new mongoose.Types.ObjectId(type_id),
@@ -84,22 +114,6 @@ class TypeRepository {
     if (!addResult) throw new InternalServerError();
     return addResult;
   }
-  static async createSubTypeValue(
-    subTypeModel,
-    subType,
-    description,
-    thumb,
-    attributes
-  ) {
-    const result = await subTypeModel.create({
-      type: subType,
-      description,
-      thumb,
-      attributes,
-    });
-    if (!result) throw new InternalServerError("Cannot Add SubType Value!");
-    return result;
-  }
   static async editTypeName(type_id, typeName) {
     checkValidId(type_id);
     const query = {
@@ -112,22 +126,21 @@ class TypeRepository {
     };
     return await _Type.updateOne(query, update, { isNew: true });
   }
-  static async editType(type) {
+  static async updateType(type) {
     return await _Type.updateOne(type);
   }
-  static async unPublishedType(type_id) {
+  static async publishType(type_id) {
     checkValidId(type_id);
-    const type = await this.findTypeById(type_id);
-    type.is_published = false;
-    return await _Type.updateOne(type);
-  }
-  static async publishedType(type_id) {
-    checkValidId(type_id);
-    const type = await this.findTypeById(type_id);
-    const typeCheck = await this.existTypeName(type.name);
-    if (typeCheck) throw new BadRequestError(`${type.name} is already in use!`);
-    type.is_published = true;
-    return await _Type.updateOne(type);
+    const query = {
+      _id: new mongoose.Types.ObjectId(type_id),
+    };
+    const update = {
+      $set: {
+        is_draft: false,
+        is_published: true,
+      },
+    };
+    return await _Type.updateOne(query, update, { isNew: true });
   }
 }
 module.exports = TypeRepository;

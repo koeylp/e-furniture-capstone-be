@@ -7,14 +7,19 @@ const DOCUMENT_NAME = "Order";
 const schema = new Schema(
   {
     account_id: { type: String, required: true, ref: "Account" },
-    order_checkout: { type: Array, required: true },
+    order_checkout: { type: Object, required: true },
+    order_products: { type: Array, required: true },
     payment: {
       type: String,
       enum: ["Online Payment, COD"],
       default: "Online Payment",
     },
-    total_price: { type: Number, required: true },
-    address: { type: Array, required: true },
+    order_shipping: { type: Object, required: true },
+    order_tracking: {
+      type: String,
+      required: true,
+      enum: ["Pending", "Processing", "Shipping", "Done", "Cancel"],
+    },
     status: { type: Number, default: 0 },
   },
   {

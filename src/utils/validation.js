@@ -82,6 +82,42 @@ const validateCreateAccount = (data) => {
   return schema.validate(data);
 };
 
+const validateCreateProduct = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    thumb: Joi.string().required(),
+    price: Joi.number().required(),
+    type: Joi.string().required(),
+    width: Joi.number().required(),
+    height: Joi.number().required(),
+    room: Joi.string().required(),
+    variation: Joi.array(),
+    attributes: Joi.object(),
+    model3D: Joi.string(),
+    is_draft: Joi.boolean(),
+    is_published: Joi.boolean(),
+  });
+  return schema.validate(data);
+};
+const validateCreateWareHouse = (data) => {
+  const schema = Joi.object({
+    product_id: Joi.string().required(),
+    location: Joi.string().required(),
+    stock: Joi.number().min(1).required(),
+  });
+  return schema.validate(data);
+};
+const validateCreateSubType = (data) => {
+  const schema = Joi.object({
+    type_id: Joi.string().required(),
+    subType: Joi.string().required(),
+    description: Joi.string().required(),
+    thumb: Joi.string().required(),
+    attributes: Joi.array(),
+  });
+  return schema.validate(data);
+};
+
 const startDateLessThanEndDate = (start, end) => {
   return start < end;
 };
@@ -123,5 +159,8 @@ module.exports = {
   validateEditRoom,
   validateCreateAddress,
   validateCreateAccount,
+  validateCreateProduct,
+  validateCreateWareHouse,
+  validateCreateSubType,
   validateVoucherInput,
 };
