@@ -1,0 +1,69 @@
+const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
+const VoucherRepository = require("../models/repositories/voucherRepository");
+const AccountRepository = require("../models/repositories/accountRepository");
+const { calculateOrderTotal } = require("../utils/calculator");
+const VoucherUtil = require("../utils/voucherUtil");
+
+class VoucherService {
+  static async handleVoucher(voucher_id) {
+    const found_voucher = await VoucherRepository.findById(voucher_id);
+    if (!found_voucher)
+      throw new BadRequestError(`Voucher ${voucher._id} not found`);
+    return found_voucher;
+  }
+
+  static async createVoucher(voucher) {
+    await VoucherUtil.validateCreatingVoucher(voucher);
+    return await VoucherRepository.create(voucher);
+  }
+
+  static async getAllActiveVouchers() {
+    const QUERY = { is_active: 1 };
+    const SORT = [["createdAt", -1]];
+    return await VoucherRepository.findAllByQuery(QUERY, SORT);
+  }
+
+  static async applyVoucher(account_id, voucher_id, products) {
+    const found_account = await AccountRepository.findAccountById(account_id);
+    if (!found_account)
+      throw new BadRequestError(`Account ${account_id} not found`);
+
+    const found_voucher = await VoucherService.handleVoucher(voucher_id);
+
+    await VoucherUtil.validateVoucher(found_voucher, account_id);
+
+    const order_total = calculateOrderTotal(products);
+
+    const result = await VoucherUtil.applyDiscount(
+      found_voucher,
+      products,
+      order_total
+    );
+
+    await VoucherUtil.updateVoucherUsage(found_voucher, account_id);
+
+    const updatedVoucher = await VoucherRepository.save(found_voucher);
+    if (!updatedVoucher)
+      throw new ForbiddenError(
+        `Voucher ${found_voucher._id} was applied failed`
+      );
+
+    return result;
+  }
+
+  static async getBySpecified(products) {
+    const QUERY = {
+      is_active: 1,
+      products: { $exists: true, $not: { $size: 0 } },
+    };
+    const SORT = [["createdAt", -1]];
+
+    const vouchers = await VoucherRepository.findAllByQuery(QUERY, SORT);
+
+    return vouchers.filter((voucher) =>
+      voucher.products.some((product) => new Set(products).has(product))
+    );
+  }
+}
+
+module.exports = VoucherService;

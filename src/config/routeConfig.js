@@ -9,6 +9,7 @@ const routes = [
   { path: "/room", route: require("../routes/roomRouter") },
   { path: "/", route: require("../routes/protectedRouter") },
   { path: "/cart", route: require("../routes/cart") },
+  { path: "/voucher", route: require("../routes/voucher") },
 ];
 
 const configureRoutes = (app) => {
