@@ -4,9 +4,14 @@ const {
   getUnSelectData,
   checkValidId,
 } = require("../../utils/index");
-const { BadRequestError } = require("../../utils/errorHanlder");
+const { InternalServerError } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
 class ProductRepository {
+  static async createProduct(payload) {
+    const product = await _Product.create(payload);
+    if (!product) throw new InternalServerError();
+    return product;
+  }
   static async findProductById(product_id, filter = []) {
     checkValidId(product_id);
     return await _Product
@@ -27,19 +32,14 @@ class ProductRepository {
       .lean()
       .exec();
   }
-  static async updateIsDraft(product_id, options = { new: true }) {
-    const product = await this.findProductById(product_id);
-    if (!product) throw new BadRequestError();
-    product.is_draft = true;
-    product.is_published = false;
-    return await _Product.update(product);
+  static async updateProduct(product) {
+    return await _Product.updateOne(product);
   }
-  static async updateIsPublished(product_id, options) {
-    const product = await this.findProductById(product_id);
-    if (!product) throw new BadRequestError();
-    product.is_draft = false;
-    product.is_published = true;
-    return await _Product.update(product);
+  static async updateProductBySlug(product_slug, update) {
+    const query = {
+      slug: product_slug,
+    };
+    return await _Product.updateOne(query, update, { new: true });
   }
   static async getAlls(query, page, limit, sortType) {
     const skip = (page - 1) * limit;
@@ -60,14 +60,28 @@ class ProductRepository {
     return await this.getAlls(query, page, limit, sortType);
   }
   static async removeProduct(product_id) {
-    const product = await this.findProductById(product_id);
-    if (!product)
-      throw new BadRequestError("Cannot Find Any Product To Delete!");
     let query = {
       _id: new mongoose.Types.ObjectId(product_id),
     };
     return await _Product.deleteOne(query);
   }
+  static async removeProductBySlug(product_slug) {
+    let query = {
+      slug: product_slug,
+    };
+    return await _Product.deleteOne(query);
+  }
   static async removeMany(query) {}
+  static async draftRangeProductByType(type_id) {
+    const query = {
+      type: type_id,
+      is_published: true,
+    };
+    const update = {
+      is_draft: true,
+      is_published: false,
+    };
+    return await _Product.updateMany(query, update);
+  }
 }
 module.exports = ProductRepository;

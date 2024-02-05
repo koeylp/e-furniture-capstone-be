@@ -5,6 +5,6 @@ const TypeController = require("../../controllers/typeController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
 router.get("/", asyncHandler(TypeController.getAllType));
-router.put("/:type_id", asyncHandler(TypeController.addSubType));
+router.post("/", asyncHandler(TypeController.createType));
 
 module.exports = router;

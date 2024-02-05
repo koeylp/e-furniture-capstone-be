@@ -7,9 +7,11 @@ const routes = [
   { path: "/type", route: require("../routes/type/index") },
   { path: "/subType", route: require("../routes/subType/index") },
   { path: "/product", route: require("../routes/product") },
+  { path: "/order", route: require("../routes/order") },
   { path: "/room", route: require("../routes/roomRouter") },
-  { path: "/", route: require("../routes/protectedRouter") },
   { path: "/cart", route: require("../routes/cart") },
+  { path: "/warehouse", route: require("../routes/warehouse") },
+  { path: "/", route: require("../routes/protectedRouter") },
 ];
 
 const configureRoutes = (app) => {

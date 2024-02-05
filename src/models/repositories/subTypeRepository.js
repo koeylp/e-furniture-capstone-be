@@ -2,6 +2,22 @@ const { default: mongoose } = require("mongoose");
 const { checkValidId, getUnSelectData, getSelectData } = require("../../utils");
 
 class SubTypeRepository {
+  static async createSubTypeValue(
+    subTypeModel,
+    subType,
+    description,
+    thumb,
+    attributes
+  ) {
+    const result = await subTypeModel.create({
+      type: subType,
+      description,
+      thumb,
+      attributes,
+    });
+    if (!result) throw new InternalServerError("Cannot Add SubType Value!");
+    return result;
+  }
   static async getSubTypes(
     subTypeModel,
     option = ["_id", "type", "slug", "products"]
@@ -15,6 +31,10 @@ class SubTypeRepository {
           "-is_draft -is_published -createdAt -updatedAt -__v -attributes -variation ",
       })
       .select(getSelectData(option));
+  }
+  static async getSubTypesWithoutPopulate(subTypeModel) {
+    const option = ["_id", "type", "slug"];
+    return await subTypeModel.find().select(getSelectData(option));
   }
   static async findSubTypeById(subtype_id, subTypeModel) {
     checkValidId(subtype_id);
@@ -52,8 +72,9 @@ class SubTypeRepository {
   static async findSubTypeByName(name, subTypeModel) {
     const query = {
       type: name,
+      is_published: true,
     };
-    return await subTypeModel.findOne(query);
+    return await subTypeModel.findOne(query).lean();
   }
   static async addProductSubType(product_id, subTypeModel, type) {
     checkValidId(product_id);
@@ -77,6 +98,9 @@ class SubTypeRepository {
     const subType = await this.findSubTypeById(subtype_id, subTypeModel);
     subType.type = name;
     await subTypeModel.updateOne(subType);
+  }
+  static async updateSubType(subTypeModel, subType) {
+    return await subTypeModel.updateOne(subType);
   }
 }
 module.exports = SubTypeRepository;

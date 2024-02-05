@@ -1,40 +1,53 @@
 const TypeRepository = require("../models/repositories/typeRepository");
-const { BadRequestError } = require("../utils/errorHanlder");
+const {
+  BadRequestError,
+  InternalServerError,
+} = require("../utils/errorHanlder");
 const ProductFactory = require("../services/productFactory/factory");
-const { generateSubTypeSchema } = require("../models/subTypeModel");
+const {
+  generateSubTypeSchema,
+  deleteSubTypeSchema,
+} = require("../models/subTypeModel");
 const AttributeRepository = require("../models/repositories/attributeRepository");
 const SubTypeRepository = require("../models/repositories/subTypeRepository");
+const ProductRepository = require("../models/repositories/productRepository");
+
 class TypeService {
   static async createType(typeName, subTypes = []) {
     const checkType = await TypeRepository.existTypeName(typeName);
     if (checkType) throw new BadRequestError(`${typeName} is already in use`);
-    const type = await TypeRepository.createType(typeName, subTypes);
-    const model = generateSubTypeSchema(type);
-    ProductFactory.registerProductType(type.name, model);
-    global.subTypeSchemasMap.set(type.name, model);
-    return type;
+    return await TypeRepository.createType(typeName, subTypes);
   }
-  static async addSubType(
-    type_id,
-    subType,
-    description,
-    thumb,
-    attributes = []
-  ) {
-    const type = await TypeRepository.findTypeById(type_id);
-    if (type.subTypes.includes(subType))
-      throw new BadRequestError(`${subType} is already in ${type.name}`);
-    const addResult = await TypeRepository.addSubType(type_id, subType);
-    const subTypeModel = global.subTypeSchemasMap.get(type.name);
-    await AttributeRepository.checkArrayExist(attributes);
-    await TypeRepository.createSubTypeValue(
-      subTypeModel,
-      subType,
-      description,
-      thumb,
-      attributes
-    );
-    return addResult;
+  static async publishType(type_slug) {
+    const type = await TypeRepository.findTypeBySlug(type_slug);
+    if (type.is_published)
+      throw new BadRequestError("Type is already published");
+    const typeCheck = await TypeRepository.existTypeName(type.name);
+    if (typeCheck) throw new BadRequestError(`${type.name} is already in use!`);
+    const result = await TypeRepository.publishType(type._id);
+    if (result.nModified < 0)
+      throw new InternalServerError("Cannot Publish Type!");
+    const model = generateSubTypeSchema(type);
+    if (!model) throw new InternalServerError("Cannot Publish Type!");
+    ProductFactory.registerProductType(type.slug, model);
+    global.subTypeSchemasMap.set(type.slug, model);
+    return result;
+  }
+  static async draftType(type_slug) {
+    const type = await TypeRepository.findTypeBySlug(type_slug);
+    if (type.is_draft) throw new BadRequestError("Type is already draft");
+    type.is_draft = true;
+    type.is_published = false;
+    const result = await TypeRepository.updateType(type);
+    if (result.nModified < 0)
+      throw new InternalServerError("Cannot Draft Type!");
+    await Promise.all([
+      ProductFactory.unregisterProductType(type.slug),
+      global.subTypeSchemasMap.delete(type.slug),
+      ProductRepository.draftRangeProductByType(type._id),
+    ]);
+    deleteSubTypeSchema(type);
+    return result;
   }
   static async editTypeName(type_id, typeName) {
     await TypeRepository.findTypeById(type_id);
@@ -54,10 +67,10 @@ class TypeService {
   static async getUnPublishedType(page = 1, limit = 12) {
     return await TypeRepository.getUnPublishedTypes(page, limit);
   }
-  static async getSubTypeByType(type_id) {
-    const type = await TypeRepository.findTypeById(type_id);
-    const subTypeModel = global.subTypeSchemasMap.get(type.name);
-    return await SubTypeRepository.getSubTypes(subTypeModel);
+  static async getSubTypeByType(type_slug) {
+    const subTypeModel = global.subTypeSchemasMap.get(type_slug);
+    if (!subTypeModel) throw new BadRequestError("Type is not in use!");
+    return await SubTypeRepository.getSubTypesWithoutPopulate(subTypeModel);
   }
   static async removeType(type_id) {}
 }

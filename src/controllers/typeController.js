@@ -1,5 +1,4 @@
 const TypeService = require("../services/typeService");
-const SubTypeService = require("../services/subTypeService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
 class TypeController {
@@ -11,20 +10,20 @@ class TypeController {
       metaData: await TypeService.createType(name),
     }).send(res);
   }
-  static async addSubType(req, res) {
-    const { type_id } = req.params;
-    const { subType, description, thumb, attributes } = req.body;
-    if (!subType || !description || !thumb || !attributes)
-      throw new BadRequestError();
+  static async publishType(req, res) {
+    const { type_slug } = req.params;
+    if (!type_slug) throw new BadRequestError();
     return new OK({
-      message: "Create SubType Successfully!",
-      metaData: await TypeService.addSubType(
-        type_id,
-        subType,
-        description,
-        thumb,
-        attributes
-      ),
+      message: "Publish SubType Successfully!",
+      metaData: await TypeService.publishType(type_slug),
+    }).send(res);
+  }
+  static async draftType(req, res) {
+    const { type_slug } = req.params;
+    if (!type_slug) throw new BadRequestError();
+    return new OK({
+      message: "Publish SubType Successfully!",
+      metaData: await TypeService.draftType(type_slug),
     }).send(res);
   }
   static async getAllType(req, res) {
@@ -42,10 +41,11 @@ class TypeController {
     }).send(res);
   }
   static async getSubType(req, res) {
-    const { type_id } = req.params;
+    const { type_slug } = req.params;
+    if (!type_slug) throw new BadRequestError();
     return new OK({
       message: "List Of Type!",
-      metaData: await TypeService.getSubTypeByType(type_id),
+      metaData: await TypeService.getSubTypeByType(type_slug),
     }).send(res);
   }
 }

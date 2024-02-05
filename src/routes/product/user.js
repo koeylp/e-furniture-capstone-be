@@ -4,11 +4,12 @@ const router = express.Router();
 const ProductController = require("../../controllers/productController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
-router.get("/:type", asyncHandler(ProductController.getProductsByType));
+router.get("/:type_slug", asyncHandler(ProductController.getProductsByType));
 router.get("/detail/:slug", asyncHandler(ProductController.findProduct));
 router.get(
-  "/:type/:slug",
+  "/:type_slug/:slug",
   asyncHandler(ProductController.getProductsBySubType)
 );
+router.get("/", asyncHandler(ProductController.getPublishedProduct));
 
 module.exports = router;
