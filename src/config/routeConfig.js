@@ -11,6 +11,7 @@ const routes = [
   { path: "/room", route: require("../routes/roomRouter") },
   { path: "/cart", route: require("../routes/cart") },
   { path: "/warehouse", route: require("../routes/warehouse") },
+  { path: "/voucher", route: require("../routes/voucher") },
   { path: "/", route: require("../routes/protectedRouter") },
 ];
 

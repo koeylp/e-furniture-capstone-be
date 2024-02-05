@@ -35,7 +35,7 @@ const calculateRating = (rating, n, newRating) => {
   return Math.round(newAverageRating * 10) / 10;
 };
 const checkValidId = (_id) => {
-  if (!mongoose.Types.ObjectId.isValid(_id)) throw new NotFoundError();
+  if (!mongoose.Types.ObjectId.isValid(_id)) throw new NotFoundError(`id ${_id} does not exist`);
 };
 const checkMinNumber = ({ value, min }) => {
   if (value <= min)

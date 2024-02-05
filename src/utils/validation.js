@@ -81,6 +81,7 @@ const validateCreateAccount = (data) => {
   });
   return schema.validate(data);
 };
+
 const validateCreateProduct = (data) => {
   const schema = Joi.object({
     name: Joi.string().required(),
@@ -116,6 +117,39 @@ const validateCreateSubType = (data) => {
   });
   return schema.validate(data);
 };
+
+const startDateLessThanEndDate = (start, end) => {
+  return start < end;
+};
+
+const validateVoucherInput = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    description: Joi.string().required(),
+    type: Joi.string().valid("fixed_amount", "percentage").required(),
+    code: Joi.string().required(),
+    value: Joi.number().required(),
+    start_date: Joi.date().iso().required(),
+    end_date: Joi.date()
+      .iso()
+      .required()
+      .custom((value, helpers) => {
+        const start = helpers.state.ancestors[0].start_date;
+        if (!startDateLessThanEndDate(start, value)) {
+          return helpers.error("start_date_less_than_end_date", { value });
+        }
+        return value;
+      }),
+    maximum_use: Joi.number().required(),
+    maximum_use_per_user: Joi.number().default(1),
+    minimum_order_value: Joi.number().default(0),
+    is_active: Joi.number().valid(0, 1).default(0),
+    products: Joi.array().items(Joi.string()),
+  }).messages({
+    start_date_less_than_end_date: "Start date must be less than end date",
+  });
+  return schema.validate(data);
+};
 module.exports = {
   validateEmail,
   validateUsername,
@@ -128,4 +162,5 @@ module.exports = {
   validateCreateProduct,
   validateCreateWareHouse,
   validateCreateSubType,
+  validateVoucherInput,
 };
