@@ -9,6 +9,7 @@ class OrderController {
       metaData: await OrderService.getOrders(page, limit),
     }).send(res);
   }
+
   static async findOrder(req, res) {
     const { order_id } = req.params;
     if (!order_id) throw new BadRequestError();
@@ -17,6 +18,7 @@ class OrderController {
       metaData: await OrderService.findOrderDetail(order_id),
     }).send(res);
   }
+
   static async findOrderByUser(req, res) {
     const { account_id } = req.params;
     const { page, limit } = req.query;
@@ -26,6 +28,7 @@ class OrderController {
       metaData: await OrderService.findOrderByUser(account_id, page, limit),
     }).send(res);
   }
+
   static async findOrderByType(req, res) {
     const { type } = req.params;
     const { page, limit } = req.query;
@@ -35,6 +38,7 @@ class OrderController {
       metaData: await OrderService.findOrderByType(type, page, limit),
     }).send(res);
   }
+
   static async findOrderByType(req, res) {
     const { order_id } = req.params;
     if (!order_id) throw new BadRequestError();
@@ -42,6 +46,10 @@ class OrderController {
       message: "Remove Order Successfully!",
       metaData: await OrderService.removeOrder(order_id),
     }).send(res);
+  }
+
+  static async createOrder(req, res) {
+    
   }
 }
 module.exports = OrderController;
