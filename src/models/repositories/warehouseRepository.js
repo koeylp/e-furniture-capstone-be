@@ -1,4 +1,4 @@
-const _WareHouse = require("../warehouse.Model");
+const _WareHouse = require("../warehouseModel");
 const { checkValidId } = require("../../utils/index");
 const { default: mongoose } = require("mongoose");
 class WareHouseRepository {
