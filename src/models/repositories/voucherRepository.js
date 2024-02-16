@@ -1,10 +1,9 @@
 const _Voucher = require("../voucherModel");
 const { getUnSelectData, checkValidId } = require("../../utils/index");
-const { InternalServerError } = require("../../utils/errorHanlder");
+
 class VoucherRepository {
   static async create(voucher) {
     const newVoucher = await _Voucher.create(voucher);
-    if (!newVoucher) throw new InternalServerError();
     return newVoucher;
   }
 
