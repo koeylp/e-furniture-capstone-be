@@ -28,5 +28,6 @@ class WishlistRepositoy {
   static async save(wishlist) {
     return await _Wishlist.findOneAndUpdate({ _id: wishlist._id }, wishlist);
   }
+
 }
 module.exports = WishlistRepositoy;

@@ -1,6 +1,7 @@
 const { NotFoundError, BadRequestError } = require("../utils/errorHanlder");
 const CartRepository = require("../models/repositories/cartRepository");
 const ProductRepository = require("../models/repositories/productRepository");
+const { verifyProductExistence } = require("../utils/verifyExistence");
 
 class CartService {
   static async handleCart(account_id) {
@@ -20,12 +21,10 @@ class CartService {
     });
     // check cart model whether existting if not create new one
     if (!cart) await CartRepository.createCart(account_id);
-    // add to cart
-    const foundProduct = await ProductRepository.findProductById({
-      _id: product._id,
-    });
-    if (!foundProduct)
-      throw new NotFoundError(`Product ${product._id}` + ` not found`);
+
+    // verify and get product
+    const foundProduct = await verifyProductExistence(product._id);
+
     const foundIndex = cart.products.findIndex((el) => el._id === product._id);
     if (foundIndex === -1) {
       cart.count_product++;
