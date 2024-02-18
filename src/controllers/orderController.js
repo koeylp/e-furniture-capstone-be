@@ -1,6 +1,10 @@
 const OrderService = require("../services/orderSerivce");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
+const { validateOrderInput } = require("../utils/validation");
+
+const CLIENT_ID = "x-client-id";
+
 class OrderController {
   static async getOrders(req, res) {
     const { page, limit } = req.query;
@@ -49,7 +53,15 @@ class OrderController {
   }
 
   static async createOrder(req, res) {
-    
+    const account_id = req.headers[CLIENT_ID];
+    const order = req.body;
+    if (!order) throw new BadRequestError();
+    const { error } = validateOrderInput(order);
+    if (error) throw new BadRequestError(error.details[0].message);
+    return new OK({
+      message: "Create Order Successfully!",
+      metaData: await OrderService.createOrder(account_id, order),
+    }).send(res);
   }
 }
 module.exports = OrderController;
