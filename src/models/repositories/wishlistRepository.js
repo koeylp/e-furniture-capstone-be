@@ -3,7 +3,6 @@ const { checkValidId, getUnSelectData } = require("../../utils/index");
 
 class WishlistRepositoy {
   static async findByQuery(query) {
-    console.log(query.account_id);
     checkValidId(query.account_id);
     return await _Wishlist
       .findOne(query)

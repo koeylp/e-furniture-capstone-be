@@ -13,7 +13,7 @@ class AddressService {
   }
   static async setAddressDefault(account_id, address_id) {
     await AddressRepository.setAddressNotDefault(account_id);
-    await AddressRepository.setAddressDefault(account_id, address_id);
+    return await AddressRepository.setAddressDefault(account_id, address_id);
   }
   static async editAddress(address_id, payload) {
     return await AddressRepository.editAddress(address_id, payload);
