@@ -11,7 +11,7 @@ const schema = new Schema(
     order_products: { type: Array, required: true },
     payment: {
       type: String,
-      enum: ["Online Payment, COD"],
+      enum: ["Online Payment", "COD"],
       default: "Online Payment",
     },
     order_shipping: { type: Object, required: true },
@@ -19,6 +19,7 @@ const schema = new Schema(
       type: String,
       required: true,
       enum: ["Pending", "Processing", "Shipping", "Done", "Cancel"],
+      default: "Pending",
     },
     status: { type: Number, default: 0 },
   },

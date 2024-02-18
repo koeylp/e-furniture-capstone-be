@@ -150,6 +150,19 @@ const validateVoucherInput = (data) => {
   });
   return schema.validate(data);
 };
+
+const validateOrderInput = (data) => {
+  const schema = Joi.object({
+    order_checkout: Joi.object().required(),
+    order_products: Joi.array().required(),
+    payment: Joi.string()
+      .valid("Online Payment", "COD")
+      .default("Online Payment"),
+    order_shipping: Joi.object().required(),
+  });
+  return schema.validate(data);
+};
+
 module.exports = {
   validateEmail,
   validateUsername,
@@ -163,4 +176,5 @@ module.exports = {
   validateCreateWareHouse,
   validateCreateSubType,
   validateVoucherInput,
+  validateOrderInput,
 };
