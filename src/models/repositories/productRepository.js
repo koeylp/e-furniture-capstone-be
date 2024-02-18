@@ -35,6 +35,30 @@ class ProductRepository {
   static async updateProduct(product) {
     return await _Product.updateOne(product);
   }
+  static async publishProduct(product_id) {
+    const product = await this.findProductById(product_id);
+    return await _Product.findByIdAndUpdate(
+      { _id: product_id },
+      {
+        $set: {
+          is_draft: false,
+          is_published: true,
+        },
+      }
+    );
+  }
+  static async draftProduct(product_id) {
+    const product = await this.findProductById(product_id);
+    return await _Product.findByIdAndUpdate(
+      { _id: product_id },
+      {
+        $set: {
+          is_draft: true,
+          is_published: false,
+        },
+      }
+    );
+  }
   static async updateProductBySlug(product_slug, update) {
     const query = {
       slug: product_slug,
