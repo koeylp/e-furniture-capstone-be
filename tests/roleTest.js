@@ -15,6 +15,10 @@ const sortPhase = new Map([
   [14, "[114]"],
   [15, "[115]"],
   [16, "[116]"],
+  [17, "[117]"],
+  [18, "[118]"],
+  [19, "[119]"],
+  [20, "[120]"],
 ]);
 const returnSortPhase = (code) => {
   return sortPhase.get(code);
@@ -37,4 +41,4 @@ const permissionArray = (decimalNumber) => {
 module.exports = {
   permissionArray,
 };
-console.log(permissionArray(30));
+console.log(permissionArray(1966080));

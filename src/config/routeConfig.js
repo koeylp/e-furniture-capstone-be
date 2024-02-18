@@ -13,6 +13,7 @@ const routes = [
   { path: "/warehouse", route: require("../routes/warehouse") },
   { path: "/voucher", route: require("../routes/voucher") },
   { path: "/wishlist", route: require("../routes/wishlist") },
+  { path: "/account", route: require("../routes/account") },
   { path: "/", route: require("../routes/protectedRouter") },
 ];
 
