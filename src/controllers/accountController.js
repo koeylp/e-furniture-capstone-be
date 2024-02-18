@@ -1,7 +1,16 @@
 const AccountService = require("../services/accountService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
+const { validateCreateAccount } = require("../utils/validation");
 class AccountController {
+  static async createAccount(req, res) {
+    const { error } = validateCreateAccount(req.body);
+    if (error) throw new BadRequestError(error.details[0].message);
+    return new OK({
+      message: "Create Account Successfully!",
+      metaData: await AccountService.createAccount(req.body),
+    }).send(res);
+  }
   static async findAccount(req, res) {
     const { account_id } = req.params;
     if (!account_id) throw new BadRequestError();
@@ -11,10 +20,17 @@ class AccountController {
     }).send(res);
   }
   static async getAccounts(req, res) {
-    const { page, limit, sortCode } = req.params;
+    const { page, limit, sortCode } = req.query;
+    const { account_id } = req.payload;
+    if (!account_id) throw new BadRequestError();
     return new OK({
       message: "List Account!",
-      metaData: await AccountService.getAccounts(page, limit, sortCode),
+      metaData: await AccountService.getAccounts(
+        account_id,
+        page,
+        limit,
+        sortCode
+      ),
     }).send(res);
   }
   static async checkUsername(req, res) {

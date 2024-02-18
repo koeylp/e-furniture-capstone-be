@@ -1,7 +1,10 @@
 const { default: mongoose } = require("mongoose");
 const { checkValidId, getUnSelectData } = require("../../utils");
 const _Account = require("../accountModel");
-const { BadRequestError } = require("../../utils/errorHanlder");
+const {
+  BadRequestError,
+  InternalServerError,
+} = require("../../utils/errorHanlder");
 const { hashCode } = require("../../utils/hashCode");
 class AccountRepository {
   static async findAccountByUsername(username) {
@@ -29,13 +32,14 @@ class AccountRepository {
     if (!account) throw new BadRequestError("Cannot Find Any Account!");
     return account;
   }
-  static async getAccounts(limit = 50, page = 1, sort) {
+  static async getAccounts(limit, page, sort, query = {}) {
     const skip = (page - 1) * limit;
+    console.log(limit, page, sort);
     return await _Account
-      .find()
+      .find(query)
+      .sort(sort)
       .skip(skip)
       .limit(limit)
-      .sort(sort)
       .select(getUnSelectData(["__v", "password"]))
       .lean();
   }
@@ -46,41 +50,82 @@ class AccountRepository {
       .lean();
   }
   static async editAccount(account_id, full_name, avatar) {
-    const account = await this.findAccountById(account_id);
-    account.full_name = full_name;
-    account.avatar = avatar;
-    return await _Account.updateOne(account);
+    checkValidId(account_id);
+    return await _Account.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(account_id) },
+      {
+        $set: {
+          full_name: full_name,
+          avatar: avatar,
+        },
+      },
+      { new: true }
+    );
   }
   static async editAccountRole(account_id, role) {
-    const account = await this.findAccountById(account_id);
-    account.role = role;
-    return await _Account.updateOne(account);
+    return await _Account.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(account_id) },
+      {
+        $set: {
+          role: role,
+        },
+      },
+      { new: true }
+    );
   }
   static async editAccountUsername(account_id, username) {
-    const account = await this.findAccountById(account_id);
-    account.username = username;
-    return await _Account.updateOne(account);
+    return await _Account.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(account_id) },
+      {
+        $set: {
+          username: username,
+        },
+      },
+      { new: true }
+    );
   }
   static async editAccountPassword(account_id, password) {
-    const account = await this.findAccountById(account_id);
-    account.password = await hashCode(password);
-    return await _Account.updateOne(account);
+    return await _Account.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(account_id) },
+      {
+        $set: {
+          password: password,
+        },
+      },
+      { new: true }
+    );
   }
   static async enableAccount(account_id) {
-    const account = await this.findAccountById(account_id);
-    const query = {
+    let query = {
+      _id: new mongoose.Types.ObjectId(account_id),
+    };
+    const account = await this.findAccount(query);
+    query = {
       username: account.username,
       status: 1,
     };
     const accountCheck = await this.findAccount(query);
     if (accountCheck) throw new BadRequestError("Username is already in use!");
-    account.status = 1;
-    return await _Account.updateOne(account);
+    return await _Account.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(account_id) },
+      {
+        $set: {
+          status: 1,
+        },
+      },
+      { new: true }
+    );
   }
   static async disableAccount(account_id) {
-    const account = await this.findAccountById(account_id);
-    account.status = 0;
-    return await _Account.updateOne(account);
+    return await _Account.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(account_id) },
+      {
+        $set: {
+          status: 0,
+        },
+      },
+      { new: true }
+    );
   }
   static async searchByText({ keySearch }) {
     const searchValue =

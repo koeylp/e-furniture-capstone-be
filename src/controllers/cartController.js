@@ -16,7 +16,7 @@ class CartController {
   }
 
   static async removeItem(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     const product = req.body;
     if (!account_id) throw new BadRequestError();
     return new OK({
@@ -26,7 +26,7 @@ class CartController {
   }
 
   static async removeAll(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     return new OK({
       message: "Removed all",
       metaData: await CartService.removeAll(account_id),
@@ -34,7 +34,7 @@ class CartController {
   }
 
   static async getCart(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     return new OK({
       message: "Your cart",
       metaData: await CartService.getCart(account_id),
@@ -42,7 +42,7 @@ class CartController {
   }
 
   static async updateItemQuantity(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     const { product, newQuantity } = req.body;
     return new OK({
       message: "Updated quantity",
@@ -55,7 +55,7 @@ class CartController {
   }
 
   static async increaseItemQuantity(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     const product = req.body;
     return new OK({
       message: "Updated quantity",
@@ -64,7 +64,7 @@ class CartController {
   }
 
   static async decreaseItemQuantity(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     const product = req.body;
     return new OK({
       message: "Updated quantity",

@@ -1,9 +1,8 @@
-const Repository = require("../models/repositories/repository");
 const AccountRepository = require("../models/repositories/accountRepository");
 const mongoose = require("mongoose");
-const { checkValidId, checkRoleNumber } = require("../utils");
+const { checkRoleNumber } = require("../utils");
 const { BadRequestError } = require("../utils/errorHanlder");
-const { encryptCode } = require("../utils/hashCode");
+const { encryptCode, hashCode } = require("../utils/hashCode");
 const sortPhase = new Map([
   ["name_asc", { full_name: 1 }],
   ["name_desc", { full_name: -1 }],
@@ -13,20 +12,29 @@ const returnSortPhase = (code) => {
   return sortPhase.get(code) || sortPhase.get("default");
 };
 class AccountService {
+  static async createAccount(payload) {
+    const userCheck = await AccountRepository.findAccountByUsername(
+      payload.username
+    );
+    if (userCheck) throw new BadRequestError("Username is already in use!");
+    const hashPassword = await hashCode(payload.password);
+    payload.password = hashPassword;
+    return await AccountRepository.createAccount(payload);
+  }
   static async findAccount(account_id) {
     return await AccountRepository.findAccountById(account_id);
   }
-  static async getAccounts(page = 1, limit = 12, sortCode = "default") {
+  static async getAccounts(
+    account_id,
+    page = 1,
+    limit = 12,
+    sortCode = "default"
+  ) {
     let sort = returnSortPhase(sortCode);
-    return await AccountRepository.getAccounts(page, limit, sort);
-  }
-  static async checkUsername(account_id, username) {
-    let query = {
-      account_id: new mongoose.Types.ObjectId(account_id),
-      username,
-      status: 1,
+    const query = {
+      _id: { $ne: new mongoose.Types.ObjectId(account_id) },
     };
-    return await AccountRepository.findAccount(query);
+    return await AccountRepository.getAccounts(limit, page, sort, query);
   }
   static async checkOldPassword(account_id, oldPassword) {
     const user = await AccountRepository.findAccountById(account_id);
@@ -42,6 +50,13 @@ class AccountService {
     );
   }
   static async editUsername(account_id, username) {
+    let query = {
+      _id: { $ne: new mongoose.Types.ObjectId(account_id) },
+      username,
+      status: 1,
+    };
+    const account = await AccountRepository.findAccount(query);
+    if (account) throw new BadRequestError("Username is already in use!");
     return await AccountRepository.editAccountUsername(account_id, username);
   }
   static async editPassword(account_id, password, confirmPassword) {

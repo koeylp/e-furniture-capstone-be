@@ -1,11 +1,7 @@
 // src/controllers/authController.js
 const AuthService = require("../services/authService");
 const { OK } = require("../utils/successHandler");
-const {
-  validateUsername,
-  validatePassword,
-  validateCreateAccount,
-} = require("../utils/validation");
+const { validateRegister } = require("../utils/validation");
 const { BadRequestError } = require("../utils/errorHanlder");
 
 class AuthController {
@@ -32,7 +28,7 @@ class AuthController {
   }
 
   static async register(req, res) {
-    const { error } = validateCreateAccount(req.body);
+    const { error } = validateRegister(req.body);
     if (error) throw new BadRequestError(error.details[0].message);
     return new OK({
       message: "Register Successfully!",

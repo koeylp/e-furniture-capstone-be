@@ -34,6 +34,7 @@ const schema = new Schema(
     timestamps: true,
   }
 );
+schema.index({ name: "text" });
 schema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
