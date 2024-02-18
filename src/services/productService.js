@@ -26,9 +26,7 @@ class ProductService {
     const product = await ProductRepository.findProductBySlug(product_slug);
     if (product.is_published)
       throw new BadRequestError("Product is already published!");
-    product.is_draft = false;
-    product.is_published = true;
-    await ProductRepository.updateProduct(product);
+    await ProductRepository.publishProduct(product._id);
     return await SubTypeRepository.addProductSubType(
       product._id.toString(),
       typeModel,
@@ -39,19 +37,24 @@ class ProductService {
     const typeModel = ProductFactory.productRegistry[type_slug];
     if (!typeModel) throw new BadRequestError("Invalid Type Product");
     const product = await ProductRepository.findProductBySlug(product_slug);
-    if (product.is_draft)
-      throw new BadRequestError("Product is already draft!");
-    product.is_draft = true;
-    product.is_published = false;
-    await ProductRepository.updateProduct(product);
-    const subType = await SubTypeRepository.findSubTypeByName(
+    // if (product.is_draft)
+    //   throw new BadRequestError("Product is already draft!");
+    await ProductRepository.draftProduct(product._id);
+    const option = ["updatedAt", "createdAt", "__v"];
+    const subType = await SubTypeRepository.findSubTypeBySlug(
       product.attributes.type,
-      typeModel
+      typeModel,
+      option
     );
-    subType.products = subType.products.filter(
-      (p) => p.productId !== product._id
+    const subType_products = subType.products.filter(
+      (p) => p.productId.toString() !== product._id.toString()
     );
-    return await SubTypeRepository.updateSubType(typeModel, subType);
+    console.log(subType_products, product._id);
+    return await SubTypeRepository.updateSubTypeProducts(
+      typeModel,
+      subType._id,
+      subType_products
+    );
   }
   static async getProductsByType(page = 1, limit = 1, type_slug) {
     const typeModel = ProductFactory.productRegistry[type_slug];
