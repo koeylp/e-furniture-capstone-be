@@ -43,27 +43,26 @@ class AccountService {
     return true;
   }
   static async editAccount(account_id, payload) {
-    return await AccountRepository.editAccount(
-      account_id,
-      payload.full_name,
-      payload.avatar
-    );
-  }
-  static async editUsername(account_id, username) {
     let query = {
       _id: { $ne: new mongoose.Types.ObjectId(account_id) },
-      username,
+      username: payload.username,
       status: 1,
     };
     const account = await AccountRepository.findAccount(query);
     if (account) throw new BadRequestError("Username is already in use!");
-    return await AccountRepository.editAccountUsername(account_id, username);
+    return await AccountRepository.editAccount(account_id, payload);
   }
-  static async editPassword(account_id, password, confirmPassword) {
+  static async editPassword(
+    account_id,
+    oldPassword,
+    password,
+    confirmPassword
+  ) {
+    const option = [];
+    const user = await AccountRepository.findAccountById(account_id, option);
+    const isValid = await encryptCode(oldPassword, user.password);
+    if (!isValid) throw new BadRequestError("Wrong Old Password!");
     if (password !== confirmPassword) throw new BadRequestError();
-    const user = await AccountRepository.findAccountById(account_id);
-    const isValid = await encryptCode(password, user.password);
-    if (isValid) throw new BadRequestError("Cannot Use Recent Password");
     return await AccountRepository.editAccountPassword(account_id, password);
   }
   static async enableAccount(account_id) {

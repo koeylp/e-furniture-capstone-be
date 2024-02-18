@@ -9,7 +9,7 @@ class VoucherService {
     const wishlist = await WishlistRepositoy.findByQuery(QUERY);
     // create wishlist if not exist
     if (!wishlist) {
-        wishlist = await WishlistRepositoy.createWishlist(QUERY);
+      wishlist = await WishlistRepositoy.createWishlist(QUERY);
     }
     return wishlist;
   }
@@ -21,8 +21,6 @@ class VoucherService {
     const QUERY = { account_id: account_id };
     let wishlist = await WishlistRepositoy.findByQuery(QUERY);
 
-    console.log(wishlist);
-    
     // Check if the product is not already in the wishlist
     if (!wishlist.products.includes(product_id)) {
       wishlist.products.push(product_id);

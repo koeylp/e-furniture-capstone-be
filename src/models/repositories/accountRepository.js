@@ -18,7 +18,7 @@ class AccountRepository {
       .lean()
       .exec();
   }
-  static async findAccountById(account_id) {
+  static async findAccountById(account_id, option = ["__v", "password"]) {
     checkValidId(account_id);
     const query = {
       _id: new mongoose.Types.ObjectId(account_id),
@@ -26,7 +26,7 @@ class AccountRepository {
     };
     const account = await _Account
       .findOne(query)
-      .select(getUnSelectData(["__v", "password"]))
+      .select(getUnSelectData(option))
       .lean()
       .exec();
     if (!account) throw new BadRequestError("Cannot Find Any Account!");
@@ -34,7 +34,6 @@ class AccountRepository {
   }
   static async getAccounts(limit, page, sort, query = {}) {
     const skip = (page - 1) * limit;
-    console.log(limit, page, sort);
     return await _Account
       .find(query)
       .sort(sort)
@@ -49,16 +48,11 @@ class AccountRepository {
       .select(getUnSelectData(["__v", "password"]))
       .lean();
   }
-  static async editAccount(account_id, full_name, avatar) {
+  static async editAccount(account_id, payload) {
     checkValidId(account_id);
     return await _Account.findByIdAndUpdate(
       { _id: new mongoose.Types.ObjectId(account_id) },
-      {
-        $set: {
-          full_name: full_name,
-          avatar: avatar,
-        },
-      },
+      payload,
       { new: true }
     );
   }
@@ -73,23 +67,12 @@ class AccountRepository {
       { new: true }
     );
   }
-  static async editAccountUsername(account_id, username) {
-    return await _Account.findByIdAndUpdate(
-      { _id: new mongoose.Types.ObjectId(account_id) },
-      {
-        $set: {
-          username: username,
-        },
-      },
-      { new: true }
-    );
-  }
   static async editAccountPassword(account_id, password) {
     return await _Account.findByIdAndUpdate(
       { _id: new mongoose.Types.ObjectId(account_id) },
       {
         $set: {
-          password: password,
+          password: await hashCode(password),
         },
       },
       { new: true }

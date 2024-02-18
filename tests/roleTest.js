@@ -41,4 +41,4 @@ const permissionArray = (decimalNumber) => {
 module.exports = {
   permissionArray,
 };
-console.log(permissionArray(1966080));
+// console.log(permissionArray(1966080));

@@ -3,7 +3,7 @@ const apiVersion = "v1"; // Change this to your desired version
 
 const routes = [
   { path: "/auth", route: require("../routes/authRouter") },
-  { path: "/address", route: require("../routes/addressRouter") },
+  { path: "/address", route: require("../routes/address") },
   { path: "/type", route: require("../routes/type") },
   { path: "/subtype", route: require("../routes/subType") },
   { path: "/product", route: require("../routes/product") },
@@ -14,7 +14,6 @@ const routes = [
   { path: "/voucher", route: require("../routes/voucher") },
   { path: "/wishlist", route: require("../routes/wishlist") },
   { path: "/account", route: require("../routes/account") },
-  { path: "/", route: require("../routes/protectedRouter") },
 ];
 
 const configureRoutes = (app) => {
