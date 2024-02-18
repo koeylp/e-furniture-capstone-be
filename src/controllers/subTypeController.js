@@ -34,5 +34,13 @@ class SubTypeController {
       metaData: await SubTypeService.publishSubType(type_slug, subType_slug),
     }).send(res);
   }
+  static async draftSubType(req, res) {
+    const { type_slug, subType_slug } = req.params;
+    if (!type_slug || !subType_slug) throw new BadRequestError();
+    return new OK({
+      message: "SubType Detail!",
+      metaData: await SubTypeService.draftSubType(type_slug, subType_slug),
+    }).send(res);
+  }
 }
 module.exports = SubTypeController;

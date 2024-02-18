@@ -107,5 +107,16 @@ class ProductRepository {
     };
     return await _Product.updateMany(query, update);
   }
+  static async draftRangeProductBySubType(subtype_slug) {
+    const query = {
+      "attributes.type": subtype_slug,
+      is_published: true,
+    };
+    const update = {
+      is_draft: true,
+      is_published: false,
+    };
+    return await _Product.updateMany(query, update);
+  }
 }
 module.exports = ProductRepository;

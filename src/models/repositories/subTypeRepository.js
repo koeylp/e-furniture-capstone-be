@@ -102,6 +102,32 @@ class SubTypeRepository {
   static async updateSubType(subTypeModel, subType) {
     return await subTypeModel.updateOne(subType);
   }
+  static async publishSubType(subTypeModel, subType_id) {
+    return await subTypeModel.findByIdAndUpdate(
+      {
+        _id: subType_id,
+      },
+      {
+        $set: {
+          is_draft: false,
+          is_published: true,
+        },
+      }
+    );
+  }
+  static async draftSubType(subTypeModel, subType_id) {
+    return await subTypeModel.findByIdAndUpdate(
+      {
+        _id: subType_id,
+      },
+      {
+        $set: {
+          is_draft: true,
+          is_published: false,
+        },
+      }
+    );
+  }
   static async updateSubTypeProducts(subTypeModel, subtype_id, subTypeProduct) {
     return await subTypeModel.findByIdAndUpdate(
       { _id: subtype_id },
