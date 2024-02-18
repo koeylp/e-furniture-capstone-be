@@ -91,5 +91,8 @@ class ProductController {
       metaData: await ProductService.removeProduct(product_slug),
     }).send(res);
   }
+  static async forCheckingRole(req, res) {
+    console.log("Has Access!");
+  }
 }
 module.exports = ProductController;

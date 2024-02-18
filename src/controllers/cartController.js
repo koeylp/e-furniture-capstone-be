@@ -6,7 +6,7 @@ const CLIENT_ID = "x-client-id";
 
 class CartController {
   static async addToCart(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     const product = req.body;
     if (!account_id) throw new BadRequestError();
     return new OK({

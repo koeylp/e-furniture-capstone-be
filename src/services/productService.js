@@ -49,7 +49,6 @@ class ProductService {
     const subType_products = subType.products.filter(
       (p) => p.productId.toString() !== product._id.toString()
     );
-    console.log(subType_products, product._id);
     return await SubTypeRepository.updateSubTypeProducts(
       typeModel,
       subType._id,

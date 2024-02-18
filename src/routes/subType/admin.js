@@ -7,5 +7,9 @@ router.put(
   "/:type_slug/:subType_slug",
   asyncHandler(SubTypeController.publishSubType)
 );
+router.put(
+  "/draft/:type_slug/:subType_slug",
+  asyncHandler(SubTypeController.draftSubType)
+);
 
 module.exports = router;

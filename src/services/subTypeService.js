@@ -1,4 +1,5 @@
 const AttributeRepository = require("../models/repositories/attributeRepository");
+const ProductRepository = require("../models/repositories/productRepository");
 const SubTypeRepository = require("../models/repositories/subTypeRepository");
 const TypeRepository = require("../models/repositories/typeRepository");
 const { generateSubTypeSchema } = require("../models/subTypeModel");
@@ -40,11 +41,26 @@ class SubTypeService {
     if (type.subTypes.includes(subType))
       throw new BadRequestError(`${subType} is already in ${type.name}`);
     const addResult = await TypeRepository.pushSubType(type._id, subType);
-
-    subTypeValue.is_draft = false;
-    subTypeValue.is_published = true;
-    await SubTypeRepository.updateSubType(subTypeModel, subTypeValue);
+    await SubTypeRepository.publishSubType(subTypeModel, subTypeValue._id);
     return addResult;
+  }
+  static async draftSubType(type_slug, subType_slug) {
+    const type = await TypeRepository.findTypeBySlug(type_slug);
+    const subTypeModel = global.subTypeSchemasMap.get(type_slug);
+    const subTypeValue = await SubTypeRepository.findSubTypeBySlug(
+      subType_slug,
+      subTypeModel
+    );
+    if (subTypeValue.is_draft)
+      throw new BadRequestError("Sub Type is already draft");
+    const subType = subTypeValue.type;
+    if (!type.subTypes.includes(subType))
+      throw new BadRequestError(`${type.name} is not contain in ${subType}`);
+    await TypeRepository.pullSubType(type._id, subType);
+    await SubTypeRepository.draftSubType(subTypeModel, subTypeValue._id);
+    return await ProductRepository.draftRangeProductBySubType(
+      subTypeValue.slug
+    );
   }
   static async getAllSubTypes() {
     global.subTypeSchemasMap = global.subTypeSchemasMap || new Map();
