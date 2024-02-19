@@ -75,8 +75,9 @@ const validateRegister = (data) => {
     username: Joi.string().required(),
     password: Joi.string().required(),
     confirm_password: Joi.string().required(),
-    full_name: Joi.string().required(),
-    avatar: Joi.string(),
+    first_name: Joi.string().required(),
+    last_name: Joi.string().required(),
+    email: Joi.string(),
     status: Joi.number(),
   });
   return schema.validate(data);
@@ -85,9 +86,10 @@ const validateCreateAccount = (data) => {
   const schema = Joi.object({
     username: Joi.string().required(),
     password: Joi.string().required(),
-    full_name: Joi.string().required(),
+    first_name: Joi.string().required(),
+    last_name: Joi.string().required(),
     role: Joi.number(),
-    avatar: Joi.string(),
+    email: Joi.string(),
     status: Joi.number(),
   });
   return schema.validate(data);

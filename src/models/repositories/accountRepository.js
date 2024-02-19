@@ -1,5 +1,9 @@
 const { default: mongoose } = require("mongoose");
-const { checkValidId, getUnSelectData } = require("../../utils");
+const {
+  checkValidId,
+  getUnSelectData,
+  removeUndefineObject,
+} = require("../../utils");
 const _Account = require("../accountModel");
 const {
   BadRequestError,
@@ -50,9 +54,10 @@ class AccountRepository {
   }
   static async editAccount(account_id, payload) {
     checkValidId(account_id);
+    const update = removeUndefineObject(payload);
     return await _Account.findByIdAndUpdate(
       { _id: new mongoose.Types.ObjectId(account_id) },
-      payload,
+      update,
       { new: true }
     );
   }
@@ -128,8 +133,9 @@ class AccountRepository {
     const account = await _Account.create({
       username: payload.username,
       password: payload.password,
-      full_name: payload.full_name,
-      avatar: payload.avatar,
+      last_name: payload.last_name,
+      first_name: payload.first_name,
+      email: payload.email,
       role: payload.role,
       status: payload.status,
     });

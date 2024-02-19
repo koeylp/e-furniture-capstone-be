@@ -13,8 +13,7 @@ class AuthController {
     const token = await AuthService.login(username, password);
     return new OK({
       message: "Success",
-      accessToken: token.access_token,
-      refreshToken: token.refresh_token,
+      metaData: token,
     }).send(res);
   }
 
@@ -33,6 +32,14 @@ class AuthController {
     return new OK({
       message: "Register Successfully!",
       metaData: await AuthService.register(req.body),
+    }).send(res);
+  }
+  static async refreshToken(req, res) {
+    const { account_id, refresh_token } = req.body;
+    if (!account_id || !refresh_token) throw new BadRequestError();
+    return new OK({
+      message: "Refresh Successfully!",
+      metaData: await AuthService.refreshToken(account_id, refresh_token),
     }).send(res);
   }
 }

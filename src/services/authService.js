@@ -1,14 +1,12 @@
 // src/services/authService.js
-const {
-  InternalServerError,
-  BadRequestError,
-} = require("../utils/errorHanlder");
+const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
 const TokenService = require("../services/tokenService");
 const AccountRepository = require("../models/repositories/accountRepository");
 const client = require("../databases/initRedis");
 const { promisify } = require("util");
 const { hashCode, encryptCode } = require("../utils/hashCode");
 const { createToken } = require("../jwt/jwtHandler");
+const { verifyRefreshToken } = require("../jwt/verifyToken");
 
 class AuthService {
   static async login(username, password) {
@@ -52,6 +50,23 @@ class AuthService {
     const hashPassword = await hashCode(payload.password);
     payload.password = hashPassword;
     return await AccountRepository.createAccount(payload);
+  }
+  static async refreshToken(account_id, refresh_token) {
+    const key_token = await TokenService.findToken({
+      account_id,
+      refresh_token,
+    });
+    if (!key_token) throw new ForbiddenError();
+    const payload_refresh_token = verifyRefreshToken(
+      refresh_token,
+      key_token.public_key
+    );
+    const token = await createToken({
+      account_id: payload_refresh_token.account_id,
+      username: payload_refresh_token.username,
+      role: payload_refresh_token.role,
+    });
+    return token;
   }
 }
 

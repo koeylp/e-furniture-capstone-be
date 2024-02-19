@@ -5,11 +5,11 @@ const logger = require("../utils/logger");
 const generateToken = async ({ payload, privateKey }) => {
   const access_token = await JWT.sign(payload, privateKey, {
     algorithm: "RS256",
-    expiresIn: "30m",
+    expiresIn: "5m",
   });
   const refresh_token = await JWT.sign(payload, privateKey, {
     algorithm: "RS256",
-    expiresIn: "60d",
+    expiresIn: "7m",
   });
   return { access_token, refresh_token };
 };
