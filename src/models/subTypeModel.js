@@ -48,6 +48,10 @@ function generateSubTypeSchema(type) {
 }
 async function deleteSubTypeSchema(type) {
   const collectionName = `${type.name}`;
+  const existingModel = mongoose.modelNames().includes(collectionName);
+  if (existingModel) {
+    mongoose.connection.deleteModel(collectionName);
+  }
   // Xóa collection
   const mon = await mongoose.connection.db.dropCollection(collectionName);
 }

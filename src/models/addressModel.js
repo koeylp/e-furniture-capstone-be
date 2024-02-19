@@ -19,4 +19,5 @@ const schema = new Schema(
     timestamps: true,
   }
 );
+
 module.exports = model(DOCUMENT_NAME, schema);

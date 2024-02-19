@@ -1,4 +1,6 @@
+const { orderBy } = require("lodash");
 const OrderRepository = require("../models/repositories/orderRepository");
+const { verifyProductStockExistence } = require("../utils/verifyExistence");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders(page, limit);
@@ -14,6 +16,10 @@ class OrderService {
   }
   static async removeOrder(order_id) {
     return await OrderRepository.removeOrder(order_id);
+  }
+  static async createOrder(account_id, order) {
+    // await verifyProductStockExistence(order);
+    return await OrderRepository.createOrder(account_id, order);
   }
 }
 module.exports = OrderService;

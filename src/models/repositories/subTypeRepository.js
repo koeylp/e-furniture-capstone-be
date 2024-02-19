@@ -79,7 +79,7 @@ class SubTypeRepository {
   static async addProductSubType(product_id, subTypeModel, type) {
     checkValidId(product_id);
     const query = {
-      type,
+      slug: type,
     };
     const update = {
       $push: {
@@ -101,6 +101,41 @@ class SubTypeRepository {
   }
   static async updateSubType(subTypeModel, subType) {
     return await subTypeModel.updateOne(subType);
+  }
+  static async publishSubType(subTypeModel, subType_id) {
+    return await subTypeModel.findByIdAndUpdate(
+      {
+        _id: subType_id,
+      },
+      {
+        $set: {
+          is_draft: false,
+          is_published: true,
+        },
+      }
+    );
+  }
+  static async draftSubType(subTypeModel, subType_id) {
+    return await subTypeModel.findByIdAndUpdate(
+      {
+        _id: subType_id,
+      },
+      {
+        $set: {
+          is_draft: true,
+          is_published: false,
+        },
+      }
+    );
+  }
+  static async updateSubTypeProducts(subTypeModel, subtype_id, subTypeProduct) {
+    return await subTypeModel.findByIdAndUpdate(
+      { _id: subtype_id },
+      {
+        $set: { products: subTypeProduct },
+      },
+      { isNew: true }
+    );
   }
 }
 module.exports = SubTypeRepository;

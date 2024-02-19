@@ -24,7 +24,7 @@ class VoucherController {
   }
 
   static async applyVoucher(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     const products = req.body;
     const voucher_id = req.params.voucher_id;
     return new OK({

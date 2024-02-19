@@ -49,13 +49,14 @@ class TypeProduct extends Product {
   async createProduct(typeModel) {
     const type = await TypeRepository.findTypeBySlug(this.type);
     if (!type) throw new BadRequestError("Cannot Find Any Type For Adding!");
-    const subType = await SubTypeRepository.findSubTypeByName(
+    const subType = await SubTypeRepository.findSubTypeBySlug(
       this.attributes.type,
       typeModel
     );
     if (!subType)
       throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
-    validateSubType(this.attributes.attributeType, subType.attributes);
+    if (subType.attributes)
+      validateSubType(this.attributes.attributeType, subType.attributes);
     this.type = type._id;
     return await super.createProduct();
   }

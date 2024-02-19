@@ -36,9 +36,7 @@ class TypeService {
   static async draftType(type_slug) {
     const type = await TypeRepository.findTypeBySlug(type_slug);
     if (type.is_draft) throw new BadRequestError("Type is already draft");
-    type.is_draft = true;
-    type.is_published = false;
-    const result = await TypeRepository.updateType(type);
+    const result = await TypeRepository.draftType(type._id);
     if (result.nModified < 0)
       throw new InternalServerError("Cannot Draft Type!");
     await Promise.all([

@@ -56,5 +56,16 @@ class OrderRepository {
     };
     return await _Order.deleteOne(query);
   }
+  static async createOrder(account_id, order) {
+    const newOrder = await _Order.create({
+      account_id: account_id,
+      order_checkout: order.order_checkout,
+      order_products: order.order_products,
+      payment: order.payment,
+      order_shipping: order.order_shipping,
+    });
+    if (!order) throw new InternalServerError();
+    return newOrder;
+  }
 }
 module.exports = OrderRepository;

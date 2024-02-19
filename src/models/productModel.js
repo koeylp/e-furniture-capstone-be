@@ -21,7 +21,10 @@ const schema = new Schema(
         subPrice: { type: Number, required: true },
       },
     ],
-    attributes: { type: Schema.Types.Mixed, required: true },
+    attributes: {
+      type: { type: String, required: true },
+      attributeType: { type: Schema.Types.Mixed },
+    },
     model3D: { type: String },
     is_draft: { type: Boolean, default: true },
     is_published: { type: Boolean, default: false },
@@ -31,6 +34,7 @@ const schema = new Schema(
     timestamps: true,
   }
 );
+schema.index({ name: "text" });
 schema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();

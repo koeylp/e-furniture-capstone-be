@@ -4,7 +4,11 @@ const {
   InternalServerError,
   BadRequestError,
 } = require("../../utils/errorHanlder");
-const { checkValidId, getUnSelectData } = require("../../utils");
+const {
+  checkValidId,
+  getUnSelectData,
+  removeUndefineObject,
+} = require("../../utils");
 class AddressRepository {
   static async getAddressById(address_id) {
     checkValidId(address_id);
@@ -71,14 +75,13 @@ class AddressRepository {
     return await _Address.updateMany(query, update, { isNew: true });
   }
   static async editAddress(address_id, payload) {
-    checkValidId(account_id);
-    const address = await this.getAddressById(address_id);
-    address.phone = payload.phone;
-    address.province = payload.province;
-    address.district = payload.district;
-    address.ward = payload.ward;
-    address.address = payload.address;
-    return await _Address.updateOne(address);
+    checkValidId(address_id);
+    const update = removeUndefineObject(payload);
+    return await _Address.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(address_id) },
+      update,
+      { new: true }
+    );
   }
   static async removeAddress(address_id) {
     const query = {

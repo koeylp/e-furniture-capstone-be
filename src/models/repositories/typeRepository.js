@@ -110,7 +110,25 @@ class TypeRepository {
         subTypes: subType,
       },
     };
-    const addResult = await _Type.updateOne(query, update, { isNew: true });
+    const addResult = await _Type.findByIdAndUpdate(query, update, {
+      isNew: true,
+    });
+    if (!addResult) throw new InternalServerError();
+    return addResult;
+  }
+  static async pullSubType(type_id, subType) {
+    checkValidId(type_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(type_id),
+    };
+    const update = {
+      $pull: {
+        subTypes: subType,
+      },
+    };
+    const addResult = await _Type.findByIdAndUpdate(query, update, {
+      isNew: true,
+    });
     if (!addResult) throw new InternalServerError();
     return addResult;
   }
@@ -138,6 +156,19 @@ class TypeRepository {
       $set: {
         is_draft: false,
         is_published: true,
+      },
+    };
+    return await _Type.updateOne(query, update, { isNew: true });
+  }
+  static async draftType(type_id) {
+    checkValidId(type_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(type_id),
+    };
+    const update = {
+      $set: {
+        is_draft: true,
+        is_published: false,
       },
     };
     return await _Type.updateOne(query, update, { isNew: true });
