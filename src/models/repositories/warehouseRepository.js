@@ -29,6 +29,7 @@ class WareHouseRepository {
   }
   static async updateWareHouse(warehouse_id, update) {
     checkValidId(warehouse_id);
+    console.log(update);
     const query = {
       _id: new mongoose.Types.ObjectId(warehouse_id),
     };
@@ -41,6 +42,9 @@ class WareHouseRepository {
       _id: new mongoose.Types.ObjectId(warehouse_id),
     };
     return await _WareHouse.deleteOne(query);
+  }
+  static async findByQuery(query) {
+    return await _WareHouse.findOne(query).exec();
   }
 }
 module.exports = WareHouseRepository;

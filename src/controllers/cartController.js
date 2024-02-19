@@ -71,5 +71,13 @@ class CartController {
       metaData: await CartService.decreaseItemQuantity(account_id, product),
     }).send(res);
   }
+
+  static async checkout(req, res) {
+    const products = req.body;
+    return new OK({
+      message: "Checkout",
+      metaData: await CartService.checkout(products),
+    }).send(res);
+  }
 }
 module.exports = CartController;

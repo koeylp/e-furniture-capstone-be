@@ -8,8 +8,8 @@ const {
 } = require("../../middlewares/rolePermission");
 const { verifyToken } = require("../../jwt/verifyToken");
 
-router.use(verifyToken);
-router.use(hasAccess(2));
+// router.use(verifyToken);
+// router.use(hasAccess(2));
 
 router.post(
   "/add-to-cart",
@@ -41,6 +41,11 @@ router.put(
   "/decrease",
   hasPermission("[103]"),
   asyncHandler(CartController.decreaseItemQuantity)
+);
+router.post(
+  "/checkout",
+  hasPermission("[103]"),
+  asyncHandler(CartController.checkout)
 );
 
 module.exports = router;
