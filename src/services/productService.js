@@ -60,7 +60,8 @@ class ProductService {
     if (!typeModel) throw new BadRequestError("Invalid Type Product");
     const option = ["_id", "type", "slug", "products"];
     const subTypes = await SubTypeRepository.getSubTypes(typeModel, option);
-    return getProducts(page, limit, subTypes);
+    const listProduct = getProducts(page, limit, subTypes);
+    return listProduct.map((item) => item.productId);
   }
   static async getProductsBySubType(page = 1, limit = 1, type_slug, slug) {
     const typeModel = ProductFactory.productRegistry[type_slug];
@@ -69,7 +70,8 @@ class ProductService {
       slug,
       typeModel
     );
-    return getProductsBySubType(page, limit, subTypes);
+    const listProduct = getProductsBySubType(page, limit, subTypes);
+    return listProduct.map((item) => item.productId);
   }
   static async removeProduct(product_slug) {
     const product = await ProductRepository.findProductBySlug(product_slug);

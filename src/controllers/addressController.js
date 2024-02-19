@@ -10,8 +10,6 @@ class AddressController {
     return new OK({
       message: "Create Address Successfully!",
       metaData: await AddressService.createAddress(account_id, req.body),
-      accessToken: req.accessToken,
-      refreshToken: req.refreshToken,
     }).send(res);
   }
   static async getAddressByUser(req, res) {
