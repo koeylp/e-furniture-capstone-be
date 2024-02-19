@@ -1,5 +1,6 @@
 const ProductRepository = require("../models/repositories/productRepository");
 const { NotFoundError } = require("./errorHanlder");
+const { checkProductStock, updateWarehouseStock } = require("./stockUtil");
 
 class VerifyExistence {
   static async verifyProductExistence(product_id) {
@@ -10,13 +11,17 @@ class VerifyExistence {
   }
 
   static async verifyProductStockExistence(order) {
-    // const product = await ProductRepository.findProductById(product_id);
-    // if (!product)
-    //   throw new NotFoundError(`Product with id: ${} not found`);
-    const checkStock = product
+    const products = order.order_products;
 
-    return product;
+    for (const product of products) {
+      await checkProductStock(product);
+    }
+
+    for (const product of products) {
+      await updateWarehouseStock(product);
+    }
   }
+
 }
 
 module.exports = VerifyExistence;

@@ -26,5 +26,6 @@ class VoucherRepository {
       .select(getUnSelectData(["__v"]))
       .lean();
   }
+
 }
 module.exports = VoucherRepository;
