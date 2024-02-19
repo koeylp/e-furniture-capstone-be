@@ -3,7 +3,7 @@ const { checkValidId, getUnSelectData } = require("../../utils/index");
 
 class WishlistRepositoy {
   static async findByQuery(query) {
-    checkValidId(query.account_id);
+    checkValidId(query.account);
     return await _Wishlist
       .findOne(query)
       .select(getUnSelectData(["__v"]))
@@ -11,7 +11,7 @@ class WishlistRepositoy {
   }
 
   static async findByQueryPopulate(query) {
-    checkValidId(query.account_id);
+    checkValidId(query.account);
     return await _Wishlist
       .findOne(query)
       .select(getUnSelectData(["__v"]))
@@ -19,8 +19,8 @@ class WishlistRepositoy {
       .lean();
   }
 
-  static async createWishlist(wishlist) {
-    const newWishlist = await _Wishlist.create(wishlist);
+  static async createWishlist(query) {
+    const newWishlist = await _Wishlist.create(query);
     return newWishlist;
   }
 

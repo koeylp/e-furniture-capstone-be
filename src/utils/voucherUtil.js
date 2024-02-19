@@ -1,3 +1,4 @@
+const VoucherRepository = require("../models/repositories/voucherRepository");
 const { ForbiddenError } = require("../utils/errorHanlder");
 
 const TYPE = {
@@ -113,6 +114,20 @@ class VoucherUtil {
       throw new ForbiddenError(
         "the maximum use turn must be greater than maximum use per user"
       );
+  }
+
+  static async getBySpecified(products) {
+    const QUERY = {
+      is_active: 1,
+      products: { $exists: true, $not: { $size: 0 } },
+    };
+    const SORT = [["createdAt", -1]];
+
+    const vouchers = await VoucherRepository.findAllByQuery(QUERY, SORT);
+
+    return vouchers.filter((voucher) =>
+      voucher.products.some((product) => new Set(products).has(product))
+    );
   }
 }
 

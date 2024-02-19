@@ -52,17 +52,7 @@ class VoucherService {
   }
 
   static async getBySpecified(products) {
-    const QUERY = {
-      is_active: 1,
-      products: { $exists: true, $not: { $size: 0 } },
-    };
-    const SORT = [["createdAt", -1]];
-
-    const vouchers = await VoucherRepository.findAllByQuery(QUERY, SORT);
-
-    return vouchers.filter((voucher) =>
-      voucher.products.some((product) => new Set(products).has(product))
-    );
+    return await VoucherUtil.getBySpecified(products);
   }
 }
 

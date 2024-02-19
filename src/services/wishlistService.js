@@ -1,12 +1,12 @@
-const { NotFoundError } = require("../utils/errorHanlder");
+const { NotFoundError, BadRequestError } = require("../utils/errorHanlder");
 const WishlistRepositoy = require("../models/repositories/wishlistRepository");
 const { verifyProductExistence } = require("../utils/verifyExistence");
-const { query } = require("express");
+const { ObjectId } = require("mongoose").Types;
 
 class VoucherService {
   static async handleWishlist(account_id) {
-    const QUERY = { account_id: account_id };
-    const wishlist = await WishlistRepositoy.findByQuery(QUERY);
+    const QUERY = { account: account_id };
+    let wishlist = await WishlistRepositoy.findByQuery(QUERY);
     // create wishlist if not exist
     if (!wishlist) {
       wishlist = await WishlistRepositoy.createWishlist(QUERY);
@@ -18,22 +18,56 @@ class VoucherService {
     // verify existence of product
     await verifyProductExistence(product_id);
 
-    const QUERY = { account_id: account_id };
-    let wishlist = await WishlistRepositoy.findByQuery(QUERY);
+    let wishlist = await this.handleWishlist(account_id);
 
-    // Check if the product is not already in the wishlist
-    if (!wishlist.products.includes(product_id)) {
-      wishlist.products.push(product_id);
-      await WishlistRepositoy.save(wishlist);
+    // Convert the product_id string to ObjectId
+    const productObjectId = new ObjectId(product_id);
+
+    // Check if the product is already in the wishlist
+    if (
+      wishlist.products.some((productId) => productId.equals(productObjectId))
+    ) {
+      throw new BadRequestError(
+        `Product with id ${product_id} already exists in wishlist`
+      );
     }
+
+    wishlist.products.push(product_id);
+    await WishlistRepositoy.save(wishlist);
 
     return wishlist;
   }
 
   static async getByAccountId(account_id) {
-    const QUERY = { account_id: account_id };
+    const QUERY = { account: account_id };
     return await WishlistRepositoy.findByQueryPopulate(QUERY);
   }
+
+  static async removeProduct(account_id, product_id) {
+    // verify existence of product
+    await verifyProductExistence(product_id);
+
+    let wishlist = await this.handleWishlist(account_id);
+
+    // Convert the product_id string to ObjectId
+    const productObjectId = new ObjectId(product_id);
+
+    // Check if the product is already in the wishlist
+    if (
+      !wishlist.products.some((productId) => productId.equals(productObjectId))
+    ) {
+      throw new BadRequestError(
+        `Product with id ${product_id} is not exists in wishlist`
+      );
+    }
+
+    wishlist.products.pop(product_id);
+    await WishlistRepositoy.save(wishlist);
+
+    return wishlist;
+  }
+
+
 }
 
 module.exports = VoucherService;
