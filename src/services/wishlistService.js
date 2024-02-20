@@ -66,8 +66,6 @@ class VoucherService {
 
     return wishlist;
   }
-
-
 }
 
 module.exports = VoucherService;
