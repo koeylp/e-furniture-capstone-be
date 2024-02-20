@@ -22,7 +22,7 @@ const schema = new Schema(
       },
     ],
     attributes: {
-      type: { type: String, required: true },
+      type: { type: Array, required: true },
       attributeType: { type: Schema.Types.Mixed },
     },
     model3D: { type: String },
