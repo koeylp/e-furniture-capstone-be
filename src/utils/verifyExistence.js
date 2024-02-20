@@ -12,16 +12,11 @@ class VerifyExistence {
 
   static async verifyProductStockExistence(order) {
     const products = order.order_products;
-
     for (const product of products) {
       await checkProductStock(product);
-    }
-
-    for (const product of products) {
       await updateWarehouseStock(product);
     }
   }
-
 }
 
 module.exports = VerifyExistence;
