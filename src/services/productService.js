@@ -8,6 +8,7 @@ const {
   getProductsBySubType,
 } = require("../utils/skipLimitForProduct");
 const TypeRepository = require("../models/repositories/typeRepository");
+const SubTypeService = require("./subTypeService");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -38,28 +39,6 @@ class ProductService {
     });
     return product;
   }
-  static async draftProduct(type_slug, product_slug) {
-    const typeModel = ProductFactory.productRegistry[type_slug];
-    if (!typeModel) throw new BadRequestError("Invalid Type Product");
-    const product = await ProductRepository.findProductBySlug(product_slug);
-    // if (product.is_draft)
-    //   throw new BadRequestError("Product is already draft!");
-    await ProductRepository.draftProduct(product._id);
-    const option = ["updatedAt", "createdAt", "__v"];
-    const subType = await SubTypeRepository.findSubTypeBySlug(
-      product.attributes.type,
-      typeModel,
-      option
-    );
-    const subType_products = subType.products.filter(
-      (p) => p.productId.toString() !== product._id.toString()
-    );
-    return await SubTypeRepository.updateSubTypeProducts(
-      typeModel,
-      subType._id,
-      subType_products
-    );
-  }
   static async getProductsByType(
     page = 1,
     limit = 1,
@@ -89,7 +68,39 @@ class ProductService {
     const product = await ProductRepository.findProductBySlug(product_slug);
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Remove!");
-    return await ProductRepository.removeProductBySlug(product_slug);
+    const subTypeArrayOfProduct = product.attributes.type;
+    const listSubType = await SubTypeService.getAll();
+    listSubType.map(async (subtype) => {
+      if (subTypeArrayOfProduct.includes(subtype.slug)) {
+        let type = await TypeRepository.findTypeBySubType_Slug(subtype.type);
+        let subTypeModel = global.subTypeSchemasMap.get(type[0].slug);
+        await SubTypeRepository.pullProductId(
+          subTypeModel,
+          subtype.slug,
+          product._id
+        );
+      }
+    });
+    return await ProductRepository.removeProduct(product._id);
+  }
+  static async draftProduct(type_slug, product_slug) {
+    const product = await ProductRepository.findProductBySlug(product_slug);
+    if (!product)
+      throw new BadRequestError("Cannot Find Any Product To Draft!");
+    const subTypeArrayOfProduct = product.attributes.type;
+    const listSubType = await SubTypeService.getAll();
+    listSubType.map(async (subtype) => {
+      if (subTypeArrayOfProduct.includes(subtype.slug)) {
+        let type = await TypeRepository.findTypeBySubType_Slug(subtype.type);
+        let subTypeModel = global.subTypeSchemasMap.get(type[0].slug);
+        await SubTypeRepository.pullProductId(
+          subTypeModel,
+          subtype.slug,
+          product._id
+        );
+      }
+    });
+    return await ProductRepository.draftProduct(product._id);
   }
 }
 module.exports = ProductService;

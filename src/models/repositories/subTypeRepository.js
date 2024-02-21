@@ -15,7 +15,7 @@ class SubTypeRepository {
   }
   static async getSubTypes(
     subTypeModel,
-    option = ["_id", "type", "slug", "products"]
+    option = ["_id", "type", "slug", "attributes", "products", "thumb", "group"]
   ) {
     return await subTypeModel
       .find()
@@ -29,8 +29,12 @@ class SubTypeRepository {
   }
   static async getSubTypesWithoutPopulate(subTypeModel) {
     const option = ["products", "createdAt", "updatedAt"];
+    const query = {
+      is_draft: false,
+      is_published: true,
+    };
     return await subTypeModel
-      .find()
+      .find(query)
       .populate({
         path: "attributes",
         model: "Attribute",
@@ -151,6 +155,43 @@ class SubTypeRepository {
       },
       { isNew: true }
     );
+  }
+  static async getDraftSubType(subTypeModel) {
+    const query = {
+      is_draft: true,
+      is_published: false,
+    };
+    return await subTypeModel.find(query).lean();
+  }
+  static async getPublishSubType(subTypeModel) {
+    const query = {
+      is_draft: false,
+      is_published: true,
+    };
+    return await subTypeModel.find(query).lean();
+  }
+  static async getAllSubType(subTypeModel) {
+    const query = {};
+    return await subTypeModel.find(query).lean();
+  }
+  static async removeSubType(subTypeModel, subTypeValue_id) {
+    checkValidId(subTypeValue_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(subTypeValue_id),
+    };
+    return await subTypeModel.deleteOne(query);
+  }
+  static async pullProductId(subTypeModel, subType_slug, product_id) {
+    checkValidId(product_id);
+    const query = {
+      slug: subType_slug,
+    };
+    const option = {
+      $pull: {
+        products: { productId: product_id },
+      },
+    };
+    return await subTypeModel.findOneAndUpdate(query, option, { isNew: true });
   }
 }
 module.exports = SubTypeRepository;

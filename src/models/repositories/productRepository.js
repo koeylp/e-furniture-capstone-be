@@ -115,9 +115,15 @@ class ProductRepository {
     };
     return await _Product.updateMany(query, update);
   }
+  static async removeRangeProductByType(type_id) {
+    const query = {
+      type: type_id,
+    };
+    return await _Product.deleteMany(query);
+  }
   static async draftRangeProductBySubType(subtype_slug) {
     const query = {
-      "attributes.type": subtype_slug,
+      "attributes.type": [subtype_slug],
       is_published: true,
     };
     const update = {
@@ -125,6 +131,12 @@ class ProductRepository {
       is_published: false,
     };
     return await _Product.updateMany(query, update);
+  }
+  static async removeRangeProductBySubType(subtype_slug) {
+    const query = {
+      "attributes.type": [subtype_slug],
+    };
+    return await _Product.deleteMany(query);
   }
 }
 module.exports = ProductRepository;

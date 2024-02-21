@@ -12,9 +12,9 @@ const {
 const { default: mongoose } = require("mongoose");
 class TypeRepository {
   static async getTypes(
-    query = {},
     page,
     limit,
+    query = {},
     option = ["__v", "createdAt", "updatedAt", "is_published"]
   ) {
     const skip = (page - 1) * limit;
@@ -38,14 +38,14 @@ class TypeRepository {
       is_draft: false,
       is_published: true,
     };
-    return await this.getTypes(query, page, limit, option);
+    return await this.getTypes(page, limit, query, option);
   }
   static async getUnPublishedTypes(page, limit) {
     const query = {
       is_draft: true,
       is_published: false,
     };
-    return await this.getTypes(query, page, limit);
+    return await this.getTypes(page, limit, query);
   }
   static async createType(typeName, thumb, subTypes) {
     const type = await _Type.create({
@@ -127,11 +127,9 @@ class TypeRepository {
         subTypes: subType,
       },
     };
-    const addResult = await _Type.findByIdAndUpdate(query, update, {
+    return await _Type.findByIdAndUpdate(query, update, {
       isNew: true,
     });
-    if (!addResult) throw new InternalServerError();
-    return addResult;
   }
   static async editTypeName(type_id, typeName) {
     checkValidId(type_id);
@@ -173,6 +171,16 @@ class TypeRepository {
       },
     };
     return await _Type.updateOne(query, update, { isNew: true });
+  }
+  static async removeType(type_id) {
+    checkValidId(type_id);
+    return await _Type.findByIdAndDelete(type_id);
+  }
+  static async findTypeBySubType_Slug(subType_slug) {
+    const query = {
+      subTypes: { $in: [subType_slug] },
+    };
+    return await _Type.find(query).lean();
   }
 }
 module.exports = TypeRepository;

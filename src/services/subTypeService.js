@@ -57,6 +57,22 @@ class SubTypeService {
       subTypeValue.slug
     );
   }
+  static async removeSubType(type_slug, subType_slug) {
+    const type = await TypeRepository.findTypeBySlug(type_slug);
+    const subTypeModel = global.subTypeSchemasMap.get(type_slug);
+    const subTypeValue = await SubTypeRepository.findSubTypeBySlug(
+      subType_slug,
+      subTypeModel
+    );
+    const subType = subTypeValue.type;
+    if (!type.subTypes.includes(subType))
+      throw new BadRequestError(`${type.name} is not contain in ${subType}`);
+    await TypeRepository.pullSubType(type._id, subType);
+    await SubTypeRepository.removeSubType(subTypeModel, subTypeValue._id);
+    return await ProductRepository.removeRangeProductBySubType(
+      subTypeValue.slug
+    );
+  }
   static async getAllSubTypes() {
     global.subTypeSchemasMap = global.subTypeSchemasMap || new Map();
     const types = await TypeRepository.getPublishedTypes();
@@ -104,6 +120,7 @@ class SubTypeService {
           slug,
           typeModel
         );
+        if (!subType) throw new BadRequestError(`Cannot Find SubType ${slug}`);
         subType.attributes.forEach((attribute) => {
           const key = JSON.stringify(attribute);
           if (!set.has(key)) {
@@ -114,6 +131,42 @@ class SubTypeService {
       })
     );
     return resultArray;
+  }
+  static async getDrafSubTypes() {
+    let subTypes = [];
+    let arrayOfModel = Array.from(global.subTypeSchemasMap);
+    if (arrayOfModel.length === 0) return [];
+    await Promise.all(
+      arrayOfModel.map(async (model) => {
+        let subtypeList = await SubTypeRepository.getDraftSubType(model[1]);
+        subTypes.push(...subtypeList);
+      })
+    );
+    return subTypes;
+  }
+  static async getPublishSubTypes() {
+    let subTypes = [];
+    let arrayOfModel = Array.from(global.subTypeSchemasMap);
+    if (arrayOfModel.length === 0) return [];
+    await Promise.all(
+      arrayOfModel.map(async (model) => {
+        let subtypeList = await SubTypeRepository.getPublishSubType(model[1]);
+        subTypes.push(...subtypeList);
+      })
+    );
+    return subTypes;
+  }
+  static async getAll() {
+    let subTypes = [];
+    let arrayOfModel = Array.from(global.subTypeSchemasMap);
+    if (arrayOfModel.length === 0) return [];
+    await Promise.all(
+      arrayOfModel.map(async (model) => {
+        let subtypeList = await SubTypeRepository.getAllSubType(model[1]);
+        subTypes.push(...subtypeList);
+      })
+    );
+    return subTypes;
   }
 }
 

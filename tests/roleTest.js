@@ -40,4 +40,5 @@ const permissionArray = (decimalNumber) => {
 };
 module.exports = {
   permissionArray,
+  sortPhase,
 };

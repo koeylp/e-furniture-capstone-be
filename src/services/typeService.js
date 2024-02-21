@@ -8,10 +8,8 @@ const {
   generateSubTypeSchema,
   deleteSubTypeSchema,
 } = require("../models/subTypeModel");
-const AttributeRepository = require("../models/repositories/attributeRepository");
 const SubTypeRepository = require("../models/repositories/subTypeRepository");
 const ProductRepository = require("../models/repositories/productRepository");
-const { removeNestedId, removeInsideUndefineObject } = require("../utils");
 const { FilterSubType } = require("../utils/subTypeUtils");
 
 class TypeService {
@@ -74,15 +72,20 @@ class TypeService {
       subTypeModel
     );
     const groupedItems = FilterSubType(subTypes);
-    // subTypes.forEach((item) => {
-    //   const group = item.group.label;
-    //   if (!groupedItems[group]) {
-    //     groupedItems[group] = [];
-    //   }
-    //   groupedItems[group].push(item);
-    // });
     return groupedItems;
   }
-  static async removeType(type_id) {}
+  static async removeType(type_slug) {
+    const type = await TypeRepository.findTypeBySlug(type_slug);
+    const result = await TypeRepository.removeType(type._id);
+    if (result.nModified < 0)
+      throw new InternalServerError("Cannot Delete Type!");
+    await Promise.all([
+      ProductFactory.unregisterProductType(type.slug),
+      global.subTypeSchemasMap.delete(type.slug),
+      ProductRepository.removeRangeProductByType(type._id),
+    ]);
+    deleteSubTypeSchema(type);
+    return result;
+  }
 }
 module.exports = TypeService;
