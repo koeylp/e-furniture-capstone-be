@@ -6,7 +6,7 @@ const DOCUMENT_NAME = "Order";
 
 const schema = new Schema(
   {
-    account_id: { type: String, required: true, ref: "Account" },
+    account_id: { type: String, ref: "Account" },
     order_checkout: { type: Object, required: true },
     order_products: { type: Array, required: true },
     payment: {
@@ -21,6 +21,7 @@ const schema = new Schema(
       enum: ["Pending", "Processing", "Shipping", "Done", "Cancel"],
       default: "Pending",
     },
+    guest: { type: Boolean, default: false },
     status: { type: Number, default: 1 },
   },
   {

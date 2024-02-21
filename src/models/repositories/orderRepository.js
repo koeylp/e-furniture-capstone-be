@@ -67,5 +67,16 @@ class OrderRepository {
       $set: { order_tracking: order_tracking },
     });
   }
+  static async createOrderGuest(order) {
+    const newOrder = await _Order.create({
+      guest: true,
+      order_checkout: order.order_checkout,
+      order_products: order.order_products,
+      payment: order.payment,
+      order_shipping: order.order_shipping,
+    });
+    if (!order) throw new InternalServerError();
+    return newOrder;
+  }
 }
 module.exports = OrderRepository;

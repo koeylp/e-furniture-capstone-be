@@ -39,5 +39,8 @@ class OrderService {
       orderTrackingMap.get(key_of_type + 1)
     );
   }
+  static async createOrderGuest(order) {
+    return await OrderRepository.createOrderGuest(order);
+  }
 }
 module.exports = OrderService;

@@ -73,5 +73,16 @@ class OrderController {
       metaData: await OrderService.updateTracking(order_id),
     }).send(res);
   }
+
+  static async createOrderGuest(req, res) {
+    const order = req.body;
+    if (!order) throw new BadRequestError();
+    const { error } = validateOrderInput(order);
+    if (error) throw new BadRequestError(error.details[0].message);
+    return new OK({
+      message: "Create Order Successfully!",
+      metaData: await OrderService.createOrderGuest(order),
+    }).send(res);
+  }
 }
 module.exports = OrderController;
