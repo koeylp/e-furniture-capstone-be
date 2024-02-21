@@ -20,6 +20,11 @@ const hasPermission = (hasRole) => async (req, res, next) => {
     const { role } = req.payload;
     if (!role) throw new UnAuthorizedError();
     const roleArray = permissionArray(role);
+    if (Array.isArray(hasRole) && hasRole.length !== 0) {
+      let check = hasRole.some((element) => roleArray.includes(element));
+      if (!check) throw new UnAuthorizedError("Action Denied");
+      return next();
+    }
     if (!roleArray.includes(hasRole))
       throw new UnAuthorizedError("Action Denied");
     next();

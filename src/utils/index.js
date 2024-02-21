@@ -10,7 +10,11 @@ const getUnSelectData = (select = []) => {
 };
 const removeUndefineObject = (obj) => {
   Object.keys(obj).forEach((k) => {
-    if (obj[k] === null || obj[k] === undefined) {
+    if (
+      obj[k] === null ||
+      obj[k] === undefined ||
+      (Array.isArray(obj[k]) && obj[k].length === 0)
+    ) {
       delete obj[k];
     }
   });

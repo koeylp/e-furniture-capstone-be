@@ -22,7 +22,7 @@ class TypeController {
     const { type_slug } = req.params;
     if (!type_slug) throw new BadRequestError();
     return new OK({
-      message: "Publish SubType Successfully!",
+      message: "Draft SubType Successfully!",
       metaData: await TypeService.draftType(type_slug),
     }).send(res);
   }
@@ -33,6 +33,22 @@ class TypeController {
       metaData: await TypeService.getTypes(page, limit),
     }).send(res);
   }
+  static async getSubType(req, res) {
+    const { type_slug } = req.params;
+    if (!type_slug) throw new BadRequestError();
+    return new OK({
+      message: "List Of Type!",
+      metaData: await TypeService.getSubTypeByType(type_slug),
+    }).send(res);
+  }
+  static async removeType(req, res) {
+    const { type_slug } = req.params;
+    if (!type_slug) throw new BadRequestError();
+    return new OK({
+      message: "Remove Type Successfully!",
+      metaData: await TypeService.removeType(type_slug),
+    }).send(res);
+  }
   static async getPublishedType(req, res) {
     const { page, limit } = req.query;
     return new OK({
@@ -40,12 +56,11 @@ class TypeController {
       metaData: await TypeService.getPublishedType(page, limit),
     }).send(res);
   }
-  static async getSubType(req, res) {
-    const { type_slug } = req.params;
-    if (!type_slug) throw new BadRequestError();
+  static async getDraftType(req, res) {
+    const { page, limit } = req.query;
     return new OK({
       message: "List Of Type!",
-      metaData: await TypeService.getSubTypeByType(type_slug),
+      metaData: await TypeService.getUnPublishedType(page, limit),
     }).send(res);
   }
 }
