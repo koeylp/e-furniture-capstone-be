@@ -12,17 +12,12 @@ function generateSubTypeSchema(type) {
       thumb: { type: String, default: "" },
       attributes: [
         {
-          _id: {
-            type: Schema.Types.ObjectId,
-            required: true,
-            ref: "Attribute",
-          },
-          type: {
-            type: String,
-            default: "String",
-          },
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: "Attribute",
         },
       ],
+      group: { type: String, required: true, ref: "SubTypeGroup" },
       products: [
         {
           productId: {

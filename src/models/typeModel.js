@@ -7,6 +7,7 @@ const DOCUMENT_NAME = "Types";
 const schema = new Schema(
   {
     name: { type: String, required: true },
+    thumb: { type: String, required: true },
     slug: { type: String },
     subTypes: { type: Array, default: [] },
     is_draft: { type: Boolean, default: true },

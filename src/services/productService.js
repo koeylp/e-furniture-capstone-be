@@ -7,6 +7,7 @@ const {
   getProducts,
   getProductsBySubType,
 } = require("../utils/skipLimitForProduct");
+const TypeRepository = require("../models/repositories/typeRepository");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -27,11 +28,15 @@ class ProductService {
     if (product.is_published)
       throw new BadRequestError("Product is already published!");
     await ProductRepository.publishProduct(product._id);
-    return await SubTypeRepository.addProductSubType(
-      product._id.toString(),
-      typeModel,
-      product.attributes.type
-    );
+    let product_SubType = product.attributes.type;
+    product_SubType.map(async (type) => {
+      await SubTypeRepository.addProductSubType(
+        product._id.toString(),
+        typeModel,
+        type
+      );
+    });
+    return product;
   }
   static async draftProduct(type_slug, product_slug) {
     const typeModel = ProductFactory.productRegistry[type_slug];
@@ -55,13 +60,20 @@ class ProductService {
       subType_products
     );
   }
-  static async getProductsByType(page = 1, limit = 1, type_slug) {
-    const typeModel = ProductFactory.productRegistry[type_slug];
-    if (!typeModel) throw new BadRequestError("Invalid Type Product");
-    const option = ["_id", "type", "slug", "products"];
-    const subTypes = await SubTypeRepository.getSubTypes(typeModel, option);
-    const listProduct = getProducts(page, limit, subTypes);
-    return listProduct.map((item) => item.productId);
+  static async getProductsByType(
+    page = 1,
+    limit = 1,
+    sortType = "default",
+    type_slug
+  ) {
+    const type = await TypeRepository.findTypeBySlug(type_slug);
+    sortType = returnSortType(sortType);
+    return await ProductRepository.getProductByType(
+      page,
+      limit,
+      sortType,
+      type._id
+    );
   }
   static async getProductsBySubType(page = 1, limit = 1, type_slug, slug) {
     const typeModel = ProductFactory.productRegistry[type_slug];

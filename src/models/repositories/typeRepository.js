@@ -47,9 +47,10 @@ class TypeRepository {
     };
     return await this.getTypes(query, page, limit);
   }
-  static async createType(typeName, subTypes) {
+  static async createType(typeName, thumb, subTypes) {
     const type = await _Type.create({
       name: typeName,
+      thumb,
       subTypes: removeDuplicates(subTypes),
     });
     if (!type) throw new InternalServerError();

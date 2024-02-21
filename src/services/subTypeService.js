@@ -2,29 +2,24 @@ const AttributeRepository = require("../models/repositories/attributeRepository"
 const ProductRepository = require("../models/repositories/productRepository");
 const SubTypeRepository = require("../models/repositories/subTypeRepository");
 const TypeRepository = require("../models/repositories/typeRepository");
+const SubTypeGroupRepository = require("../models/repositories/subTypeGroupRepository");
 const { generateSubTypeSchema } = require("../models/subTypeModel");
 const { BadRequestError } = require("../utils/errorHanlder");
 
 class SubTypeService {
-  static async addSubType(
-    type_id,
-    subType,
-    description,
-    thumb,
-    attributes = []
-  ) {
-    const type = await TypeRepository.findTypeById(type_id);
+  static async addSubType(payload) {
+    const type = await TypeRepository.findTypeById(payload.type_id);
     const subTypeModel = global.subTypeSchemasMap.get(type.slug);
     if (!subTypeModel) throw new BadRequestError("Type is not in use!");
-    if (type.subTypes.includes(subType))
-      throw new BadRequestError(`${subType} is already in ${type.name}`);
-    await AttributeRepository.checkArrayExist(attributes);
+    if (type.subTypes.includes(payload.subType))
+      throw new BadRequestError(
+        `${payload.subType} is already in ${type.name}`
+      );
+    await AttributeRepository.checkArrayExist(payload.attributes);
+    await SubTypeGroupRepository.findGroupBySlug(payload.group);
     const subTypeResult = await SubTypeRepository.createSubTypeValue(
       subTypeModel,
-      subType,
-      description,
-      thumb,
-      attributes
+      payload
     );
     return subTypeResult;
   }
@@ -97,7 +92,28 @@ class SubTypeService {
   }
   static async getSubTypeDetail(slug, type_slug) {
     const typeSchema = global.subTypeSchemasMap.get(type_slug);
-    return await SubTypeRepository.findSubTypeBySlug(slug, typeSchema);
+    let subtype = await SubTypeRepository.findSubTypeBySlug(slug, typeSchema);
+    return subtype;
+  }
+  static async getAttributeBySubType(typeModel, listSlug) {
+    const set = new Set();
+    let resultArray = [];
+    await Promise.all(
+      listSlug.map(async (slug) => {
+        let subType = await SubTypeRepository.findSubTypeBySlug(
+          slug,
+          typeModel
+        );
+        subType.attributes.forEach((attribute) => {
+          const key = JSON.stringify(attribute);
+          if (!set.has(key)) {
+            set.add(key);
+            resultArray.push(attribute);
+          }
+        });
+      })
+    );
+    return resultArray;
   }
 }
 

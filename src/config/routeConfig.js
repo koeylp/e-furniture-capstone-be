@@ -14,6 +14,8 @@ const routes = [
   { path: "/voucher", route: require("../routes/voucher") },
   { path: "/wishlist", route: require("../routes/wishlist") },
   { path: "/account", route: require("../routes/account") },
+  { path: "/attribute", route: require("../routes/attribute") },
+  { path: "/group", route: require("../routes/group") },
 ];
 
 const configureRoutes = (app) => {
