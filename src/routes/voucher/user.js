@@ -14,8 +14,13 @@ router.use(hasAccess(2));
 router.get("/", asyncHandler(VoucherController.getAllActiveVouchers));
 router.post(
   "/apply-voucher/:voucher_id",
+  hasPermission("[102]"),
   asyncHandler(VoucherController.applyVoucher)
 );
-router.get("/get-by-specified", asyncHandler(VoucherController.getBySpecified));
+router.get(
+  "/get-by-specified",
+  hasPermission("[101]"),
+  asyncHandler(VoucherController.getBySpecified)
+);
 
 module.exports = router;

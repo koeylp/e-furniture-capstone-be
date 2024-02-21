@@ -21,7 +21,7 @@ const schema = new Schema(
       enum: ["Pending", "Processing", "Shipping", "Done", "Cancel"],
       default: "Pending",
     },
-    status: { type: Number, default: 0 },
+    status: { type: Number, default: 1 },
   },
   {
     collection: COLLECTION_NAME,

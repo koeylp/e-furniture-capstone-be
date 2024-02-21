@@ -1,5 +1,4 @@
 "use strict";
-const { number } = require("joi");
 const { model, Schema } = require("mongoose");
 
 const COLLECTION_NAME = "Showroom";
@@ -11,7 +10,7 @@ const schema = new Schema(
     name: { type: String, required: true, unique: true },
     products: { type: Array, default: [] },
     description: { type: String },
-    status: { type: number, default: 1 },
+    status: { type: Number, default: 1 },
   },
   {
     collection: COLLECTION_NAME,

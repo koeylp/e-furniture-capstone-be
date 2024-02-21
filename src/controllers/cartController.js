@@ -2,8 +2,6 @@ const CartService = require("../services/cartService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
 
-const CLIENT_ID = "x-client-id";
-
 class CartController {
   static async addToCart(req, res) {
     const { account_id } = req.payload;
