@@ -39,6 +39,7 @@ class SubTypeRepository {
       .populate({
         path: "group",
         model: "SubTypeGroup",
+        match: { slug: { $exists: true } },
         select: "-createdAt -updatedAt -__v",
       })
       .select(getUnSelectData(option));

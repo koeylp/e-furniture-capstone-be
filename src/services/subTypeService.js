@@ -16,7 +16,7 @@ class SubTypeService {
         `${payload.subType} is already in ${type.name}`
       );
     await AttributeRepository.checkArrayExist(payload.attributes);
-    await SubTypeGroupRepository.findGroupBySlug(payload.group);
+    await SubTypeGroupRepository.findGroupById(payload.group);
     const subTypeResult = await SubTypeRepository.createSubTypeValue(
       subTypeModel,
       payload
