@@ -40,6 +40,7 @@ class OrderService {
     );
   }
   static async createOrderGuest(order) {
+    await verifyProductStockExistence(order);
     return await OrderRepository.createOrderGuest(order);
   }
 }
