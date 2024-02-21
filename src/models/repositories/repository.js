@@ -2,10 +2,8 @@ const {
   getSelectData,
   getUnSelectData,
   removeUndefineObject,
-  checkValidId,
 } = require("../../utils/index");
 const { NotFoundError } = require("../../utils/errorHanlder");
-const { default: mongoose } = require("mongoose");
 
 class Repository {
   static async exist({ query, MODEL }) {

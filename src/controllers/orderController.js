@@ -1,9 +1,8 @@
 const OrderService = require("../services/orderSerivce");
 const { BadRequestError } = require("../utils/errorHanlder");
+const { capitalizeFirstLetter } = require("../utils/format");
 const { OK } = require("../utils/successHandler");
 const { validateOrderInput } = require("../utils/validation");
-
-const CLIENT_ID = "x-client-id";
 
 class OrderController {
   static async getOrders(req, res) {
@@ -24,7 +23,7 @@ class OrderController {
   }
 
   static async findOrderByUser(req, res) {
-    const { account_id } = req.params;
+    const { account_id } = req.payload;
     const { page, limit } = req.query;
     if (!account_id) throw new BadRequestError();
     return new OK({
@@ -34,16 +33,18 @@ class OrderController {
   }
 
   static async findOrderByType(req, res) {
-    const { type } = req.params;
-    const { page, limit } = req.query;
-    if (!account_id) throw new BadRequestError();
+    const { page, limit, type } = req.query;
     return new OK({
       message: "List Of Order By Type",
-      metaData: await OrderService.findOrderByType(type, page, limit),
+      metaData: await OrderService.findOrderByType(
+        capitalizeFirstLetter(type),
+        page,
+        limit
+      ),
     }).send(res);
   }
 
-  static async findOrderByType(req, res) {
+  static async removeOrder(req, res) {
     const { order_id } = req.params;
     if (!order_id) throw new BadRequestError();
     return new OK({
@@ -53,7 +54,7 @@ class OrderController {
   }
 
   static async createOrder(req, res) {
-    const account_id = req.headers[CLIENT_ID];
+    const { account_id } = req.payload;
     const order = req.body;
     if (!order) throw new BadRequestError();
     const { error } = validateOrderInput(order);
@@ -61,6 +62,15 @@ class OrderController {
     return new OK({
       message: "Create Order Successfully!",
       metaData: await OrderService.createOrder(account_id, order),
+    }).send(res);
+  }
+
+  static async updateTracking(req, res) {
+    const { order_id } = req.params;
+    if (!order_id) throw new BadRequestError();
+    return new OK({
+      message: "Update Tracking Successfully!",
+      metaData: await OrderService.updateTracking(order_id),
     }).send(res);
   }
 }

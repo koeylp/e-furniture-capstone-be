@@ -1,10 +1,7 @@
 const { NotFoundError, BadRequestError } = require("../utils/errorHanlder");
 const CartRepository = require("../models/repositories/cartRepository");
 const { verifyProductExistence } = require("../utils/verifyExistence");
-const {
-  getBySpecifiedObjectType,
-  getBySpecified,
-} = require("../utils/voucherUtil");
+const { getBySpecified } = require("../utils/voucherUtil");
 const { calculateOrderTotal } = require("../utils/calculator");
 
 class CartService {
@@ -23,9 +20,7 @@ class CartService {
     const cart = await CartRepository.findByAccountId({
       account_id: account_id,
     });
-    // check cart model whether existting if not create new one
     if (!cart) await CartRepository.createCart(account_id);
-    // add to cart
     const foundProduct = await verifyProductExistence(product._id);
     const foundIndex = cart.products.findIndex((el) => el._id === product._id);
     if (foundIndex === -1) {
@@ -68,13 +63,8 @@ class CartService {
       );
     if (newQuantity <= 0)
       throw new BadRequestError("new quantity must be greater than 0");
-
-    // fix total with new quantity
-    // minus old quantity
     cart.total -= cart.products[foundIndex].quantity * foundProduct.price;
-    // set new quantity
     cart.products[foundIndex].quantity = newQuantity;
-    // plus new quantity
     cart.total += newQuantity * foundProduct.price;
     return await CartRepository.save(cart);
   }
@@ -101,9 +91,7 @@ class CartService {
     if (updatedQuantity === 0) {
       cart.products[foundIndex].quantity++;
       cart = await this.remove(cart, foundProduct, foundIndex);
-    }
-    // fix total with new quantity
-    else cart.total -= foundProduct.price;
+    } else cart.total -= foundProduct.price;
     return await CartRepository.save(cart);
   }
 
@@ -121,9 +109,7 @@ class CartService {
   }
 
   static async remove(cart, foundProduct, foundIndex) {
-    // minus before splice
     cart.total -= cart.products[foundIndex].quantity * foundProduct.price;
-    // splice
     cart.products.splice(foundIndex, 1);
     cart.count_product--;
     if (cart.count_product === 0) cart.total = 0;

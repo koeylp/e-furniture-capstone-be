@@ -3,8 +3,6 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
 const { validateVoucherInput } = require("../utils/validation");
 
-const CLIENT_ID = "x-client-id";
-
 class VoucherController {
   static async createVoucher(req, res) {
     const voucher = req.body;
