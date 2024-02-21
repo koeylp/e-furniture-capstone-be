@@ -83,6 +83,15 @@ class ProductRepository {
     const query = { is_published: true, is_draft: false };
     return await this.getAlls(query, page, limit, sortType);
   }
+  static async getProductByType(page, limit, sortType, type_id) {
+    checkValidId(type_id);
+    const query = {
+      is_published: true,
+      is_draft: false,
+      type: new mongoose.Types.ObjectId(type_id),
+    };
+    return await this.getAlls(query, page, limit, sortType);
+  }
   static async removeProduct(product_id) {
     let query = {
       _id: new mongoose.Types.ObjectId(product_id),

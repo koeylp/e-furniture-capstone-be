@@ -124,8 +124,9 @@ const validateCreateSubType = (data) => {
   const schema = Joi.object({
     type_id: Joi.string().required(),
     subType: Joi.string().required(),
-    description: Joi.string().required(),
-    thumb: Joi.string().required(),
+    description: Joi.string().min(0),
+    thumb: Joi.string().min(0),
+    group: Joi.string().required(),
     attributes: Joi.array(),
   });
   return schema.validate(data);

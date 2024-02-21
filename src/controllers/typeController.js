@@ -3,11 +3,11 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
 class TypeController {
   static async createType(req, res) {
-    const { name } = req.body;
-    if (!name) throw new BadRequestError();
+    const { name, thumb } = req.body;
+    if (!name || !thumb) throw new BadRequestError();
     return new OK({
       message: "Create Successfully!",
-      metaData: await TypeService.createType(name),
+      metaData: await TypeService.createType(name, thumb),
     }).send(res);
   }
   static async publishType(req, res) {

@@ -11,12 +11,14 @@ const {
 const AttributeRepository = require("../models/repositories/attributeRepository");
 const SubTypeRepository = require("../models/repositories/subTypeRepository");
 const ProductRepository = require("../models/repositories/productRepository");
+const { removeNestedId, removeInsideUndefineObject } = require("../utils");
+const { FilterSubType } = require("../utils/subTypeUtils");
 
 class TypeService {
-  static async createType(typeName, subTypes = []) {
+  static async createType(typeName, thumb, subTypes = []) {
     const checkType = await TypeRepository.existTypeName(typeName);
     if (checkType) throw new BadRequestError(`${typeName} is already in use`);
-    return await TypeRepository.createType(typeName, subTypes);
+    return await TypeRepository.createType(typeName, thumb, subTypes);
   }
   static async publishType(type_slug) {
     const type = await TypeRepository.findTypeBySlug(type_slug);
@@ -68,7 +70,18 @@ class TypeService {
   static async getSubTypeByType(type_slug) {
     const subTypeModel = global.subTypeSchemasMap.get(type_slug);
     if (!subTypeModel) throw new BadRequestError("Type is not in use!");
-    return await SubTypeRepository.getSubTypesWithoutPopulate(subTypeModel);
+    let subTypes = await SubTypeRepository.getSubTypesWithoutPopulate(
+      subTypeModel
+    );
+    const groupedItems = FilterSubType(subTypes);
+    // subTypes.forEach((item) => {
+    //   const group = item.group.label;
+    //   if (!groupedItems[group]) {
+    //     groupedItems[group] = [];
+    //   }
+    //   groupedItems[group].push(item);
+    // });
+    return groupedItems;
   }
   static async removeType(type_id) {}
 }

@@ -30,11 +30,16 @@ class ProductController {
   }
   static async getProductsByType(req, res) {
     const { type_slug } = req.params;
-    const { page, limit } = req.query;
+    const { page, limit, sortType } = req.query;
     if (!type_slug) throw new BadRequestError();
     return new OK({
       message: "List Published Product!!",
-      metaData: await ProductService.getProductsByType(page, limit, type_slug),
+      metaData: await ProductService.getProductsByType(
+        page,
+        limit,
+        sortType,
+        type_slug
+      ),
     }).send(res);
   }
   static async getProductsBySubType(req, res) {

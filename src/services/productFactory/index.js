@@ -10,6 +10,7 @@ const {
   removeUndefineObject,
   removeInsideUndefineObject,
 } = require("../../utils");
+const SubTypeService = require("../subTypeService");
 class Product {
   constructor({
     name,
@@ -55,8 +56,13 @@ class TypeProduct extends Product {
     );
     if (!subType)
       throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
-    if (subType.attributes)
-      validateSubType(this.attributes.attributeType, subType.attributes);
+    if (subType.attributes) {
+      const attribute = await SubTypeService.getAttributeBySubType(
+        typeModel,
+        this.attributes.type
+      );
+      validateSubType(this.attributes.attributeType, attribute);
+    }
     this.type = type._id;
     return await super.createProduct();
   }

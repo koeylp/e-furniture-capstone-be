@@ -14,16 +14,9 @@ class SubTypeController {
   static async createSubType(req, res) {
     const { error } = validateCreateSubType(req.body);
     if (error) throw new BadRequestError(error.details[0].message);
-    const { type_id, subType, description, thumb, attributes } = req.body;
     return new OK({
       message: "SubType Detail!",
-      metaData: await SubTypeService.addSubType(
-        type_id,
-        subType,
-        description,
-        thumb,
-        attributes
-      ),
+      metaData: await SubTypeService.addSubType(req.body),
     }).send(res);
   }
   static async publishSubType(req, res) {

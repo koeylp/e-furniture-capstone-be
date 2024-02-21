@@ -4,9 +4,9 @@ const validateSubType = (data, subTypeEnum) => {
   const schema = Joi.object()
     .keys(
       subTypeEnum.reduce((acc, subType) => {
-        const { _id, type } = subType;
-        const typeValidator = type === "String" ? Joi.string() : Joi.number();
-        acc[_id.name] = typeValidator.required();
+        const { name, type } = subType;
+        const typeValidator = type === "string" ? Joi.string() : Joi.number();
+        acc[name] = typeValidator.required();
         return acc;
       }, {})
     )
