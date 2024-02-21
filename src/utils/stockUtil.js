@@ -1,12 +1,13 @@
 const { draftProduct } = require("../models/repositories/productRepository");
 const WarehouseRepository = require("../models/repositories/warehouseRepository");
-const { BadRequestError } = require("./errorHanlder");
+const { BadRequestError, NotFoundError } = require("./errorHanlder");
 
 class StockUtil {
   static async checkProductStock(product) {
     const { product_id, location, quantity } = product;
     const query = { product_id, location };
     const foundProductStock = await WarehouseRepository.findByQuery(query);
+    if (!foundProductStock) throw new NotFoundError("Stock not found!");
     if (foundProductStock.stock === 0)
       throw new BadRequestError(
         `The product with id ${product_id} is out of stock`
