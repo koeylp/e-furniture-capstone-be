@@ -48,8 +48,7 @@ class ProductRepository {
     );
   }
   static async draftProduct(product_id) {
-    const product = await this.findProductById(product_id);
-    return await _Product.findByIdAndUpdate(
+    return await _Product.findOneAndUpdate(
       { _id: product_id },
       {
         $set: {
@@ -81,6 +80,15 @@ class ProductRepository {
   }
   static async getAllPublished(page, limit, sortType) {
     const query = { is_published: true, is_draft: false };
+    return await this.getAlls(query, page, limit, sortType);
+  }
+  static async getProductByType(page, limit, sortType, type_id) {
+    checkValidId(type_id);
+    const query = {
+      is_published: true,
+      is_draft: false,
+      type: new mongoose.Types.ObjectId(type_id),
+    };
     return await this.getAlls(query, page, limit, sortType);
   }
   static async removeProduct(product_id) {

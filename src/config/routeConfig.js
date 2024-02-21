@@ -15,6 +15,8 @@ const routes = [
   { path: "/wishlist", route: require("../routes/wishlist") },
   { path: "/account", route: require("../routes/account") },
   { path: "/showroom", route: require("../routes/showroom") },
+  { path: "/attribute", route: require("../routes/attribute") },
+  { path: "/group", route: require("../routes/group") },
 ];
 
 const configureRoutes = (app) => {

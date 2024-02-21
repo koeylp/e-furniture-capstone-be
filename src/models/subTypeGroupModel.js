@@ -20,6 +20,4 @@ schema.pre("save", function (next) {
   this.slug = slugify(this.label, { lower: true });
   next();
 });
-module.exports = {
-  _Product: model(DOCUMENT_NAME, schema),
-};
+module.exports = model(DOCUMENT_NAME, schema);

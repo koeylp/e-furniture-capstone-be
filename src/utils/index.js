@@ -35,7 +35,8 @@ const calculateRating = (rating, n, newRating) => {
   return Math.round(newAverageRating * 10) / 10;
 };
 const checkValidId = (_id) => {
-  if (!mongoose.Types.ObjectId.isValid(_id)) throw new NotFoundError(`id ${_id} does not exist`);
+  if (!mongoose.Types.ObjectId.isValid(_id))
+    throw new NotFoundError(`id ${_id} does not exist`);
 };
 const checkMinNumber = ({ value, min }) => {
   if (value <= min)
@@ -66,6 +67,12 @@ function removeDuplicates(arr) {
   }
   return Array.from(new Set(arr));
 }
+function convertAttributes(attributes) {
+  return attributes.map((attribute) => {
+    const { _id, ...rest } = attribute._id;
+    return { _id, ...rest };
+  });
+}
 
 module.exports = {
   getSelectData,
@@ -79,4 +86,5 @@ module.exports = {
   checkRoleNumber,
   handleProducts,
   removeDuplicates,
+  convertAttributes,
 };

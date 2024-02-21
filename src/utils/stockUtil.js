@@ -1,3 +1,4 @@
+const { draftProduct } = require("../models/repositories/productRepository");
 const WarehouseRepository = require("../models/repositories/warehouseRepository");
 const { BadRequestError } = require("./errorHanlder");
 
@@ -23,6 +24,7 @@ class StockUtil {
     const foundWarehouse = await WarehouseRepository.findByQuery(query);
     const warehouse_id = foundWarehouse._id.toHexString();
     const updatedStock = foundWarehouse.stock - quantity;
+    if (updatedStock === 0) await draftProduct(product_id);
     await WarehouseRepository.updateWareHouse(warehouse_id, {
       stock: updatedStock,
     });

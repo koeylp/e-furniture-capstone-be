@@ -1,7 +1,6 @@
 const _Order = require("../orderModel");
 const { getUnSelectData, checkValidId } = require("../../utils/index");
 const { default: mongoose } = require("mongoose");
-const { order_tracking } = require("../../config/orderTrackingConfig");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
