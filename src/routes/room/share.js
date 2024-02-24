@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const AttributeController = require("../../controllers/attributeController");
+const RoomController = require("../../controllers/roomController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 const {
   hasAccess,
@@ -11,20 +11,15 @@ const { verifyToken } = require("../../jwt/verifyToken");
 router.use(verifyToken);
 router.use(hasAccess(32));
 
-router.post(
-  "/",
-  hasPermission("106"),
-  asyncHandler(AttributeController.createAttribute)
+router.get(
+  "/draft",
+  hasPermission(["[105]", "[109]"]),
+  asyncHandler(RoomController.getDraftRooms)
 );
 router.get(
   "/",
-  hasPermission("105"),
-  asyncHandler(AttributeController.getAllAttribute)
-);
-router.get(
-  "/:attribute_id",
-  hasPermission("105"),
-  asyncHandler(AttributeController.findAttribute)
+  hasPermission(["[105]", "[109]"]),
+  asyncHandler(RoomController.getRooms)
 );
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const RoleRepository = require("../models/repositories/roleRepository");
-const { sortPhase } = require("../../tests/roleTest");
+const { sortPhase, permissionArray } = require("../../tests/roleTest");
 class RoleService {
   static async createRole(payload) {
     return await RoleRepository.create(payload);
@@ -10,10 +10,12 @@ class RoleService {
   static async getRoleValue(roles) {}
   static async convertRoleValueToEnum() {
     const roles = await RoleRepository.getRoles();
+    let item = 1;
     roles.forEach((role) => {
-      sortPhase.set(item.a, item.b);
+      sortPhase.set(item, role.permission);
+      item++;
     });
-    console.log(sortPhase);
   }
 }
+RoleService.convertRoleValueToEnum();
 module.exports = RoleService;

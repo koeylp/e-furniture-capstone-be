@@ -92,6 +92,15 @@ class ProductRepository {
     };
     return await this.getAlls(query, page, limit, sortType);
   }
+  static async getProductByRoom(page, limit, sortType, room_id) {
+    checkValidId(room_id);
+    const query = {
+      is_published: true,
+      is_draft: false,
+      room: room_id,
+    };
+    return await this.getAlls(query, page, limit, sortType);
+  }
   static async removeProduct(product_id) {
     let query = {
       _id: new mongoose.Types.ObjectId(product_id),

@@ -18,13 +18,17 @@ class RoomRepository {
   }
   static async findRoomByName(name) {
     const query = { name: name, status: 1 };
-    return await _Room.findOne(query);
+    return await this.findRoom(query);
   }
   static async findRoomById(room_id) {
     checkValidId(room_id);
     const query = { _id: new mongoose.Types.ObjectId(room_id), status: 1 };
-    const room = await _Room.findOne(query);
+    const room = await this.findRoom(query);
     if (!room) throw new BadRequestError("Cannot Find Any Room Result!");
+    return room;
+  }
+  static async findRoom(query) {
+    const room = await _Room.findOne(query);
     return room;
   }
   static async getRooms({
@@ -45,24 +49,43 @@ class RoomRepository {
       .lean();
   }
   static async editRoom(room_id, name, description, thumb) {
-    const room = await this.findRoomById(room_id);
-    room.name = name;
-    room.description = description;
-    room.thumb = thumb;
-    return await _Room.update(room);
+    const query = {
+      _id: new mongoose.Types.ObjectId(room_id),
+    };
+    const update = {
+      $set: {
+        name,
+        description,
+        thumb,
+      },
+    };
+    return await _Room.findOneAndUpdate(query, update, { new: true });
   }
   static async enableRoom(room_id) {
-    const room = await this.findRoomById(room_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(room_id),
+    };
+    const room = await this.findRoom(query);
     const roomCheck = await this.findRoomByName(room.name);
-    if (roomCheck._id != new mongoose.Types.ObjectId(room_id))
+    if (roomCheck && roomCheck._id != new mongoose.Types.ObjectId(room_id))
       throw new BadRequestError("Cannot Enable This Room!");
-    room.status = 1;
-    return await _Room.update(room);
+    const update = {
+      $set: {
+        status: 1,
+      },
+    };
+    return await _Room.findOneAndUpdate(query, update, { new: true });
   }
   static async disableRoom(room_id) {
-    const room = await this.findRoomById(room_id);
-    room.status = 0;
-    return await _Room.update(room);
+    const query = {
+      _id: new mongoose.Types.ObjectId(room_id),
+    };
+    const update = {
+      $set: {
+        status: 0,
+      },
+    };
+    return await _Room.findOneAndUpdate(query, update, { new: true });
   }
 }
 module.exports = RoomRepository;

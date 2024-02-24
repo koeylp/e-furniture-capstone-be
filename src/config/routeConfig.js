@@ -16,6 +16,8 @@ const routes = [
   { path: "/account", route: require("../routes/account") },
   { path: "/attribute", route: require("../routes/attribute") },
   { path: "/group", route: require("../routes/group") },
+  { path: "/role", route: require("../routes/role") },
+  { path: "/room", route: require("../routes/room") },
 ];
 
 const configureRoutes = (app) => {

@@ -41,7 +41,7 @@ class ProductService {
   }
   static async getProductsByType(
     page = 1,
-    limit = 1,
+    limit = 12,
     sortType = "default",
     type_slug
   ) {
@@ -54,7 +54,21 @@ class ProductService {
       type._id
     );
   }
-  static async getProductsBySubType(page = 1, limit = 1, type_slug, slug) {
+  static async getProductsByRoom(
+    page = 1,
+    limit = 12,
+    sortType = "default",
+    room_id
+  ) {
+    sortType = returnSortType(sortType);
+    return await ProductRepository.getProductByRoom(
+      page,
+      limit,
+      sortType,
+      room_id
+    );
+  }
+  static async getProductsBySubType(page = 1, limit = 12, type_slug, slug) {
     const typeModel = ProductFactory.productRegistry[type_slug];
     if (!typeModel) throw new BadRequestError("Invalid Type Product");
     const subTypes = await SubTypeRepository.findSubTypeBySlugWithPopulate(
