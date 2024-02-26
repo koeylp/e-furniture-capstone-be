@@ -77,5 +77,13 @@ class CartController {
       metaData: await CartService.checkout(products),
     }).send(res);
   }
+
+  static async checkoutGuest(req, res) {
+    const products = req.body;
+    return new OK({
+      message: "Checkout",
+      metaData: await CartService.checkoutGuest(products),
+    }).send(res);
+  }
 }
 module.exports = CartController;
