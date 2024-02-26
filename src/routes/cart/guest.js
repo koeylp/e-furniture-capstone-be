@@ -3,6 +3,6 @@ const router = express.Router();
 const CartController = require("../../controllers/cartController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
-router.post("/checkout", asyncHandler(CartController.checkout));
+router.post("/checkout", asyncHandler(CartController.checkoutGuest));
 
 module.exports = router;

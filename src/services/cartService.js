@@ -122,6 +122,11 @@ class CartService {
     const total = calculateOrderTotal(products.products);
     return { products: products.products, total: total, vouchers: vouchers };
   }
+
+  static async checkoutGuest(products) {
+    const total = calculateOrderTotal(products.products);
+    return { products: products.products, total: total };
+  }
 }
 
 module.exports = CartService;
