@@ -85,5 +85,14 @@ class CartController {
       metaData: await CartService.checkoutGuest(products),
     }).send(res);
   }
+
+  static async addArrayToCart(req, res) {
+    const products = req.body;
+    const { account_id } = req.payload;
+    return new OK({
+      message: "Add all successfully!",
+      metaData: await CartService.addArrayToCart(account_id, products),
+    }).send(res);
+  }
 }
 module.exports = CartController;

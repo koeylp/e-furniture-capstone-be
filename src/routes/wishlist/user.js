@@ -26,5 +26,10 @@ router.delete(
   hasPermission("[104]"),
   asyncHandler(WishlistController.removeProduct)
 );
+router.post(
+  "/items/add-all",
+  hasPermission("[102]"),
+  asyncHandler(WishlistController.addArrayToWishlist)
+);
 
 module.exports = router;

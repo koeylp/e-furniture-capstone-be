@@ -17,10 +17,12 @@ class CartService {
   }
 
   static async addToCart(account_id, product) {
-    const cart = await CartRepository.findByAccountId({
+    let cart = await CartRepository.findByAccountId({
       account_id: account_id,
     });
-    if (!cart) await CartRepository.createCart(account_id);
+    if (!cart) {
+      cart = await CartRepository.createCart(account_id);
+    }
     const foundProduct = await verifyProductExistence(product._id);
     const foundIndex = cart.products.findIndex((el) => el._id === product._id);
     if (foundIndex === -1) {
@@ -126,6 +128,29 @@ class CartService {
   static async checkoutGuest(products) {
     const total = calculateOrderTotal(products.products);
     return { products: products.products, total: total };
+  }
+
+  static async addArrayToCart(account_id, products) {
+    let cart = await CartRepository.findByAccountId({
+      account_id: account_id,
+    });
+    if (!cart) {
+      cart = await CartRepository.createCart(account_id);
+    }
+    for (let i = 0; i < products.length; i++) {
+      const foundProduct = await verifyProductExistence(products[i]._id);
+      const foundIndex = cart.products.findIndex(
+        (el) => el._id === products[i]._id
+      );
+      if (foundIndex === -1) {
+        cart.count_product++;
+        cart.products.push(products[i]);
+      } else {
+        cart.products[foundIndex].quantity += products[i].quantity;
+      }
+      cart.total += products[i].quantity * foundProduct.price;
+    }
+    return await CartRepository.save(cart);
   }
 }
 
