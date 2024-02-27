@@ -10,7 +10,6 @@ const {
 
 router.use(verifyToken);
 router.use(hasAccess(2));
-
 router.post(
   "/",
   hasPermission(global.PermissionConstants.USER_POST),
