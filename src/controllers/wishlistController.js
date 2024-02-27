@@ -23,8 +23,17 @@ class WishlistController {
     const product_id = req.params.product_id;
     const { account_id } = req.payload;
     return new OK({
-      message: "Add to wishlist successfully!",
+      message: "Remove item from wishlist successfully!",
       metaData: await WishlistService.removeProduct(account_id, product_id),
+    }).send(res);
+  }
+
+  static async addArrayToWishlist(req, res) {
+    const products = req.body;
+    const { account_id } = req.payload;
+    return new OK({
+      message: "Add to wishlist successfully!",
+      metaData: await WishlistService.addArrayToWishlist(account_id, products),
     }).send(res);
   }
 }

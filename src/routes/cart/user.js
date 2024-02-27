@@ -47,5 +47,10 @@ router.post(
   hasPermission("[103]"),
   asyncHandler(CartController.checkout)
 );
+router.post(
+  "/items/add-all",
+  hasPermission("[103]"),
+  asyncHandler(CartController.addArrayToCart)
+);
 
 module.exports = router;
