@@ -48,8 +48,7 @@ class ProductRepository {
     );
   }
   static async draftProduct(product_id) {
-    const product = await this.findProductById(product_id);
-    return await _Product.findByIdAndUpdate(
+    return await _Product.findOneAndUpdate(
       { _id: product_id },
       {
         $set: {

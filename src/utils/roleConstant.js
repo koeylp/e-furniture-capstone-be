@@ -11,6 +11,10 @@ class PermissionConstants {
   static ADMIN_POST = "Admin_Post";
   static ADMIN_PUT = "Admin_Put";
   static ADMIN_DELETE = "Admin_Delete";
+  static DELIVERY_GET = "Delivery_Get";
+  static DELIVERY_POST = "Delivery_Post";
+  static DELIVERY_PUT = "Delivery_Put";
+  static DELIVERY_DELETE = "Delivery_Delete";
   static ADMIN_MASTER_GET = "AdminMaster_Get";
   static ADMIN_MASTER_POST = "AdminMaster_Post";
   static ADMIN_MASTER_PUT = "AdminMaster_Put";

@@ -2,8 +2,6 @@ const CartService = require("../services/cartService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
 
-const CLIENT_ID = "x-client-id";
-
 class CartController {
   static async addToCart(req, res) {
     const { account_id } = req.payload;
@@ -77,6 +75,23 @@ class CartController {
     return new OK({
       message: "Checkout",
       metaData: await CartService.checkout(products),
+    }).send(res);
+  }
+
+  static async checkoutGuest(req, res) {
+    const products = req.body;
+    return new OK({
+      message: "Checkout",
+      metaData: await CartService.checkoutGuest(products),
+    }).send(res);
+  }
+
+  static async addArrayToCart(req, res) {
+    const products = req.body;
+    const { account_id } = req.payload;
+    return new OK({
+      message: "Add all successfully!",
+      metaData: await CartService.addArrayToCart(account_id, products),
     }).send(res);
   }
 }

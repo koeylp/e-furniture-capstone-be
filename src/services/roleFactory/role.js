@@ -1,6 +1,5 @@
 const RoleRepository = require("../../models/repositories/roleRepository");
 const { NotFoundError } = require("../../utils/errorHanlder");
-const { STAFF_GET, ADMIN_MASTER_DELETE } = require("../../utils/roleConstant");
 
 class RoleFactory {
   static roleRegistry = {};

@@ -27,27 +27,20 @@ class VoucherService {
     const found_account = await AccountRepository.findAccountById(account_id);
     if (!found_account)
       throw new BadRequestError(`Account ${account_id} not found`);
-
     const found_voucher = await VoucherService.handleVoucher(voucher_id);
-
     await VoucherUtil.validateVoucher(found_voucher, account_id);
-
     const order_total = calculateOrderTotal(products);
-
     const result = await VoucherUtil.applyDiscount(
       found_voucher,
       products,
       order_total
     );
-
     await VoucherUtil.updateVoucherUsage(found_voucher, account_id);
-
     const updatedVoucher = await VoucherRepository.save(found_voucher);
     if (!updatedVoucher)
       throw new ForbiddenError(
         `Voucher ${found_voucher._id} was applied failed`
       );
-
     return result;
   }
 

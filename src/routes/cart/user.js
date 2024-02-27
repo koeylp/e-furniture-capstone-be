@@ -8,8 +8,8 @@ const {
 } = require("../../middlewares/rolePermission");
 const { verifyToken } = require("../../jwt/verifyToken");
 
-// router.use(verifyToken);
-// router.use(hasAccess(2));
+router.use(verifyToken);
+router.use(hasAccess(2));
 
 router.post(
   "/add-to-cart",
@@ -26,7 +26,11 @@ router.delete(
   hasPermission(global.PermissionConstants.USER_DELETE),
   asyncHandler(CartController.removeAll)
 );
-router.get("/", hasPermission("[101]"), asyncHandler(CartController.getCart));
+router.get(
+  "/",
+  hasPermission(global.PermissionConstants.USER_POST),
+  asyncHandler(CartController.getCart)
+);
 router.put(
   "/update-quantity",
   hasPermission(global.PermissionConstants.USER_PUT),
@@ -46,6 +50,11 @@ router.post(
   "/checkout",
   hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(CartController.checkout)
+);
+router.post(
+  "/items/add-all",
+  hasPermission(global.PermissionConstants.USER_POST),
+  asyncHandler(CartController.addArrayToCart)
 );
 
 module.exports = router;

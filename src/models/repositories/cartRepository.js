@@ -7,7 +7,6 @@ class CartRepository {
       account_id: account_id,
       status: 1,
     });
-    if (!cart) throw new InternalServerError();
     return cart;
   }
 

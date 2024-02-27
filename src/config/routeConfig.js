@@ -13,6 +13,7 @@ const routes = [
   { path: "/voucher", route: require("../routes/voucher") },
   { path: "/wishlist", route: require("../routes/wishlist") },
   { path: "/account", route: require("../routes/account") },
+  { path: "/showroom", route: require("../routes/showroom") },
   { path: "/attribute", route: require("../routes/attribute") },
   { path: "/group", route: require("../routes/group") },
   { path: "/role", route: require("../routes/role") },
