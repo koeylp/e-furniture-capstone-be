@@ -30,7 +30,8 @@ class VoucherService {
 
   static async getByAccountId(account_id) {
     const QUERY = { account: account_id };
-    return await WishlistRepositoy.findByQueryPopulate(QUERY);
+    const wishlist = await WishlistRepositoy.findByQueryPopulate(QUERY);
+    return wishlist.products;
   }
 
   static async removeProduct(account_id, product_id) {
