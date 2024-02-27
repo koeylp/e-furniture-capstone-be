@@ -111,9 +111,11 @@ class SubTypeService {
     let subtype = await SubTypeRepository.findSubTypeBySlug(slug, typeSchema);
     return subtype;
   }
-  static async getAttributeBySubType(typeModel, listSlug) {
+  static async getAttributeBySubType(type, listSlug) {
+    const typeModel = global.subTypeSchemasMap.get(type);
     const set = new Set();
     let resultArray = [];
+    if (!typeModel) throw new BadRequestError("Invalid Type");
     await Promise.all(
       listSlug.map(async (slug) => {
         let subType = await SubTypeRepository.findSubTypeBySlug(

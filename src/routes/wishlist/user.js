@@ -13,22 +13,22 @@ router.use(hasAccess(2));
 
 router.post(
   "/:product_id",
-  hasPermission("[102]"),
+  hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(WishlistController.addToWishlist)
 );
 router.get(
   "/",
-  hasPermission("[101]"),
+  hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(WishlistController.getWishlistByAccount)
 );
 router.delete(
   "/:product_id",
-  hasPermission("[104]"),
+  hasPermission(global.PermissionConstants.USER_DELETE),
   asyncHandler(WishlistController.removeProduct)
 );
 router.post(
   "/items/add-all",
-  hasPermission("[102]"),
+  hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(WishlistController.addArrayToWishlist)
 );
 

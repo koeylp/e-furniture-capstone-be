@@ -14,12 +14,12 @@ router.use(hasAccess(32));
 
 router.post(
   "/",
-  hasPermission("[106]"),
+  hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(ProductController.createProduct)
 );
 router.put(
   "/:product_id",
-  hasPermission("[107]"),
+  hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(ProductController.updateProduct)
 );
 

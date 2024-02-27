@@ -13,19 +13,19 @@ router.use(hasAccess(512));
 
 router.get(
   "/",
-  hasPermission("[109]"),
+  hasPermission(global.PermissionConstants.ADMIN_GET),
   asyncHandler(OrderController.findOrderByType)
 );
 
 router.get(
   "/:order_id",
-  hasPermission("[109]"),
+  hasPermission(global.PermissionConstants.ADMIN_GET),
   asyncHandler(OrderController.findOrder)
 );
 
 router.get(
   "/all/orders",
-  hasPermission("[109]"),
+  hasPermission(global.PermissionConstants.ADMIN_GET),
   asyncHandler(OrderController.getOrders)
 );
 

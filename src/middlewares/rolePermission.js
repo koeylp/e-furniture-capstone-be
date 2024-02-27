@@ -1,5 +1,6 @@
 const { UnAuthorizedError } = require("../utils/errorHanlder");
-const { permissionArray } = require("../../tests/roleTest");
+const RoleFactory = require("../services/roleFactory/role");
+
 const verifyRole = async (req, res, next) => {
   const { role } = req.payload;
   if (!role) throw new UnAuthorizedError();
@@ -19,12 +20,16 @@ const hasPermission = (hasRole) => async (req, res, next) => {
   try {
     const { role } = req.payload;
     if (!role) throw new UnAuthorizedError();
-    const roleArray = permissionArray(role);
+    const roleArray = RoleFactory.permissionArray(role);
     if (Array.isArray(hasRole) && hasRole.length !== 0) {
+      hasRole = hasRole.map((role) => {
+        return RoleFactory.roleRegistry[role];
+      });
       let check = hasRole.some((element) => roleArray.includes(element));
       if (!check) throw new UnAuthorizedError("Action Denied");
       return next();
     }
+    hasRole = RoleFactory.roleRegistry[hasRole];
     if (!roleArray.includes(hasRole))
       throw new UnAuthorizedError("Action Denied");
     next();

@@ -13,13 +13,13 @@ router.use(hasAccess(32));
 
 router.post(
   "/",
-  hasPermission("[106]"),
+  hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(WareHouseController.createWareHouse)
 );
 router.put(
   "/:warehouse_id",
   asyncHandler,
-  hasPermission("[107]"),
+  hasPermission(global.PermissionConstants.STAFF_PUT),
   WareHouseController.updateWareHouse
 );
 

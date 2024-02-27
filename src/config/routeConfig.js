@@ -8,7 +8,6 @@ const routes = [
   { path: "/subtype", route: require("../routes/subType") },
   { path: "/product", route: require("../routes/product") },
   { path: "/order", route: require("../routes/order") },
-  { path: "/room", route: require("../routes/roomRouter") },
   { path: "/cart", route: require("../routes/cart") },
   { path: "/warehouse", route: require("../routes/warehouse") },
   { path: "/voucher", route: require("../routes/voucher") },
@@ -17,6 +16,9 @@ const routes = [
   { path: "/showroom", route: require("../routes/showroom") },
   { path: "/attribute", route: require("../routes/attribute") },
   { path: "/group", route: require("../routes/group") },
+  { path: "/role", route: require("../routes/role") },
+  { path: "/room", route: require("../routes/room") },
+  { path: "/district", route: require("../routes/district") },
 ];
 
 const configureRoutes = (app) => {

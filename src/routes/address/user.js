@@ -13,37 +13,37 @@ router.use(hasAccess(2));
 
 router.post(
   "/",
-  hasPermission("[102]"),
+  hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(AddressController.createAddress)
 );
 router.get(
   "/",
-  hasPermission("[101]"),
+  hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(AddressController.getAddressByUser)
 );
 router.get(
   "/default/",
-  hasPermission("[101]"),
+  hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(AddressController.getAddressDefault)
 );
 router.put(
   "/default/:address_id",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(AddressController.setAddressDefault)
 );
 router.put(
   "/:address_id",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(AddressController.editAddress)
 );
 router.delete(
   "/all",
-  hasPermission("[104]"),
+  hasPermission(global.PermissionConstants.USER_DELETE),
   asyncHandler(AddressController.removeAllAccountAddress)
 );
 router.delete(
   "/:address_id",
-  hasPermission("[104]"),
+  hasPermission(global.PermissionConstants.USER_DELETE),
   asyncHandler(AddressController.removeAddress)
 );
 

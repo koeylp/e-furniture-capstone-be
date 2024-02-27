@@ -13,7 +13,7 @@ router.use(hasAccess(512));
 
 router.delete(
   "/:warehouse_id",
-  hasPermission("[112]"),
+  hasPermission(global.PermissionConstants.ADMIN_DELETE),
   asyncHandler(WareHouseController.removeWareHouse)
 );
 

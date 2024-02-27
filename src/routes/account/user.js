@@ -14,17 +14,17 @@ router.use(hasAccess(2));
 
 router.get(
   "/:account_id",
-  hasPermission("[101]"),
+  hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(AccountController.findAccount)
 );
 router.put(
   "/:account_id",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(AccountController.editAccount)
 );
 router.put(
   "/password/:account_id",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(AccountController.editPassword)
 );
 

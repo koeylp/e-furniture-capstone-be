@@ -7,9 +7,9 @@ const DOCUMENT_NAME = "District";
 const schema = new Schema(
   {
     name: { type: String },
-    totalOrder: { type: Number, default: "String" },
-    latitue: { type: Number, default: 0 },
-    longtitue: { type: Number, default: 0 },
+    totalOrder: { type: Number, default: 0 },
+    latitude: { type: Number, default: 0 },
+    longitude: { type: Number, default: 0 },
     status: { type: Number, default: 0 },
   },
   {

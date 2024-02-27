@@ -13,27 +13,26 @@ router.use(hasAccess(8192));
 
 router.put(
   "/update-tracking/:order_id",
-  hasPermission("[115]"),
+  hasPermission(global.PermissionConstants.DELIVERY_PUT),
   asyncHandler(OrderController.updateTracking)
 );
 
 router.get(
   "/all/orders",
-  hasPermission("[113]"),
+  hasPermission(global.PermissionConstants.DELIVERY_GET),
   asyncHandler(OrderController.getOrders)
 );
 
 router.get(
   "/:order_id",
-  hasPermission("[113]"),
+  hasPermission(global.PermissionConstants.DELIVERY_GET),
   asyncHandler(OrderController.findOrder)
 );
 
 router.get(
   "/",
-  hasPermission("[113]"),
+  hasPermission(global.PermissionConstants.DELIVERY_GET),
   asyncHandler(OrderController.findOrderByType)
 );
-
 
 module.exports = router;

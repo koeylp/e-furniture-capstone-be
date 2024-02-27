@@ -14,27 +14,27 @@ router.use(hasAccess(131072));
 
 router.get(
   "/",
-  hasPermission("[117]"),
+  hasPermission(global.PermissionConstants.ADMIN_MASTER_GET),
   asyncHandler(AccountController.getAccounts)
 );
 router.post(
   "/",
-  hasPermission("[118]"),
+  hasPermission(global.PermissionConstants.ADMIN_MASTER_POST),
   asyncHandler(AccountController.createAccount)
 );
 router.put(
   "/role/:account_id",
-  hasPermission("[119]"),
+  hasPermission(global.PermissionConstants.ADMIN_MASTER_PUT),
   asyncHandler(AccountController.editRole)
 );
 router.delete(
   "/enable/:account_id",
-  hasPermission("[120]"),
+  hasPermission(global.PermissionConstants.ADMIN_MASTER_DELETE),
   asyncHandler(AccountController.enableAccount)
 );
 router.delete(
   "/disable/:account_id",
-  hasPermission("[120]"),
+  hasPermission(global.PermissionConstants.ADMIN_MASTER_DELETE),
   asyncHandler(AccountController.disableAccount)
 );
 

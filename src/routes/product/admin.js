@@ -14,22 +14,22 @@ router.use(hasAccess(512));
 
 router.put(
   "/draft/:type_slug/:product_slug",
-  hasPermission("[111]"),
+  hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(ProductController.draftProduct)
 );
 router.put(
   "/publish/:type_slug/:product_slug",
-  hasPermission("[111]"),
+  hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(ProductController.publishProduct)
 );
 router.delete(
   "/:product_slug",
-  hasPermission("[112]"),
+  hasPermission(global.PermissionConstants.ADMIN_DELETE),
   asyncHandler(ProductController.removeProduct)
 );
 router.get(
   "/draft",
-  hasPermission("[109]"),
+  hasPermission(global.PermissionConstants.ADMIN_GET),
   asyncHandler(ProductController.getDraftProduct)
 );
 

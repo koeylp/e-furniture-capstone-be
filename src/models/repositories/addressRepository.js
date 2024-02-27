@@ -3,6 +3,7 @@ const _Address = require("../addressModel");
 const {
   InternalServerError,
   BadRequestError,
+  NotFoundError,
 } = require("../../utils/errorHanlder");
 const {
   checkValidId,
@@ -16,7 +17,7 @@ class AddressRepository {
       _id: new mongoose.Types.ObjectId(address_id),
     };
     const address = await _Address.findOne(query);
-    if (!address) throw new BadRequestError("Cannot Find Any Address!");
+    if (!address) throw new NotFoundError("Cannot Find Any Address!");
     return address;
   }
   static async createAddress(account_id, payload) {

@@ -13,19 +13,19 @@ router.use(hasAccess(2));
 
 router.post(
   "/create-order",
-  hasPermission("[102]"),
+  hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(OrderController.createOrder)
 );
 
 router.get(
   "/",
-  hasPermission("[101]"),
+  hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(OrderController.findOrderByUser)
 );
 
 router.get(
   "/:order_id",
-  hasPermission("[101]"),
+  hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(OrderController.findOrder)
 );
 

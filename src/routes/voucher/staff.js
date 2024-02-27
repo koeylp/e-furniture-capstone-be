@@ -13,7 +13,7 @@ router.use(hasAccess(32));
 
 router.post(
   "/create-voucher",
-  hasPermission("[106]"),
+  hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(VoucherController.createVoucher)
 );
 

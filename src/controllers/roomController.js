@@ -18,6 +18,20 @@ class RoomController {
       metaData: await RoomService.getRooms(page, limit, sortType),
     }).send(res);
   }
+  static async getPublishRooms(req, res) {
+    const { page, limit, sortType } = req.query;
+    return new OK({
+      message: "List Of Room!",
+      metaData: await RoomService.getPublishRooms(page, limit, sortType),
+    }).send(res);
+  }
+  static async getDraftRooms(req, res) {
+    const { page, limit, sortType } = req.query;
+    return new OK({
+      message: "List Of Room!",
+      metaData: await RoomService.getDraftRooms(page, limit, sortType),
+    }).send(res);
+  }
   static async findRoom(req, res) {
     const { room_id } = req.params;
     if (!room_id) throw new BadRequestError();
@@ -38,7 +52,7 @@ class RoomController {
   }
   static async enableRoom(req, res) {
     const { room_id } = req.params;
-    if (!room_id || !name) throw new BadRequestError();
+    if (!room_id) throw new BadRequestError();
     return new OK({
       message: "Change Room Status Successfully!",
       metaData: await RoomService.enableRoom(room_id),

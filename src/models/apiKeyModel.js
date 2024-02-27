@@ -8,7 +8,7 @@ const schema = new Schema(
   {
     key: { type: String, required: true },
     version: { type: String, required: true },
-    đescription: { type: String, default: "" },
+    description: { type: String, default: "" },
     status: { type: Boolean, default: false },
   },
   {
