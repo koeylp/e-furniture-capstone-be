@@ -1,13 +1,22 @@
 const _WareHouse = require("../warehouseModel");
 const { checkValidId } = require("../../utils/index");
 const { default: mongoose } = require("mongoose");
+const { InternalServerError } = require("../../utils/errorHanlder");
 class WareHouseRepository {
-  static async createWareHouse(product_id, location, stock) {
-    return await _WareHouse.create({
-      product_id,
-      location,
-      stock,
+  static async createWareHouse(payload) {
+    const warehouse = await _WareHouse.create({
+      product_id: payload.product_id,
+      street: payload.street,
+      city: payload.city,
+      province: payload.province,
+      longitude: payload.longitude,
+      latitude: payload.latitude,
+      location: payload.location,
+      sold: payload.sold,
+      stock: payload.stock,
     });
+    if (!warehouse) throw new InternalServerError();
+    return warehouse;
   }
   static async getWareHouse(page, limit) {
     const skip = (page - 1) * limit;
@@ -29,7 +38,6 @@ class WareHouseRepository {
   }
   static async updateWareHouse(warehouse_id, update) {
     checkValidId(warehouse_id);
-    console.log(update);
     const query = {
       _id: new mongoose.Types.ObjectId(warehouse_id),
     };

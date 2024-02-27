@@ -3,7 +3,11 @@ const {
   InternalServerError,
   NotFoundError,
 } = require("../../utils/errorHanlder");
-const { checkValidId, removeUndefineObject } = require("../../utils/index");
+const {
+  checkValidId,
+  removeUndefineObject,
+  getUnSelectData,
+} = require("../../utils/index");
 const { default: mongoose } = require("mongoose");
 class RoleRepository {
   static async create(payload) {
@@ -14,17 +18,25 @@ class RoleRepository {
       action: payload.action,
     });
     if (!role) throw new InternalServerError();
+    return role;
   }
-  static async getRoles() {
-    return await _Role.find().lean();
+  static async getRoles(query = {}, option = []) {
+    return await _Role.find(query).select(getUnSelectData(option)).lean();
   }
-  static async fimdRoleById(role_id) {
+  static async findRoleById(role_id) {
     checkValidId(role_id);
     const role = await _Role.findOne({
       _id: new mongoose.Types.ObjectId(role_id),
     });
     if (!role) throw new NotFoundError();
     return role;
+  }
+  static async findRoleByPermission(permission) {
+    return await _Role
+      .findOne({
+        permission: permission,
+      })
+      .lean();
   }
   static async updateRole(role_id, payload) {
     checkValidId(role_id);
@@ -37,6 +49,20 @@ class RoleRepository {
   }
   static async deleteRole(role_id) {
     return await _Role.findByIdAndDelete(role_id);
+  }
+  static async getRolesByPermissions(permissionArray) {
+    const option = ["createdAt", "updatedAt", "__v"];
+    const query = {
+      permission: { $in: permissionArray },
+    };
+    return await this.getRoles(query, option);
+  }
+  static async getRolesByRangeId(permissionArray_Id) {
+    const option = ["createdAt", "updatedAt", "__v"];
+    const query = {
+      _id: { $in: permissionArray_Id },
+    };
+    return await this.getRoles(query, option);
   }
 }
 module.exports = RoleRepository;

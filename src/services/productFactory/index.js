@@ -15,7 +15,8 @@ class Product {
   constructor({
     name,
     thumb,
-    price,
+    regular_price,
+    sale_price,
     type,
     variation = [],
     width,
@@ -28,7 +29,8 @@ class Product {
   }) {
     this.name = name;
     this.thumb = thumb;
-    this.price = price;
+    this.regular_price = regular_price;
+    this.sale_price = sale_price;
     this.type = type;
     this.variation = variation;
     this.width = width;
@@ -58,7 +60,7 @@ class TypeProduct extends Product {
       throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
     if (subType.attributes) {
       const attribute = await SubTypeService.getAttributeBySubType(
-        typeModel,
+        this.type,
         this.attributes.type
       );
       validateSubType(this.attributes.attributeType, attribute);

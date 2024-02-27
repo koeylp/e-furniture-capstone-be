@@ -7,14 +7,9 @@ class WareHouseController {
   static async createWareHouse(req, res) {
     const { error } = validateCreateWareHouse(req.body);
     if (error) throw new BadRequestError(error.details[0].message);
-    const { product_id, location, stock } = req.body;
     return new OK({
       message: "Create WareHouse SuccessFully!",
-      metaData: await WareHouseService.createWareHouse(
-        product_id,
-        location,
-        stock
-      ),
+      metaData: await WareHouseService.createWareHouse(req.body),
     }).send(res);
   }
   static async getWareHouses(req, res) {

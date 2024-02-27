@@ -61,5 +61,13 @@ class SubTypeController {
       metaData: await SubTypeService.getAll(),
     }).send(res);
   }
+  static async getAttributeBySubTypes(req, res) {
+    const { type, listAttribute } = req.body;
+    if (!type || !listAttribute) throw new BadRequestError();
+    return new OK({
+      message: "List Of Attribute",
+      metaData: await SubTypeService.getAttributeBySubType(type, listAttribute),
+    }).send(res);
+  }
 }
 module.exports = SubTypeController;

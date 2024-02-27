@@ -13,17 +13,17 @@ router.use(hasAccess(32));
 
 router.post(
   "/",
-  hasPermission("106"),
+  hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(AttributeController.createAttribute)
 );
 router.get(
   "/",
-  hasPermission("105"),
+  hasPermission(global.PermissionConstants.STAFF_GET),
   asyncHandler(AttributeController.getAllAttribute)
 );
 router.get(
   "/:attribute_id",
-  hasPermission("105"),
+  hasPermission(global.PermissionConstants.STAFF_GET),
   asyncHandler(AttributeController.findAttribute)
 );
 

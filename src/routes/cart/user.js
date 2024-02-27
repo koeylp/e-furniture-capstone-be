@@ -13,38 +13,38 @@ const { verifyToken } = require("../../jwt/verifyToken");
 
 router.post(
   "/add-to-cart",
-  hasPermission("[102]"),
+  hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(CartController.addToCart)
 );
 router.delete(
   "/remove-item",
-  hasPermission("[104]"),
+  hasPermission(global.PermissionConstants.USER_DELETE),
   asyncHandler(CartController.removeItem)
 );
 router.delete(
   "/remove-all",
-  hasPermission("[104]"),
+  hasPermission(global.PermissionConstants.USER_DELETE),
   asyncHandler(CartController.removeAll)
 );
 router.get("/", hasPermission("[101]"), asyncHandler(CartController.getCart));
 router.put(
   "/update-quantity",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(CartController.updateItemQuantity)
 );
 router.put(
   "/increase",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(CartController.increaseItemQuantity)
 );
 router.put(
   "/decrease",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(CartController.decreaseItemQuantity)
 );
 router.post(
   "/checkout",
-  hasPermission("[103]"),
+  hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(CartController.checkout)
 );
 

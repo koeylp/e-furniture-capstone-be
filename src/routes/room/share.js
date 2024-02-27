@@ -13,12 +13,18 @@ router.use(hasAccess(32));
 
 router.get(
   "/draft",
-  hasPermission(["[105]", "[109]"]),
+  hasPermission([
+    global.PermissionConstants.STAFF_GET,
+    global.PermissionConstants.ADMIN_GET,
+  ]),
   asyncHandler(RoomController.getDraftRooms)
 );
 router.get(
   "/",
-  hasPermission(["[105]", "[109]"]),
+  hasPermission([
+    global.PermissionConstants.STAFF_GET,
+    global.PermissionConstants.ADMIN_GET,
+  ]),
   asyncHandler(RoomController.getRooms)
 );
 

@@ -13,8 +13,13 @@ router.use(hasAccess(32));
 
 router.post(
   "/",
-  hasPermission("[106]"),
+  hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(SubTypeController.createSubType)
+);
+router.post(
+  "/attribute",
+  hasPermission(global.PermissionConstants.STAFF_POST),
+  asyncHandler(SubTypeController.getAttributeBySubTypes)
 );
 
 module.exports = router;

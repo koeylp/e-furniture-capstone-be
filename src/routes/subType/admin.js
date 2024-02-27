@@ -13,17 +13,17 @@ router.use(hasAccess(7680));
 
 router.put(
   "/:type_slug/:subType_slug",
-  hasPermission("[111]"),
+  hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(SubTypeController.publishSubType)
 );
 router.put(
   "/draft/:type_slug/:subType_slug",
-  hasPermission("[111]"),
+  hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(SubTypeController.draftSubType)
 );
 router.delete(
   "/:type_slug/:subType_slug",
-  hasPermission("[112]"),
+  hasPermission(global.PermissionConstants.ADMIN_DELETE),
   asyncHandler(SubTypeController.removeSubType)
 );
 

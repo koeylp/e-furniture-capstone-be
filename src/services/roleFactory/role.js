@@ -1,29 +1,59 @@
 const RoleRepository = require("../../models/repositories/roleRepository");
+const { NotFoundError } = require("../../utils/errorHanlder");
+const { STAFF_GET, ADMIN_MASTER_DELETE } = require("../../utils/roleConstant");
 
 class RoleFactory {
   static roleRegistry = {};
-  static registerRoleType(permission) {
+  static registerRoleType(role_action, permission) {
     if (!RoleFactory.roleRegistry[permission]) {
-      let index = RoleFactory.roleRegistry.size;
-      RoleFactory.roleRegistry[index++] = permission;
+      RoleFactory.roleRegistry[role_action] = permission;
     }
-    console.log(RoleFactory.roleRegistry);
   }
-  static async registerSubTypesFromMap() {
+  static async getRolePermission(role_action) {
+    return RoleFactory.roleRegistry[role_action];
+  }
+  static async registerRoles() {
     const roles = await RoleRepository.getRoles();
-    let item = 1;
     roles.forEach((role) => {
-      sortPhase.set(item, role.permission);
-      RoleFactory.registerRoleType(role.permission);
-      item++;
+      let role_action = `${role.role}_${role.action}`;
+      RoleFactory.registerRoleType(role_action, role.permission);
     });
-    console.log(RoleFactory.roleRegistry);
   }
-  static async unregisterRoleType(type) {
-    if (RoleFactory.roleRegistry[type]) {
-      delete RoleFactory.roleRegistry[type];
+  static async unregisterRoleType(role_action) {
+    if (RoleFactory.roleRegistry[role_action]) {
+      delete RoleFactory.roleRegistry[role_action];
     }
+  }
+  static updateRolePermission(role_action, newPermission) {
+    if (RoleFactory.roleRegistry[role_action]) {
+      RoleFactory.roleRegistry[role_action] = newPermission;
+    }
+  }
+  static splitStringAndPushToArray(inputString) {
+    return inputString.split("");
+  }
+
+  static permissionArray(decimalNumber) {
+    const inputString = decimalNumber.toString(2);
+    const resultArray =
+      RoleFactory.splitStringAndPushToArray(inputString).reverse();
+    const keys = Object.values(RoleFactory.roleRegistry);
+    let permissionArray = [];
+    for (let i = 1; i < resultArray.length + 1; i++) {
+      if (resultArray[i] === "1") {
+        permissionArray.push(keys[i - 1]);
+      }
+    }
+    return permissionArray;
+  }
+  static async convertRole(role) {
+    const arrayPermission = RoleFactory.permissionArray(role);
+    if (!arrayPermission) throw new NotFoundError("Role is invalid!");
+    return await RoleRepository.getRolesByPermissions(arrayPermission);
+  }
+  static async convertRoleFromRangeId(roles) {
+    return await RoleRepository.getRolesByRangeId(roles);
   }
 }
-RoleFactory.registerSubTypesFromMap();
+RoleFactory.registerRoles();
 module.exports = RoleFactory;

@@ -4,6 +4,7 @@ const { checkValidId, getSelectData } = require("../../utils");
 const {
   BadRequestError,
   InternalServerError,
+  NotFoundError,
 } = require("../../utils/errorHanlder");
 class RoomRepository {
   static async createRoom(name, description, thumb, status) {
@@ -24,7 +25,7 @@ class RoomRepository {
     checkValidId(room_id);
     const query = { _id: new mongoose.Types.ObjectId(room_id), status: 1 };
     const room = await this.findRoom(query);
-    if (!room) throw new BadRequestError("Cannot Find Any Room Result!");
+    if (!room) throw new NotFoundError("Cannot Find Any Room Result!");
     return room;
   }
   static async findRoom(query) {

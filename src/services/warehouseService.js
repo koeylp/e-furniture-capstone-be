@@ -3,19 +3,15 @@ const ProductRepository = require("../models/repositories/productRepository");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { removeUndefineObject } = require("../utils");
 class WareHouseService {
-  static async createWareHouse(product_id, location, stock) {
-    const product = await ProductRepository.findProductById(product_id);
+  static async createWareHouse(payload) {
+    const product = await ProductRepository.findProductById(payload.product_id);
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Create WareHouse!");
     if (!product.is_published)
       throw new BadRequestError("Cannot Create WareHouse With Draft Product!");
-    if (stock <= 0)
+    if (payload.stock <= 0)
       throw new BadRequestError("Quantity must be greater than 0");
-    return await WareHouseRepository.createWareHouse(
-      product_id,
-      location,
-      stock
-    );
+    return await WareHouseRepository.createWareHouse(payload);
   }
   static async getWareHouse(page = 1, limit = 12) {
     return await WareHouseRepository.getWareHouse(page, limit);

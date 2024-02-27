@@ -33,7 +33,7 @@ class AccountRepository {
       .select(getUnSelectData(option))
       .lean()
       .exec();
-    if (!account) throw new BadRequestError("Cannot Find Any Account!");
+    if (!account) throw new NotFoundError("Cannot Find Any Account!");
     return account;
   }
   static async getAccounts(limit, page, sort, query = {}) {

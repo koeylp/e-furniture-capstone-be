@@ -9,5 +9,11 @@ class AttributeService {
   static async findAttribute(attribute_id) {
     return await AttributeRepository.findAttributeById(attribute_id);
   }
+  static async enableAttribute(attribute_id) {
+    return await AttributeRepository.enableAttribute(attribute_id);
+  }
+  static async disableAttribute(attribute_id) {
+    return await AttributeRepository.disableAttribute(attribute_id);
+  }
 }
 module.exports = AttributeService;

@@ -13,12 +13,12 @@ router.use(hasAccess(512));
 
 router.delete(
   "/:room_id",
-  hasPermission("[112]"),
+  hasPermission(global.PermissionConstants.ADMIN_DELETE),
   asyncHandler(RoomController.disableRoom)
 );
 router.put(
   "/:room_id",
-  hasPermission("[111]"),
+  hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(RoomController.enableRoom)
 );
 

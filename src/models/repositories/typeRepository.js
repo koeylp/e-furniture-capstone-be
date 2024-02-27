@@ -1,13 +1,12 @@
 const _Type = require("../typeModel");
 const {
-  getSelectData,
   getUnSelectData,
   checkValidId,
   removeDuplicates,
 } = require("../../utils/index");
 const {
-  BadRequestError,
   InternalServerError,
+  NotFoundError,
 } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
 class TypeRepository {
@@ -73,7 +72,7 @@ class TypeRepository {
       .select(getUnSelectData(["__v"]))
       .lean()
       .exec();
-    if (!type) throw new BadRequestError();
+    if (!type) throw new NotFoundError();
     return type;
   }
   static async findTypeBySlug(type_slug) {
@@ -85,7 +84,7 @@ class TypeRepository {
       .select(getUnSelectData(["__v"]))
       .lean()
       .exec();
-    if (!type) throw new BadRequestError();
+    if (!type) throw new NotFoundError();
     return type;
   }
   static async findTypeById(type_id) {
@@ -98,7 +97,7 @@ class TypeRepository {
       .select(getUnSelectData(["__v"]))
       .lean()
       .exec();
-    if (!type) throw new BadRequestError();
+    if (!type) throw new NotFoundError();
     return type;
   }
   static async pushSubType(type_id, subType) {

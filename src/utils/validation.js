@@ -99,7 +99,8 @@ const validateCreateProduct = (data) => {
   const schema = Joi.object({
     name: Joi.string().required(),
     thumb: Joi.string().required(),
-    price: Joi.number().required(),
+    regular_price: Joi.number().required(),
+    sale_price: Joi.number().min(0),
     type: Joi.string().required(),
     width: Joi.number().required(),
     height: Joi.number().required(),
@@ -176,6 +177,15 @@ const validateOrderInput = (data) => {
   });
   return schema.validate(data);
 };
+const validateCreateDistrict = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    latitude: Joi.number().required(),
+    longitude: Joi.number().required(),
+    status: Joi.number(),
+  });
+  return schema.validate(data);
+};
 
 module.exports = {
   validateEmail,
@@ -192,4 +202,5 @@ module.exports = {
   validateVoucherInput,
   validateOrderInput,
   validateRegister,
+  validateCreateDistrict,
 };

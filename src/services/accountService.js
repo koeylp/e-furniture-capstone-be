@@ -1,8 +1,9 @@
 const AccountRepository = require("../models/repositories/accountRepository");
 const mongoose = require("mongoose");
 const { checkRoleNumber } = require("../utils");
-const { BadRequestError } = require("../utils/errorHanlder");
+const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const { encryptCode, hashCode } = require("../utils/hashCode");
+const RoleFactory = require("./roleFactory/role");
 const sortPhase = new Map([
   ["name_asc", { full_name: 1 }],
   ["name_desc", { full_name: -1 }],
@@ -34,7 +35,18 @@ class AccountService {
     const query = {
       _id: { $ne: new mongoose.Types.ObjectId(account_id) },
     };
-    return await AccountRepository.getAccounts(limit, page, sort, query);
+    let accounts = await AccountRepository.getAccounts(
+      limit,
+      page,
+      sort,
+      query
+    );
+    await Promise.all(
+      accounts.map(async (account) => {
+        account.role = await RoleFactory.convertRole(account.role);
+      })
+    );
+    return accounts;
   }
   static async checkOldPassword(account_id, oldPassword) {
     const user = await AccountRepository.findAccountById(account_id);
@@ -71,9 +83,16 @@ class AccountService {
   static async disableAccount(account_id) {
     return await AccountRepository.disableAccount(account_id);
   }
-  static async editRoleAccount(account_id, role) {
-    checkRoleNumber(role);
-    return await AccountRepository.editAccountRole(account_id, role);
+  static async editRoleAccount(account_id, roles) {
+    checkRoleNumber(roles);
+    let totalRole = 0;
+    roles = await RoleFactory.convertRoleFromRangeId(roles);
+    if (!roles) throw new NotFoundError("Invalid Role!");
+    roles.forEach((role) => {
+      totalRole += role.value;
+    });
+    if (totalRole === 0) throw new BadRequestError("Role can not less than 0");
+    return await AccountRepository.editAccountRole(account_id, totalRole);
   }
   static async searchByName(text) {
     return AccountRepository.searchByText({ keySearch: text });

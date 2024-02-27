@@ -5,7 +5,7 @@ const {
   checkValidId,
 } = require("../../utils/index");
 const { default: mongoose } = require("mongoose");
-const { BadRequestError } = require("../../utils/errorHanlder");
+const { BadRequestError, NotFoundError } = require("../../utils/errorHanlder");
 class OrderRepository {
   static async getOrders(query = {}, page, limit) {
     const skip = (page - 1) * limit;
@@ -46,7 +46,7 @@ class OrderRepository {
       .limit(limit)
       .lean()
       .exec();
-    if (!order) throw new BadRequestError();
+    if (!order) throw new NotFoundError();
   }
   static async removeOrder(order_id) {
     checkValidId(order_id);

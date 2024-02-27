@@ -2,6 +2,7 @@ const _SubTypeGroup = require("../subTypeGroupModel");
 const {
   InternalServerError,
   BadRequestError,
+  NotFoundError,
 } = require("../../utils/errorHanlder");
 const { checkValidId } = require("../../utils");
 const { default: mongoose } = require("mongoose");
@@ -34,7 +35,7 @@ class SubTypeGroupRepository {
       })
       .lean()
       .exec();
-    if (!group) throw new BadRequestError();
+    if (!group) throw new NotFoundError();
     return group;
   }
 }

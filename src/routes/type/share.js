@@ -14,12 +14,18 @@ router.use(hasAccess(32));
 
 router.get(
   "/draft",
-  hasPermission(["[109]", "[105]"]),
+  hasPermission([
+    global.PermissionConstants.STAFF_GET,
+    global.PermissionConstants.ADMIN_GET,
+  ]),
   asyncHandler(TypeController.getDraftType)
 );
 router.get(
   "/",
-  hasPermission(["[109]", "[105]"]),
+  hasPermission([
+    global.PermissionConstants.STAFF_GET,
+    global.PermissionConstants.ADMIN_GET,
+  ]),
   asyncHandler(TypeController.getAllType)
 );
 
