@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const _CONF = require("./config");
 const { startServer } = require("../server");
+const { PermissionConstants } = require("./utils/roleConstant");
 
 const app = express();
 
@@ -10,7 +11,7 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-
+global.PermissionConstants = PermissionConstants;
 /* CONFIGURE ROUTES */
 _CONF.routes.configureRoutes(app);
 

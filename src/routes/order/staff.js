@@ -13,7 +13,7 @@ router.use(hasAccess(32));
 
 router.get(
   "/",
-  hasPermission("[105]"),
+  hasPermission(global.PermissionConstants.STAFF_GET),
   asyncHandler(OrderController.findOrderByType)
 );
 
