@@ -39,10 +39,6 @@ class OrderRepository {
       .select(getUnSelectData(["__v"]))
       .lean()
       .exec();
-<<<<<<< HEAD
-    if (!order) throw new NotFoundError();
-=======
->>>>>>> 557339efce733c315fc4752af288e79912ffa9c9
   }
   static async removeOrder(order_id) {
     checkValidId(order_id);

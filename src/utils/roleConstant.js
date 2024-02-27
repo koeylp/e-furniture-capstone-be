@@ -20,4 +20,6 @@ class PermissionConstants {
   static ADMIN_MASTER_PUT = "AdminMaster_Put";
   static ADMIN_MASTER_DELETE = "AdminMaster_Delete";
 }
-global.PermissionConstants = PermissionConstants;
+module.exports = {
+  PermissionConstants,
+};
