@@ -84,5 +84,14 @@ class OrderController {
       metaData: await OrderService.createOrderGuest(order),
     }).send(res);
   }
+
+  static async cancelOrder(req, res) {
+    const { account_id } = req.payload;
+    const { order_id } = req.params;
+    return new OK({
+      message: "Send cancel order request successfully! Please, wait!",
+      metaData: await OrderService.cancelOrder(account_id, order_id),
+    }).send(res);
+  }
 }
 module.exports = OrderController;
