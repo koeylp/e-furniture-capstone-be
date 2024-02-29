@@ -39,6 +39,20 @@ function generateSubTypeSchema(type) {
     this.slug = slugify(this.type, { lower: true });
     next();
   });
+  subTypeSchema.pre("updateOne", function (next) {
+    const update = this.getUpdate();
+    if (update.name) {
+      update.slug = slugify(update.name, { lower: true });
+    }
+    next();
+  });
+  subTypeSchema.pre("findOneAndUpdate", function (next) {
+    const update = this.getUpdate();
+    if (update.name) {
+      update.slug = slugify(update.name, { lower: true });
+    }
+    next();
+  });
   return model(subTypeCollectionName, subTypeSchema);
 }
 async function deleteSubTypeSchema(type) {

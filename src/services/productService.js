@@ -9,6 +9,7 @@ const {
 } = require("../utils/skipLimitForProduct");
 const TypeRepository = require("../models/repositories/typeRepository");
 const SubTypeService = require("./subTypeService");
+const RoomRepository = require("../models/repositories/roomRepository");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -58,14 +59,15 @@ class ProductService {
     page = 1,
     limit = 12,
     sortType = "default",
-    room_id
+    room_slug
   ) {
     sortType = returnSortType(sortType);
+    const room = await RoomRepository.findRoomBySlug(room_slug);
     return await ProductRepository.getProductByRoom(
       page,
       limit,
       sortType,
-      room_id
+      room._id
     );
   }
   static async getProductsBySubType(page = 1, limit = 12, type_slug, slug) {
@@ -115,6 +117,26 @@ class ProductService {
       }
     });
     return await ProductRepository.draftProduct(product._id);
+  }
+  static async updateRangeProductSalePrice(products) {
+    products.forEach(async (product) => {
+      let update = {
+        $set: {
+          sale_price: product.salePrice,
+        },
+      };
+      await ProductRepository.updateProductById(product.productId, update);
+    });
+  }
+  static async reRangeProductSalePrice(products) {
+    products.forEach(async (product) => {
+      let update = {
+        $set: {
+          sale_price: 0,
+        },
+      };
+      await ProductRepository.updateProductById(product.productId, update);
+    });
   }
 }
 module.exports = ProductService;

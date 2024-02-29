@@ -11,13 +11,13 @@ const { verifyToken } = require("../../jwt/verifyToken");
 router.use(verifyToken);
 router.use(hasAccess(512));
 
-router.delete(
-  "/:room_id",
-  hasPermission(global.PermissionConstants.ADMIN_DELETE),
+router.put(
+  "/draft/:room_id",
+  hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(RoomController.disableRoom)
 );
 router.put(
-  "/:room_id",
+  "/publish/:room_id",
   hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(RoomController.enableRoom)
 );

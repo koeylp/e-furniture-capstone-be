@@ -17,7 +17,7 @@ router.post(
   asyncHandler(RoomController.createRoom)
 );
 router.put(
-  "/:room_id",
+  "/:room_slug",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(RoomController.editRoom)
 );
