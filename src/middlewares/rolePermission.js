@@ -22,17 +22,17 @@ const hasPermission = (hasRole) => async (req, res, next) => {
     if (!role) throw new UnAuthorizedError();
     const roleArray = RoleFactory.permissionArray(role);
     if (Array.isArray(hasRole) && hasRole.length !== 0) {
-      hasRole = hasRole.map((role) => {
+      let constantRole = hasRole.map((role) => {
         return RoleFactory.roleRegistry[role];
       });
-      let check = hasRole.some((element) => roleArray.includes(element));
+      let check = constantRole.some((element) => roleArray.includes(element));
       if (!check) throw new UnAuthorizedError("Action Denied");
       return next();
     }
-    hasRole = RoleFactory.roleRegistry[hasRole];
-    if (!roleArray.includes(hasRole))
+    let constantRoleNotArray = RoleFactory.roleRegistry[hasRole];
+    if (!roleArray.includes(constantRoleNotArray))
       throw new UnAuthorizedError("Action Denied");
-    next();
+    return next();
   } catch (error) {
     next(error);
   }
