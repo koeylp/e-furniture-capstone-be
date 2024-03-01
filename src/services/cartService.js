@@ -31,7 +31,6 @@ class CartService {
     } else {
       cart.products[foundIndex].quantity++;
     }
-    cart.total += product.quantity * foundProduct.price;
     return await CartRepository.save(cart);
   }
 
@@ -65,9 +64,7 @@ class CartService {
       );
     if (newQuantity <= 0)
       throw new BadRequestError("new quantity must be greater than 0");
-    cart.total -= cart.products[foundIndex].quantity * foundProduct.price;
     cart.products[foundIndex].quantity = newQuantity;
-    cart.total += newQuantity * foundProduct.price;
     return await CartRepository.save(cart);
   }
 
@@ -96,7 +93,7 @@ class CartService {
     if (updatedQuantity === 0) {
       cart.products[foundIndex].quantity++;
       cart = await this.remove(cart, foundProduct, foundIndex);
-    } else cart.total -= foundProduct.price;
+    } 
     return await CartRepository.save(cart);
   }
 
@@ -109,7 +106,6 @@ class CartService {
         "Product with id: " + product._id + " not found in cart"
       );
     cart.products[foundIndex].quantity++;
-    cart.total += foundProduct.price;
     return await CartRepository.save(cart);
   }
 
@@ -117,7 +113,6 @@ class CartService {
     cart.total -= cart.products[foundIndex].quantity * foundProduct.price;
     cart.products.splice(foundIndex, 1);
     cart.count_product--;
-    if (cart.count_product === 0) cart.total = 0;
     return cart;
   }
 
@@ -151,7 +146,6 @@ class CartService {
       } else {
         cart.products[foundIndex].quantity += products[i].quantity;
       }
-      cart.total += products[i].quantity * foundProduct.price;
     }
     return await CartRepository.save(cart);
   }
