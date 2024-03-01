@@ -73,9 +73,11 @@ class CartService {
 
   static async getCart(account_id) {
     const cart = await CartService.handleCart(account_id);
-    const productPromises = cart.products.map(async (product) => {
+    const productPromises = cart.products.map(async (product, index) => {
       const foundProduct = await verifyProductExistence(product._id);
-      product.price = foundProduct.price;
+      if (foundProduct) {
+        cart.products[index] = foundProduct;
+      }
     });
     await Promise.all(productPromises);
     return cart;

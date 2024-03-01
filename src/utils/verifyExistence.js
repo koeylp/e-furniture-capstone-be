@@ -22,9 +22,14 @@ class VerifyExistence {
   }
 
   static async verifyOrderExistence(order_id) {
-    const order = await OrderRepository.findOrderById(order_id);
-    if (!order)
-      throw new NotFoundError(`Order with id: ${order_id} not found`);
+    const order = await OrderRepository.findOrderById({ order_id });
+    if (!order) throw new NotFoundError(`Order with id: ${order_id} not found`);
+    return order;
+  }
+
+  static async verifyOrderExistenceWithUser(account_id, order_id) {
+    const order = await OrderRepository.findOrderById({ account_id, order_id });
+    if (!order) throw new NotFoundError(`Order with id: ${order_id} not found`);
     return order;
   }
 }

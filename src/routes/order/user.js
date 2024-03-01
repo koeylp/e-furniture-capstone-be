@@ -29,4 +29,10 @@ router.get(
   asyncHandler(OrderController.findOrder)
 );
 
+router.put(
+  "/:order_id/cancel",
+  hasPermission(global.PermissionConstants.USER_PUT),
+  asyncHandler(OrderController.cancelOrder)
+);
+
 module.exports = router;

@@ -27,10 +27,10 @@ app.use((req, res, next) => {
   });
 });
 app.use((error, req, res, next) => {
-  res.status(error.status || 500).send({
+  res.status(error.status || 404).send({
     error: {
-      status: error.status || 500,
-      message: error.message || "Internal Server Error",
+      status: error.status || 404,
+      message: error.message || "Not Found API",
     },
   });
 });

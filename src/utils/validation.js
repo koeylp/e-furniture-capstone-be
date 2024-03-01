@@ -174,6 +174,7 @@ const validateOrderInput = (data) => {
       .valid("Online Payment", "COD")
       .default("Online Payment"),
     order_shipping: Joi.object().required(),
+    note: Joi.any(),
   });
   return schema.validate(data);
 };
