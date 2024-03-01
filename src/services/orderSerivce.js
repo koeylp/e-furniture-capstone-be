@@ -25,7 +25,7 @@ class OrderService {
     return await OrderRepository.removeOrder(order_id);
   }
   static async createOrder(account_id, order) {
-    await verifyProductStockExistence(order);
+    // await verifyProductStockExistence(order);
     return await OrderRepository.createOrder(account_id, order);
   }
   static async updateTracking(order_id) {

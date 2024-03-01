@@ -57,7 +57,9 @@ class OrderRepository {
       payment: order.payment,
       order_shipping: order.order_shipping,
     });
-    if (!order) throw new InternalServerError();
+    if (!newOrder) throw new InternalServerError();
+    newOrder.order_tracking.push({note: order.note});
+    await newOrder.save();
     return newOrder;
   }
   static async update(order_id, order_tracking) {

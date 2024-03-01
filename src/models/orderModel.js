@@ -15,13 +15,19 @@ const schema = new Schema(
       default: "Online Payment",
     },
     order_shipping: { type: Object, required: true },
-    order_tracking: {
-      type: String,
-      required: true,
-      enum: ["Pending", "Processing", "Shipping", "Done", "Cancel"],
-      default: "Pending",
-    },
     guest: { type: Boolean, default: false },
+    order_tracking: [
+      {
+        name: {
+          type: String,
+          required: true,
+          enum: ["Pending", "Processing", "Shipping", "Done", "Cancel", "Failed", "Refunded"],
+          default: "Pending",
+        },
+        note: { type: Schema.Types.Mixed },
+        date: { type: Date, default: Date.now },
+      },
+    ],
     status: { type: Number, default: 1 },
   },
   {
