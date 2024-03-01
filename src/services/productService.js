@@ -1,6 +1,6 @@
 const ProductRepository = require("../models/repositories/productRepository");
 const SubTypeRepository = require("../models/repositories/subTypeRepository");
-const { BadRequestError } = require("../utils/errorHanlder");
+const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const ProductFactory = require("./productFactory/factory");
 const { returnSortType } = require("./productFactory/sortType");
 const {
@@ -21,7 +21,10 @@ class ProductService {
     return await ProductRepository.getAllPublished(page, limit, sortType);
   }
   static async findProduct(slug) {
-    return await ProductRepository.findProductBySlug(slug);
+    const product = await ProductRepository.findProductBySlug(slug);
+    if (!product.is_published)
+      throw new NotFoundError("Cannot Found Any Products!");
+    return product;
   }
   static async publishProduct(type_slug, product_slug) {
     const typeModel = ProductFactory.productRegistry[type_slug];
@@ -53,21 +56,6 @@ class ProductService {
       limit,
       sortType,
       type._id
-    );
-  }
-  static async getProductsByRoom(
-    page = 1,
-    limit = 12,
-    sortType = "default",
-    room_slug
-  ) {
-    sortType = returnSortType(sortType);
-    const room = await RoomRepository.findRoomBySlug(room_slug);
-    return await ProductRepository.getProductByRoom(
-      page,
-      limit,
-      sortType,
-      room._id
     );
   }
   static async getProductsBySubType(page = 1, limit = 12, type_slug, slug) {

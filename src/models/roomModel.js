@@ -13,7 +13,7 @@ const schema = new Schema(
     slug: { type: String },
     products: [
       {
-        productId: { type: String, ref: "Product" },
+        product: { type: String, ref: "Product" },
         quantity: { type: Number },
       },
     ],

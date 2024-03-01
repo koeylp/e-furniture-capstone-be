@@ -52,6 +52,8 @@ class SubTypeRepository {
     checkValidId(subtype_id);
     const query = {
       _id: new mongoose.Types.ObjectId(subtype_id),
+      is_draft: false,
+      is_published: true,
     };
     return await subTypeModel
       .findOne(query)

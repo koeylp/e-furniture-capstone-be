@@ -1,6 +1,7 @@
 const { BadRequestError } = require("../utils/errorHanlder");
 const RoomRepository = require("../models/repositories/roomRepository");
 const { returnSortType } = require("./productFactory/sortType");
+const RoomUtils = require("../utils/roomUtils");
 const sortPhase = new Map([
   ["name_asc", { name: 1 }],
   ["name_desc", { name: -1 }],
@@ -13,6 +14,8 @@ class RoomService {
   static async createRoom(payload) {
     const roomCheck = await RoomRepository.findRoomByName(payload.name);
     if (roomCheck) throw new BadRequestError("Room name is already in use!");
+    const products = await RoomUtils.checkProducts(payload.products);
+    payload.products = products;
     return await RoomRepository.createRoom(payload);
   }
   static async getRooms(page = 1, limit = 12, sortType = "default") {
@@ -43,6 +46,10 @@ class RoomService {
       const roomCheck = await RoomRepository.findRoomByName(payload.name);
       if (roomCheck && roomCheck.slug != room_slug)
         throw new BadRequestError("Room name is already in use!");
+    }
+    if (payload.products) {
+      const products = await RoomUtils.checkProducts(payload.products);
+      payload.products = products;
     }
     return await RoomRepository.editRoom(room_slug, payload);
   }
