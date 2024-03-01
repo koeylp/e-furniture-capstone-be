@@ -1,17 +1,10 @@
 const SubTypeRepository = require("../../models/repositories/subTypeRepository");
-const {
-  InternalServerError,
-  BadRequestError,
-} = require("../../utils/errorHanlder");
+const { BadRequestError } = require("../../utils/errorHanlder");
 const { validateSubType } = require("./validateSubType");
 const TypeRepository = require("../../models/repositories/typeRepository");
 const ProductRepository = require("../../models/repositories/productRepository");
-const {
-  removeUndefineObject,
-  removeInsideUndefineObject,
-} = require("../../utils");
+const { removeUndefineObject } = require("../../utils");
 const SubTypeService = require("../subTypeService");
-const RoomRepository = require("../../models/repositories/roomRepository");
 class Product {
   constructor({
     name,
@@ -23,7 +16,6 @@ class Product {
     variation = [],
     width,
     height,
-    room,
     attributes = [],
     model3D,
     isDraft = true,
@@ -38,7 +30,6 @@ class Product {
     this.variation = variation;
     this.width = width;
     this.height = height;
-    this.room = room;
     this.attributes = attributes;
     this.model3D = model3D;
     this.isDraft = isDraft;
@@ -73,7 +64,6 @@ class TypeProduct extends Product {
       );
       validateSubType(this.attributes.attributeType, attribute);
     }
-    await RoomRepository.findRoomById(this.room);
     this.type = type._id;
     return await super.createProduct();
   }

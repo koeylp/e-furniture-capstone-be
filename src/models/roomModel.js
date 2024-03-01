@@ -11,6 +11,12 @@ const schema = new Schema(
     description: { type: String, required: true },
     thumb: { type: String, required: true },
     slug: { type: String },
+    products: [
+      {
+        productId: { type: String, ref: "Product" },
+        quantity: { type: Number },
+      },
+    ],
     is_draft: { type: Boolean, default: true },
     is_published: { type: Boolean, default: false },
   },

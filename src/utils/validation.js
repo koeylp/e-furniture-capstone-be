@@ -104,7 +104,7 @@ const validateCreateProduct = (data) => {
     type: Joi.string().required(),
     width: Joi.number().required(),
     height: Joi.number().required(),
-    room: Joi.string(),
+    room: Joi.string().min(0),
     variation: Joi.array(),
     attributes: Joi.object(),
     model3D: Joi.string(),
