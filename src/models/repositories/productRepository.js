@@ -38,7 +38,7 @@ class ProductRepository {
       .select(getUnSelectData(["__v", "createdAt", "updatedAt"]))
       .populate({
         path: "type",
-        select: "name",
+        select: "name slug",
       })
       .lean()
       .exec();

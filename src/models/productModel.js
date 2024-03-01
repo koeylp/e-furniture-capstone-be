@@ -16,7 +16,6 @@ const schema = new Schema(
     type: { type: Schema.Types.ObjectId, required: true, ref: "Types" },
     width: { type: Number, required: true },
     height: { type: Number, required: true },
-    room: { type: Schema.Types.ObjectId, default: "", ref: "Room" },
     variation: [
       {
         material: { type: String, required: true },
