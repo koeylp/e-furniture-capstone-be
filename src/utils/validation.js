@@ -47,6 +47,7 @@ const validateCreateRoom = (data) => {
     name: Joi.string().min(3).max(20).required(),
     description: Joi.string().min(3).required(),
     thumb: Joi.string().min(3).required(),
+    products: Joi.array().required(),
   });
   return schema.validate(data);
 };
@@ -55,6 +56,7 @@ const validateEditRoom = (data) => {
     name: Joi.string().min(3).max(20),
     description: Joi.string().min(3),
     thumb: Joi.string().min(3),
+    products: Joi.array().required(),
   });
   return schema.validate(data);
 };

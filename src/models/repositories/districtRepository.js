@@ -12,6 +12,7 @@ class DistrictRepository {
     checkValidId(district_id);
     const query = {
       _id: new mongoose.Types.ObjectId(district_id),
+      status: 1,
     };
     const district = await _District.findOne(query).lean();
     if (!district) throw new InternalServerError();

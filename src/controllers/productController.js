@@ -42,20 +42,6 @@ class ProductController {
       ),
     }).send(res);
   }
-  static async getProductsByRoom(req, res) {
-    const { room_slug } = req.params;
-    const { page, limit, sortType } = req.query;
-    if (!room_slug) throw new BadRequestError();
-    return new OK({
-      message: "List Published Product!!",
-      metaData: await ProductService.getProductsByRoom(
-        page,
-        limit,
-        sortType,
-        room_slug
-      ),
-    }).send(res);
-  }
   static async getProductsBySubType(req, res) {
     const { type_slug, slug } = req.params;
     const { page, limit } = req.query;

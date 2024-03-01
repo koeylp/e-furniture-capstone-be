@@ -17,6 +17,8 @@ class ProductRepository {
     return await _Product
       .findOne({
         _id: new mongoose.Types.ObjectId(product_id),
+        is_draft: false,
+        is_published: true,
       })
       .select(getSelectData(filter))
       .lean()

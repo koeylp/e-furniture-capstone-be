@@ -91,6 +91,8 @@ class TypeRepository {
     checkValidId(type_id);
     const query = {
       _id: new mongoose.Types.ObjectId(type_id),
+      is_draft: false,
+      is_published: true,
     };
     const type = await _Type
       .findOne(query)
