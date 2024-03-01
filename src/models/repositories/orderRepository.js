@@ -58,7 +58,7 @@ class OrderRepository {
       order_shipping: order.order_shipping,
     });
     if (!newOrder) throw new InternalServerError();
-    newOrder.order_tracking.push({note: order.note});
+    newOrder.order_tracking.push({ note: order.note });
     await newOrder.save();
     return newOrder;
   }
@@ -80,6 +80,8 @@ class OrderRepository {
       order_shipping: order.order_shipping,
     });
     if (!order) throw new InternalServerError();
+    newOrder.order_tracking.push({ note: order.note });
+    await newOrder.save();
     return newOrder;
   }
 }
