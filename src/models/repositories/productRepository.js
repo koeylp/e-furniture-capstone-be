@@ -22,18 +22,29 @@ class ProductRepository {
       .lean()
       .exec();
   }
+  static async findProductByName(name) {
+    return await _Product
+      .findOne({
+        name: name,
+      })
+      .lean()
+      .exec();
+  }
   static async findProductBySlug(slug) {
     return await _Product
       .findOne({
         slug: slug,
       })
       .select(getUnSelectData(["__v", "createdAt", "updatedAt"]))
-      .populate("room")
+      .populate({
+        path: "type",
+        select: "name",
+      })
       .lean()
       .exec();
   }
-  static async updateProduct(product) {
-    return await _Product.updateOne(product);
+  static async updateProduct(query, update) {
+    return await _Product.updateOne(query, update, { new: true });
   }
   static async publishProduct(product_id) {
     const product = await this.findProductById(product_id);
@@ -62,7 +73,14 @@ class ProductRepository {
     const query = {
       slug: product_slug,
     };
-    return await _Product.updateOne(query, update, { new: true });
+    return await this.updateProduct(query, update);
+  }
+  static async updateProductById(product_id, update) {
+    checkValidId(product_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(product_id),
+    };
+    return await this.updateProduct(query, update);
   }
   static async getAlls(query, page, limit, sortType) {
     const skip = (page - 1) * limit;
@@ -146,6 +164,15 @@ class ProductRepository {
       "attributes.type": [subtype_slug],
     };
     return await _Product.deleteMany(query);
+  }
+  static async updateRangeProduct(productIdsToUpdate, update) {
+    return await _Product.updateMany(
+      { _id: { $in: productIdsToUpdate } },
+      update,
+      {
+        new: true,
+      }
+    );
   }
 }
 module.exports = ProductRepository;

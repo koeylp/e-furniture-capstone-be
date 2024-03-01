@@ -82,6 +82,7 @@ class SubTypeService {
         global.subTypeSchemasMap.set(type.slug, SubType);
       }
     }
+
     return global.subTypeSchemasMap;
   }
   static async editSubTypeName(type_id, subType_id, name) {

@@ -43,16 +43,16 @@ class ProductController {
     }).send(res);
   }
   static async getProductsByRoom(req, res) {
-    const { room_id } = req.params;
+    const { room_slug } = req.params;
     const { page, limit, sortType } = req.query;
-    if (!room_id) throw new BadRequestError();
+    if (!room_slug) throw new BadRequestError();
     return new OK({
       message: "List Published Product!!",
       metaData: await ProductService.getProductsByRoom(
         page,
         limit,
         sortType,
-        room_id
+        room_slug
       ),
     }).send(res);
   }

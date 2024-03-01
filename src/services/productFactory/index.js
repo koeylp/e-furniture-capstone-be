@@ -11,10 +11,12 @@ const {
   removeInsideUndefineObject,
 } = require("../../utils");
 const SubTypeService = require("../subTypeService");
+const RoomRepository = require("../../models/repositories/roomRepository");
 class Product {
   constructor({
     name,
-    thumb,
+    thumbs,
+    description,
     regular_price,
     sale_price,
     type,
@@ -28,7 +30,8 @@ class Product {
     isPublished = false,
   }) {
     this.name = name;
-    this.thumb = thumb;
+    this.thumbs = thumbs;
+    this.description = description;
     this.regular_price = regular_price;
     this.sale_price = sale_price;
     this.type = type;
@@ -50,6 +53,11 @@ class Product {
 }
 class TypeProduct extends Product {
   async createProduct(typeModel) {
+    const product_check_name = await ProductRepository.findProductByName(
+      this.name
+    );
+    if (product_check_name)
+      throw new BadRequestError(`Product Name ${this.name} is already in use!`);
     const type = await TypeRepository.findTypeBySlug(this.type);
     if (!type) throw new BadRequestError("Cannot Find Any Type For Adding!");
     const subType = await SubTypeRepository.findSubTypeBySlug(
@@ -65,6 +73,7 @@ class TypeProduct extends Product {
       );
       validateSubType(this.attributes.attributeType, attribute);
     }
+    await RoomRepository.findRoomById(this.room);
     this.type = type._id;
     return await super.createProduct();
   }

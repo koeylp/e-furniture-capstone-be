@@ -11,10 +11,10 @@ const returnSortPhase = (code) => {
   return sortPhase.get(code) || sortPhase.get("default");
 };
 class RoomService {
-  static async createRoom({ name, description, thumb, status = 0 }) {
-    const roomCheck = await RoomRepository.findRoomByName(name);
+  static async createRoom(payload) {
+    const roomCheck = await RoomRepository.findRoomByName(payload.name);
     if (roomCheck) throw new BadRequestError("Room name is already in use!");
-    return await RoomRepository.createRoom(name, description, thumb, status);
+    return await RoomRepository.createRoom(payload);
   }
   static async getRooms(page = 1, limit = 12, sortType = "default") {
     const sort = returnSortPhase(sortType);
@@ -23,36 +23,35 @@ class RoomService {
   static async getPublishRooms(page = 1, limit = 12, sortType = "default") {
     const sort = returnSortType(sortType);
     const query = {
-      status: 1,
+      is_draft: false,
+      is_published: true,
     };
     return await RoomRepository.getRooms({ limit, sort, page, query });
   }
   static async getDraftRooms(page = 1, limit = 12, sortType = "default") {
     const sort = returnSortType(sortType);
     const query = {
-      status: 0,
+      is_draft: true,
+      is_published: false,
     };
     return await RoomRepository.getRooms({ limit, sort, page, query });
   }
-  static async findRoom(room_id) {
-    return await RoomRepository.findRoomById(room_id);
+  static async findRoom(room_slug) {
+    return await RoomRepository.findRoomBySlug(room_slug);
   }
-  static async editRoom(room_id, payload) {
-    const roomCheck = await RoomRepository.findRoomByName(payload.name);
-    if (roomCheck && roomCheck._id != new mongoose.Types.ObjectId(room_id))
-      throw new BadRequestError("Room name is already in use!");
-    return await RoomRepository.editRoom(
-      room_id,
-      payload.name,
-      payload.description,
-      payload.thumb
-    );
+  static async editRoom(room_slug, payload) {
+    if (payload.name) {
+      const roomCheck = await RoomRepository.findRoomByName(payload.name);
+      if (roomCheck && roomCheck.slug != room_slug)
+        throw new BadRequestError("Room name is already in use!");
+    }
+    return await RoomRepository.editRoom(room_slug, payload);
   }
   static async disableRoom(room_id) {
-    return await RoomRepository.disableRoom(room_id);
+    return await RoomRepository.draftRoom(room_id);
   }
   static async enableRoom(room_id) {
-    return await RoomRepository.enableRoom(room_id);
+    return await RoomRepository.publishRoom(room_id);
   }
 }
 module.exports = RoomService;

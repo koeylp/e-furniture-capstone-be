@@ -33,21 +33,21 @@ class RoomController {
     }).send(res);
   }
   static async findRoom(req, res) {
-    const { room_id } = req.params;
-    if (!room_id) throw new BadRequestError();
+    const { room_slug } = req.params;
+    if (!room_slug) throw new BadRequestError();
     return new OK({
       message: "Room Detail!",
-      metaData: await RoomService.findRoom(room_id),
+      metaData: await RoomService.findRoom(room_slug),
     }).send(res);
   }
   static async editRoom(req, res) {
-    const { room_id } = req.params;
-    if (!room_id) throw new BadRequestError();
+    const { room_slug } = req.params;
+    if (!room_slug) throw new BadRequestError();
     const { error } = validateEditRoom(req.body);
     if (error) throw new BadRequestError(error.details[0].message);
     return new OK({
       message: "Edit Room Successfully!",
-      metaData: await RoomService.editRoom(room_id, req.body),
+      metaData: await RoomService.editRoom(room_slug, req.body),
     }).send(res);
   }
   static async enableRoom(req, res) {

@@ -47,7 +47,6 @@ const validateCreateRoom = (data) => {
     name: Joi.string().min(3).max(20).required(),
     description: Joi.string().min(3).required(),
     thumb: Joi.string().min(3).required(),
-    status: Joi.number(),
   });
   return schema.validate(data);
 };
@@ -98,13 +97,14 @@ const validateCreateAccount = (data) => {
 const validateCreateProduct = (data) => {
   const schema = Joi.object({
     name: Joi.string().required(),
-    thumb: Joi.string().required(),
+    thumbs: Joi.array().required(),
+    description: Joi.string().required(),
     regular_price: Joi.number().required(),
     sale_price: Joi.number().min(0),
     type: Joi.string().required(),
     width: Joi.number().required(),
     height: Joi.number().required(),
-    room: Joi.string().required(),
+    room: Joi.string(),
     variation: Joi.array(),
     attributes: Joi.object(),
     model3D: Joi.string(),
@@ -186,6 +186,26 @@ const validateCreateDistrict = (data) => {
   });
   return schema.validate(data);
 };
+const validateCreateFlashSale = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    startDay: Joi.string().required(),
+    endDay: Joi.string().required(),
+    products: Joi.array().required(),
+    is_draft: Joi.boolean(),
+    is_published: Joi.boolean(),
+  });
+  return schema.validate(data);
+};
+const validateUpdateFlashSale = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    startDay: Joi.string().required(),
+    endDay: Joi.string().required(),
+    products: Joi.array().required(),
+  });
+  return schema.validate(data);
+};
 
 module.exports = {
   validateEmail,
@@ -203,4 +223,6 @@ module.exports = {
   validateOrderInput,
   validateRegister,
   validateCreateDistrict,
+  validateCreateFlashSale,
+  validateUpdateFlashSale,
 };
