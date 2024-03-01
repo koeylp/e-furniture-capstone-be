@@ -76,6 +76,7 @@ class CartService {
     const productPromises = cart.products.map(async (product, index) => {
       const foundProduct = await verifyProductExistence(product._id);
       if (foundProduct) {
+        foundProduct.quantity_in_cart = cart.products[index].quantity
         cart.products[index] = foundProduct;
       }
     });
