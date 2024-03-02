@@ -39,8 +39,6 @@ class RoomRepository {
     };
     const room = await _Room.findOne(query).populate({
       path: "products.product",
-      select:
-        "_id name thumbs regular_price sale_price width height model3D slug",
     });
     if (!room) throw new NotFoundError("Cannot Find Any Room Result!");
     return room;
