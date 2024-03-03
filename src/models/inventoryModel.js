@@ -6,9 +6,14 @@ const DOCUMENT_NAME = "Inventory";
 
 const schema = new Schema(
   {
-    product: { type: Schema.Types.ObjectId, required: true, ref: "Product" },
+    product: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+      ref: "Product",
+    },
     stock: { type: Number, required: true },
-    sold: { type: Number, required: true },
+    sold: { type: Number, required: true, default: 0 },
   },
   {
     collection: COLLECTION_NAME,

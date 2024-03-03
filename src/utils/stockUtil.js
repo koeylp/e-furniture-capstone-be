@@ -1,12 +1,13 @@
 const { draftProduct } = require("../models/repositories/productRepository");
 const WarehouseRepository = require("../models/repositories/warehouseRepository");
+const InventoryRepository = require("../models/repositories/inventoryRepository");
 const { BadRequestError, NotFoundError } = require("./errorHanlder");
 
 class StockUtil {
   static async checkProductStock(product) {
-    const { product_id, location, quantity } = product;
-    const query = { product_id, location };
-    const foundProductStock = await WarehouseRepository.findByQuery(query);
+    const { product_id, quantity } = product;
+    const query = { product: product_id };
+    const foundProductStock = await InventoryRepository.findByQuery(query);
     if (!foundProductStock) throw new NotFoundError("Stock not found!");
     if (foundProductStock.stock === 0)
       throw new BadRequestError(
@@ -28,6 +29,19 @@ class StockUtil {
     if (updatedStock === 0) await draftProduct(product_id);
     await WarehouseRepository.updateWareHouse(warehouse_id, {
       stock: updatedStock,
+    });
+  }
+
+  static async updateInventoryStock(product) {
+    const { product_id, quantity } = product;
+    const query = { product: product_id };
+    const foundInventory = await InventoryRepository.findByQuery(query);
+    // const inventory_id =.toHexString();
+    // console.log(inventory_id);
+    const updatedStock = foundInventory.stock - quantity;
+    if (updatedStock === 0) await draftProduct(product_id);
+    await InventoryRepository.save( foundInventory._id, {
+      $set: { stock: updatedStock },
     });
   }
 }
