@@ -2,8 +2,8 @@ const _Inventory = require("../inventoryModel");
 const { getUnSelectData } = require("../../utils");
 class InventoryRepository {
   static async createInventory(inventory) {
-    const inventory = await _Inventory.create(inventory);
-    return inventory;
+    const newInventory = await _Inventory.create(inventory);
+    return newInventory;
   }
 
   static async findByQuery(query) {
@@ -13,9 +13,10 @@ class InventoryRepository {
       .lean();
   }
 
-  static async save(inventory) {
-    await _Inventory.findOneAndUpdate(inventory._id, inventory);
-    return inventory;
+  static async save(query) {
+    const temp = await _Inventory.findOneAndUpdate(query);
+    console.log(temp);
+    return temp;
   }
 }
 module.exports = InventoryRepository;

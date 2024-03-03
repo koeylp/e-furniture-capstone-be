@@ -22,6 +22,7 @@ const routes = [
   { path: "/room", route: require("../routes/room") },
   { path: "/district", route: require("../routes/district") },
   { path: "/flashsale", route: require("../routes/flashSale") },
+  { path: "/inventory", route: require("../routes/inventory") },
 ];
 
 const configureRoutes = (app) => {

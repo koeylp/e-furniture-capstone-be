@@ -66,10 +66,8 @@ class VoucherUtil {
     };
 
     if (found_voucher.products.length > 0) {
-      // Specific products
       await Promise.all(products.map(applyDiscountToProduct));
     } else {
-      // All products
       applyDiscountToAllProducts();
     }
 
@@ -101,7 +99,7 @@ class VoucherUtil {
       ? found_voucher.users_used.push({ account_id, used_count: 1 })
       : found_voucher.users_used[user_used_index].used_count++;
 
-    found_voucher.used_turn_count++; // increase used_turn_count
+    found_voucher.used_turn_count++;
   }
 
   static async validateCreatingVoucher(voucher) {
@@ -117,17 +115,28 @@ class VoucherUtil {
   }
 
   static async getBySpecified(products) {
-    const QUERY = {
-      is_active: 1,
-      products: { $exists: true, $not: { $size: 0 } },
-    };
-    const SORT = [["createdAt", -1]];
-
-    const vouchers = await VoucherRepository.findAllByQuery(QUERY, SORT);
-
-    return vouchers.filter((voucher) =>
-      voucher.products.some((product) => new Set(products).has(product))
+    const currentTimestamp = new Date().toISOString();
+    console.log(currentTimestamp);
+    const activeVouchers = await VoucherRepository.findAllByQuery(
+      {
+        is_active: 1,
+        start_date: { $lte: currentTimestamp },
+        end_date: { $gte: currentTimestamp },
+      },
+      [["createdAt", -1]]
     );
+
+    const filteredVouchers = activeVouchers.filter(
+      (voucher) =>
+        voucher.products.length === 0 ||
+        products.some(
+          (product) =>
+            voucher.products.includes(product.product_id) &&
+            voucher.minimum_order_value <= product.price
+        )
+    );
+
+    return filteredVouchers;
   }
 }
 
