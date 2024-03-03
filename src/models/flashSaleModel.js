@@ -16,6 +16,7 @@ const schema = new Schema(
         salePrice: { type: Number },
       },
     ],
+    cron: { type: String, default: "" },
     is_draft: { type: Boolean, default: true },
     is_published: { type: Boolean, default: false },
   },
