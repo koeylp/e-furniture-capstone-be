@@ -53,5 +53,8 @@ class WareHouseRepository {
   static async findByQuery(query) {
     return await _WareHouse.findOne(query).exec();
   }
+  static async save(warehouse) {
+    return await _WareHouse.updateOne({ _id: warehouse._id }, warehouse);
+  }
 }
 module.exports = WareHouseRepository;

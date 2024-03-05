@@ -117,7 +117,6 @@ const validateCreateProduct = (data) => {
 };
 const validateCreateWareHouse = (data) => {
   const schema = Joi.object({
-    product: Joi.object().required(),
     location: Joi.string().required(),
     street: Joi.string().required(),
     district: Joi.string().required(),
