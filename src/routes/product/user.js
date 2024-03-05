@@ -5,6 +5,7 @@ const ProductController = require("../../controllers/productController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
 router.get("/:type_slug", asyncHandler(ProductController.getProductsByType));
+router.get("/search/:text", asyncHandler(ProductController.searchProduct));
 router.get("/detail/:slug", asyncHandler(ProductController.findProduct));
 router.get(
   "/:type_slug/:slug",

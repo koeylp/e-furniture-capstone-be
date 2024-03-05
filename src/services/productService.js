@@ -9,7 +9,6 @@ const {
 } = require("../utils/skipLimitForProduct");
 const TypeRepository = require("../models/repositories/typeRepository");
 const SubTypeService = require("./subTypeService");
-const RoomRepository = require("../models/repositories/roomRepository");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -124,6 +123,17 @@ class ProductService {
         },
       };
       await ProductRepository.updateProductById(product.productId, update);
+    });
+  }
+  static async searchProductByName(text, page = 1, limit = 12) {
+    let options = { is_draft: false, is_published: true };
+    let filter = [];
+    return ProductRepository.searchByText({
+      keySearch: text,
+      filter,
+      options,
+      page,
+      limit,
     });
   }
 }
