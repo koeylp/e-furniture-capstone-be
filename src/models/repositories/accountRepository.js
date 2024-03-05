@@ -38,13 +38,15 @@ class AccountRepository {
   }
   static async getAccounts(limit, page, sort, query = {}) {
     const skip = (page - 1) * limit;
-    return await _Account
+    const accounts = await _Account.find({ status: 1 });
+    const result = await _Account
       .find(query)
       .sort(sort)
       .skip(skip)
       .limit(limit)
       .select(getUnSelectData(["__v", "password"]))
       .lean();
+    return { total: accounts.length, data: result };
   }
   static async findAccount(query) {
     return await _Account
