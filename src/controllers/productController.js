@@ -96,5 +96,13 @@ class ProductController {
       metaData: await ProductService.removeProduct(product_slug),
     }).send(res);
   }
+  static async searchProduct(req, res) {
+    const { text } = req.params;
+    if (!text) throw new BadRequestError();
+    return new OK({
+      message: "List Of Products!!",
+      metaData: await ProductService.searchProductByName(text),
+    }).send(res);
+  }
 }
 module.exports = ProductController;

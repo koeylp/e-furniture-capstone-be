@@ -176,5 +176,19 @@ class ProductRepository {
       }
     );
   }
+  static async searchByText({ keySearch, filter = [], options = {} }) {
+    const searchValue =
+      typeof keySearch === "object" ? keySearch.text : keySearch;
+    const regexSearch = new RegExp(searchValue);
+    const result = await _Product
+      .find(
+        { $text: { $search: regexSearch }, ...options },
+        { score: { $meta: "textScore" } }
+      )
+      .sort({ score: { $meta: "textScore" } })
+      .select(getSelectData(filter))
+      .lean();
+    return result;
+  }
 }
 module.exports = ProductRepository;
