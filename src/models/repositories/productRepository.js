@@ -86,13 +86,15 @@ class ProductRepository {
   }
   static async getAlls(query, page, limit, sortType) {
     const skip = (page - 1) * limit;
-    return await _Product
+    const products = await _Product.find(query);
+    const result = await _Product
       .find(query)
       .sort(sortType)
       .skip(skip)
       .limit(limit)
       .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
       .lean();
+    return { total: products.length, data: result };
   }
   static async getAllDraft(page, limit, sortType) {
     const query = { is_draft: true, is_published: false };
@@ -187,6 +189,7 @@ class ProductRepository {
       typeof keySearch === "object" ? keySearch.text : keySearch;
     const regexSearch = new RegExp(searchValue);
     const skip = (page - 1) * limit;
+
     const result = await _Product
       .find(
         { $text: { $search: regexSearch }, ...options },
@@ -197,7 +200,11 @@ class ProductRepository {
       .limit(limit)
       .select(getSelectData(filter))
       .lean();
-    return result;
+    const products = await _Product.find(
+      { $text: { $search: regexSearch }, ...options },
+      { score: { $meta: "textScore" } }
+    );
+    return { total: products.length, data: result };
   }
 }
 module.exports = ProductRepository;

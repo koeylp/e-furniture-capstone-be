@@ -42,7 +42,7 @@ class AccountService {
       query
     );
     await Promise.all(
-      accounts.map(async (account) => {
+      accounts.data.map(async (account) => {
         account.role = await RoleFactory.convertRole(account.role);
       })
     );

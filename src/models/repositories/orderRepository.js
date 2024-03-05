@@ -1,17 +1,19 @@
 const _Order = require("../orderModel");
 const { getUnSelectData, checkValidId } = require("../../utils/index");
 const { default: mongoose } = require("mongoose");
-const { BadRequestError, NotFoundError } = require("../../utils/errorHanlder");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
-    return await _Order
+    const orders = await _Order.find({ status: 1 });
+    const result = await _Order
       .find(query)
       .select(getUnSelectData(["__v"]))
       .skip(skip)
       .limit(limit)
       .lean()
       .exec();
+
+    return { total: orders.length, data: result };
   }
   static async getOrdersByUser(account_id, page, limit) {
     checkValidId(account_id);
