@@ -25,7 +25,21 @@ class AccountController {
     if (!account_id) throw new BadRequestError();
     return new OK({
       message: "List Account!",
-      metaData: await AccountService.getAccounts(
+      metaData: await AccountService.getUserAccounts(
+        account_id,
+        page,
+        limit,
+        sortCode
+      ),
+    }).send(res);
+  }
+  static async getSystemAccounts(req, res) {
+    const { page, limit, sortCode } = req.query;
+    const { account_id } = req.payload;
+    if (!account_id) throw new BadRequestError();
+    return new OK({
+      message: "List Account!",
+      metaData: await AccountService.getSystemAccounts(
         account_id,
         page,
         limit,

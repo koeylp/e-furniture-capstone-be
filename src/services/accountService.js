@@ -18,6 +18,14 @@ class AccountService {
       payload.username
     );
     if (userCheck) throw new BadRequestError("Username is already in use!");
+    let totalRole = 0;
+    const roles = await RoleFactory.convertRoleFromRangeId(payload.role);
+    if (!roles) throw new NotFoundError("Invalid Role!");
+    roles.forEach((role) => {
+      totalRole += role.value;
+    });
+    if (totalRole === 0) throw new BadRequestError("Role can not less than 0");
+    payload.role = totalRole;
     const hashPassword = await hashCode(payload.password);
     payload.password = hashPassword;
     return await AccountRepository.createAccount(payload);
@@ -25,7 +33,7 @@ class AccountService {
   static async findAccount(account_id) {
     return await AccountRepository.findAccountById(account_id);
   }
-  static async getAccounts(
+  static async getUserAccounts(
     account_id,
     page = 1,
     limit = 12,
@@ -34,6 +42,33 @@ class AccountService {
     let sort = returnSortPhase(sortCode);
     const query = {
       _id: { $ne: new mongoose.Types.ObjectId(account_id) },
+      role: { $lt: 32 },
+      status: 1,
+    };
+    let accounts = await AccountRepository.getAccounts(
+      limit,
+      page,
+      sort,
+      query
+    );
+    await Promise.all(
+      accounts.data.map(async (account) => {
+        account.role = await RoleFactory.convertRole(account.role);
+      })
+    );
+    return accounts;
+  }
+  static async getSystemAccounts(
+    account_id,
+    page = 1,
+    limit = 12,
+    sortCode = "default"
+  ) {
+    let sort = returnSortPhase(sortCode);
+    const query = {
+      _id: { $ne: new mongoose.Types.ObjectId(account_id) },
+      role: { $gt: 32 },
+      status: 1,
     };
     let accounts = await AccountRepository.getAccounts(
       limit,
@@ -84,7 +119,6 @@ class AccountService {
     return await AccountRepository.disableAccount(account_id);
   }
   static async editRoleAccount(account_id, roles) {
-    checkRoleNumber(roles);
     let totalRole = 0;
     roles = await RoleFactory.convertRoleFromRangeId(roles);
     if (!roles) throw new NotFoundError("Invalid Role!");

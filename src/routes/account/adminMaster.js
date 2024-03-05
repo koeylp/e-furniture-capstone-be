@@ -13,9 +13,14 @@ router.use(verifyToken);
 router.use(hasAccess(131072));
 
 router.get(
-  "/",
+  "/user",
   hasPermission(global.PermissionConstants.ADMIN_MASTER_GET),
   asyncHandler(AccountController.getAccounts)
+);
+router.get(
+  "/system",
+  hasPermission(global.PermissionConstants.ADMIN_MASTER_GET),
+  asyncHandler(AccountController.getSystemAccounts)
 );
 router.post(
   "/",
