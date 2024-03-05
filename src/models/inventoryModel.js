@@ -12,7 +12,7 @@ const schema = new Schema(
       unique: true,
       ref: "Product",
     },
-    stock: { type: Number, required: true },
+    stock: { type: Number, required: true, default: 0 },
     sold: { type: Number, required: true, default: 0 },
   },
   {

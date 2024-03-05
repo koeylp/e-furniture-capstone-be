@@ -16,11 +16,15 @@ router.post(
   hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(WareHouseController.createWareHouse)
 );
+router.post(
+  "/:warehouse_id",
+  hasPermission(global.PermissionConstants.STAFF_POST),
+  asyncHandler(WareHouseController.addProductToWareHouse)
+);
 router.put(
   "/:warehouse_id",
-  asyncHandler,
   hasPermission(global.PermissionConstants.STAFF_PUT),
-  WareHouseController.updateWareHouse
+  asyncHandler(WareHouseController.updateWareHouse)
 );
 
 module.exports = router;

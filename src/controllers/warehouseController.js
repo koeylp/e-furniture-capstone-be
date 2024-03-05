@@ -56,7 +56,7 @@ class WareHouseController {
     if (!warehouse_id) throw new BadRequestError();
     return new OK({
       message: "Add product to Warehouse Successfully!",
-      metaData: await WareHouseService.updateWareHouse(warehouse_id, req.body),
+      metaData: await WareHouseService.addProductToWareHouse(warehouse_id, req.body),
     }).send(res);
   }
 }
