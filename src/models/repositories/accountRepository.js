@@ -38,7 +38,7 @@ class AccountRepository {
   }
   static async getAccounts(limit, page, sort, query = {}) {
     const skip = (page - 1) * limit;
-    const accounts = await _Account.find({ status: 1 });
+    const accounts = await _Account.find(query);
     const result = await _Account
       .find(query)
       .sort(sort)

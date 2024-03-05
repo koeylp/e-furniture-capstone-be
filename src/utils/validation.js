@@ -89,7 +89,7 @@ const validateCreateAccount = (data) => {
     password: Joi.string().required(),
     first_name: Joi.string().required(),
     last_name: Joi.string().required(),
-    role: Joi.number(),
+    role: Joi.array(),
     email: Joi.string(),
     status: Joi.number(),
   });

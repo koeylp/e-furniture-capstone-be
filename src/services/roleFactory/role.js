@@ -1,4 +1,5 @@
 const RoleRepository = require("../../models/repositories/roleRepository");
+const { checkValidId } = require("../../utils");
 const { NotFoundError } = require("../../utils/errorHanlder");
 
 class RoleFactory {
@@ -51,6 +52,7 @@ class RoleFactory {
     return await RoleRepository.getRolesByPermissions(arrayPermission);
   }
   static async convertRoleFromRangeId(roles) {
+    roles.forEach((role) => checkValidId(role));
     return await RoleRepository.getRolesByRangeId(roles);
   }
 }
