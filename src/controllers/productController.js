@@ -99,9 +99,10 @@ class ProductController {
   static async searchProduct(req, res) {
     const { text } = req.params;
     if (!text) throw new BadRequestError();
+    const { page, limit } = req.query;
     return new OK({
       message: "List Of Products!!",
-      metaData: await ProductService.searchProductByName(text),
+      metaData: await ProductService.searchProductByName(text, page, limit),
     }).send(res);
   }
 }

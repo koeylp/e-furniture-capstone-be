@@ -125,13 +125,15 @@ class ProductService {
       await ProductRepository.updateProductById(product.productId, update);
     });
   }
-  static async searchProductByName(text) {
+  static async searchProductByName(text, page = 1, limit = 12) {
     let options = { is_draft: false, is_published: true };
     let filter = [];
     return ProductRepository.searchByText({
       keySearch: text,
       filter,
       options,
+      page,
+      limit,
     });
   }
 }
