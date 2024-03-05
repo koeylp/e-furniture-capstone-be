@@ -1,5 +1,7 @@
 const FlashSaleRepository = require("../models/repositories/flashSaleRepository");
 const FlashSaleUtils = require("../utils/flashSaleUtils");
+const CronFactory = require("../services/cronFactory/cron");
+const { NotFoundError } = require("../utils/errorHanlder");
 class FlashSaleService {
   static async create(payload) {
     FlashSaleUtils.validateDate(payload.startDay, payload.endDay);
@@ -19,17 +21,33 @@ class FlashSaleService {
   }
   static async publish(flashSale_id) {
     const result = await FlashSaleRepository.publishFlashSale(flashSale_id);
-    await FlashSaleUtils.processDateRange(
-      result.startDay,
-      result.endDay,
-      result.products
+    if (result.modifiedCount < 0)
+      throw new NotFoundError("Cannot Update FlashSale!");
+    const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
+    const cronJob = await FlashSaleUtils.processDateRange(
+      flashSale.startDay,
+      flashSale.endDay,
+      flashSale.products
     );
+    CronFactory.registerCronType(`${flashSale_id}_start`, cronJob.start);
+    CronFactory.registerCronType(`${flashSale_id}_end`, cronJob.end);
     return result;
   }
   static async draft(flashSale_id) {
-    return await FlashSaleRepository.draftFlashSale(flashSale_id);
+    const result = await FlashSaleRepository.draftFlashSale(flashSale_id);
+    if (result.modifiedCount < 1) throw new NotFoundError();
+    const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
+    const cronStart = CronFactory.cronRegistry[`${flashSale_id}_start`];
+    const cronEnd = CronFactory.cronRegistry[`${flashSale_id}_end`];
+    cronStart.stop();
+    cronEnd.stop();
+    CronFactory.unregisterCronType(`${flashSale_id}_start`);
+    CronFactory.unregisterCronType(`${flashSale_id}_end`);
+    return result;
   }
   static async remove(flashSale_id) {
+    CronFactory.unregisterCronType(`${flashSale_id}_start`);
+    CronFactory.unregisterCronType(`${flashSale_id}_end`);
     return await FlashSaleRepository.remove(flashSale_id);
   }
 }
