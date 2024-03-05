@@ -8,7 +8,8 @@ class StockUtil {
     const { product_id, quantity } = product;
     const query = { product: product_id };
     const foundProductStock = await InventoryRepository.findByQuery(query);
-    if (!foundProductStock) throw new NotFoundError("Stock not found!");
+    if (!foundProductStock)
+      throw new NotFoundError(`Stock not found with id + ${product_id}`);
     if (foundProductStock.stock === 0)
       throw new BadRequestError(
         `The product with id ${product_id} is out of stock`
@@ -36,13 +37,9 @@ class StockUtil {
     const { product_id, quantity } = product;
     const query = { product: product_id };
     const foundInventory = await InventoryRepository.findByQuery(query);
-    // const inventory_id =.toHexString();
-    // console.log(inventory_id);
     const updatedStock = foundInventory.stock - quantity;
     if (updatedStock === 0) await draftProduct(product_id);
-    await InventoryRepository.save( foundInventory._id, {
-      $set: { stock: updatedStock },
-    });
+    await InventoryRepository.save(foundInventory._id, updatedStock);
   }
 }
 

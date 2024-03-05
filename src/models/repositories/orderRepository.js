@@ -56,7 +56,7 @@ class OrderRepository {
       account_id: account_id,
       order_checkout: order.order_checkout,
       order_products: order.order_products,
-      payment: order.payment,
+      payment_method: order.payment_method,
       order_shipping: order.order_shipping,
     });
     if (!newOrder) throw new InternalServerError();

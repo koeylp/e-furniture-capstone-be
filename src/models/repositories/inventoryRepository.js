@@ -13,10 +13,14 @@ class InventoryRepository {
       .lean();
   }
 
-  static async save(query) {
-    const temp = await _Inventory.findOneAndUpdate(query);
-    console.log(temp);
-    return temp;
+  static async save(inventory_id, updatedStock) {
+    const query = {
+      _id: inventory_id,
+    };
+    const update = {
+      $set: { stock: updatedStock },
+    };
+    return await _Inventory.updateOne(query, update);
   }
 }
 module.exports = InventoryRepository;

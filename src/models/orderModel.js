@@ -7,9 +7,14 @@ const DOCUMENT_NAME = "Order";
 const schema = new Schema(
   {
     account_id: { type: String, ref: "Account" },
-    order_checkout: { type: Object, required: true },
+    order_checkout: {
+      final_total: { type: Number },
+      total: { type: Number, required: true },
+      voucher: { type: Object },
+      paid: { type: Number, default: 0 },
+    },
     order_products: { type: Array, required: true },
-    payment: {
+    payment_method: {
       type: String,
       enum: ["Online Payment", "COD"],
       default: "Online Payment",
@@ -21,7 +26,15 @@ const schema = new Schema(
         name: {
           type: String,
           required: true,
-          enum: ["Pending", "Processing", "Shipping", "Done", "Cancel", "Failed", "Refunded"],
+          enum: [
+            "Pending",
+            "Processing",
+            "Shipping",
+            "Done",
+            "Cancel",
+            "Failed",
+            "Refunded",
+          ],
           default: "Pending",
         },
         note: { type: Schema.Types.Mixed },

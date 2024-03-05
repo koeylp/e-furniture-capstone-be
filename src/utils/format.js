@@ -30,6 +30,16 @@ const formatDate = (date, formatString = "YYYY-MM-DD HH:mm:ss") => {
   return moment(date).format(formatString);
 };
 
+
+
+const formatToDate = (date) => {
+  const parsedDate = moment(date, "YYYY-MM-DD HH:mm:ss").toDate();
+  if (!moment(date).isValid()) {
+    return "Invalid date";
+  }
+  return parsedDate;
+};
+
 const formatToken = (decodedToken) => {
   const iatDate = moment
     .unix(decodedToken.iat)
@@ -50,7 +60,7 @@ const formatToken = (decodedToken) => {
 
 const capitalizeAllLetter = (str) => {
   return _.upperCase(str);
-}
+};
 
 module.exports = {
   capitalizeFirstLetter,
@@ -59,4 +69,5 @@ module.exports = {
   formatDate,
   formatToken,
   capitalizeAllLetter,
+  formatToDate,
 };

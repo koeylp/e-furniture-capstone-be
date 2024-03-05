@@ -4,7 +4,7 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const { removeUndefineObject } = require("../utils");
 class WareHouseService {
   static async createWareHouse(payload) {
-    const product = await ProductRepository.findProductById(payload.product_id);
+    const product = await ProductRepository.findProductById(payload.product._id);
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Create WareHouse!");
     if (!product.is_published)
