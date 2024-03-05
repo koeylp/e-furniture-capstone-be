@@ -5,7 +5,7 @@ const { NotFoundError } = require("../../utils/errorHanlder");
 class RoleFactory {
   static roleRegistry = {};
   static registerRoleType(role_action, permission) {
-    if (!RoleFactory.roleRegistry[permission]) {
+    if (!RoleFactory.roleRegistry[role_action]) {
       RoleFactory.roleRegistry[role_action] = permission;
     }
   }

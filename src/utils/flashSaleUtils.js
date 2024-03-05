@@ -40,31 +40,24 @@ class FlashSaleUtils {
   }
   static async processDateRange(startDate, endDate, products) {
     if (!startDate || !endDate) {
-      console.error("Vui lòng cung cấp cả startDate và endDate");
-      return;
+      throw new BadRequestError("Vui lòng cung cấp cả startDate và endDate");
     }
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
     const endTime = FlashSaleUtils.convertTimeDate(endDate);
-    console.log(startTime, endTime);
-    console.log(
-      `Khoảng thời gian từ ${startTime.momentDate.format(
-        "YYYY-MM-DD"
-      )} đến ${endTime.momentDate.format("YYYY-MM-DD")}`
-    );
-    cron.schedule(
+    const startCron = cron.schedule(
       `${startTime.minute} ${startTime.hour}
        ${startTime.momentDate.format("D")}
        ${startTime.momentDate.format("M")} *`,
       async () => {
-        await ProductService.updateRangeProductSalePrice(products);
         console.log(
-          `Thực hiện công việc tại ${startTime.hour} ${
-            startTime.minute
-          } ngày ${startTime.momentDate.format("YYYY-MM-DD")}`
+          `Thực hiện công việc tại ${endTime.hour} ${
+            endTime.minute
+          } ngày ${endTime.momentDate.format("YYYY-MM-DD")}`
         );
+        await ProductService.updateRangeProductSalePrice(products);
       }
     );
-    cron.schedule(
+    const endCron = cron.schedule(
       `${endTime.minute} ${endTime.hour}
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
@@ -77,6 +70,7 @@ class FlashSaleUtils {
         );
       }
     );
+    return { start: startCron, end: endCron };
   }
   static convertTimeDate(date) {
     const timeArray = date.split(":");
