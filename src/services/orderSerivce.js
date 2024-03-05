@@ -8,6 +8,7 @@ const { orderTrackingMap } = require("../config/orderTrackingConfig");
 const { getKeyByValue } = require("../utils/keyValueUtil");
 const { capitalizeFirstLetter } = require("../utils/format");
 const { BadRequestError } = require("../utils/errorHanlder");
+const VoucherRepository = require("../models/repositories/voucherRepository");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -25,7 +26,12 @@ class OrderService {
     return await OrderRepository.removeOrder(order_id);
   }
   static async createOrder(account_id, order) {
-    // await verifyProductStockExistence(order);
+    await verifyProductStockExistence(order);
+    const updatedVoucher = await VoucherRepository.save(order.order_checkout.voucher);
+    if (!updatedVoucher)
+      throw new ForbiddenError(
+        `Voucher ${found_voucher._id} was applied failed`
+      );
     return await OrderRepository.createOrder(account_id, order);
   }
   static async updateTracking(order_id) {

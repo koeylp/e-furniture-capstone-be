@@ -3,6 +3,7 @@ const VoucherRepository = require("../models/repositories/voucherRepository");
 const AccountRepository = require("../models/repositories/accountRepository");
 const { calculateOrderTotal } = require("../utils/calculator");
 const VoucherUtil = require("../utils/voucherUtil");
+const { formatDate, formatToDate } = require("../utils/format");
 
 class VoucherService {
   static async handleVoucher(voucher_id) {
@@ -36,11 +37,6 @@ class VoucherService {
       order_total
     );
     await VoucherUtil.updateVoucherUsage(found_voucher, account_id);
-    const updatedVoucher = await VoucherRepository.save(found_voucher);
-    if (!updatedVoucher)
-      throw new ForbiddenError(
-        `Voucher ${found_voucher._id} was applied failed`
-      );
     return result;
   }
 
