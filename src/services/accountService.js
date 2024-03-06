@@ -43,7 +43,6 @@ class AccountService {
     const query = {
       _id: { $ne: new mongoose.Types.ObjectId(account_id) },
       role: { $lt: 32 },
-      status: 1,
     };
     let accounts = await AccountRepository.getAccounts(
       limit,
@@ -68,7 +67,6 @@ class AccountService {
     const query = {
       _id: { $ne: new mongoose.Types.ObjectId(account_id) },
       role: { $gt: 32 },
-      status: 1,
     };
     let accounts = await AccountRepository.getAccounts(
       limit,
