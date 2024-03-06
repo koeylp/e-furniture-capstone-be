@@ -11,11 +11,11 @@ const {
 router.use(verifyToken);
 router.use(hasAccess(512));
 
-router.post(
-  "/",
-  hasPermission(global.PermissionConstants.ADMIN_POST),
-  asyncHandler(TransactionController.createTransaction)
-);
+// router.post(
+//   "/",
+//   hasPermission(global.PermissionConstants.ADMIN_POST),
+//   asyncHandler(TransactionController.createTransaction)
+// );
 router.get(
   "/",
   hasPermission(global.PermissionConstants.ADMIN_GET),

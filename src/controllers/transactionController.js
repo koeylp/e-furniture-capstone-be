@@ -3,17 +3,17 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
 const { validateCreateTransaction } = require("../utils/validation");
 class TransactionController {
-  static async createTransaction(req, res) {
-    const { error } = validateCreateTransaction(req.body);
-    if (error) throw new BadRequestError(error.details[0].message);
-    return new OK({
-      message: "Create Transaction Successfully!",
-      metaData: await TransactionService.create(
-        "65e86b5e666b62c29e70a354",
-        req.body
-      ),
-    }).send(res);
-  }
+  //   static async createTransaction(req, res) {
+  //     const { error } = validateCreateTransaction(req.body);
+  //     if (error) throw new BadRequestError(error.details[0].message);
+  //     return new OK({
+  //       message: "Create Transaction Successfully!",
+  //       metaData: await TransactionService.create(
+  //         "65e86b5e666b62c29e70a354",
+  //         req.body
+  //       ),
+  //     }).send(res);
+  //   }
   static async getTransactions(req, res) {
     const { page, limit } = req.query;
     return new OK({
