@@ -221,6 +221,18 @@ const validateCreateBankInfor = (data) => {
   });
   return schema.validate(data);
 };
+const validateCreateTransaction = (data) => {
+  const schema = Joi.object({
+    account_Bank_Id: Joi.number().required(),
+    amount: Joi.number().required(),
+    bank_Code_Name: Joi.string().required(),
+    bank_Sub_Acc_Id: Joi.string().required(),
+    cusum_Balance: Joi.number().required(),
+    description: Joi.string().required(),
+    tid: Joi.string().required(),
+  });
+  return schema.validate(data);
+};
 
 module.exports = {
   validateEmail,
@@ -241,4 +253,5 @@ module.exports = {
   validateCreateFlashSale,
   validateUpdateFlashSale,
   validateCreateBankInfor,
+  validateCreateTransaction,
 };
