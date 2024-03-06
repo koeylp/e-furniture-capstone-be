@@ -16,5 +16,10 @@ router.post(
   hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(VoucherController.createVoucher)
 );
+router.get(
+  "/",
+  hasPermission(global.PermissionConstants.STAFF_GET),
+  asyncHandler(VoucherController.getAllVouchers)
+);
 
 module.exports = router;

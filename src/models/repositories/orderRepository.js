@@ -23,18 +23,19 @@ class OrderRepository {
     };
     return await this.getOrders(query, page, limit);
   }
-  static async getOrdersByType(order_tracking, page, limit) {
+  static async getOrdersByType({ account_id, key_of_type, page, limit }) {
     const query = {
-      order_tracking: order_tracking,
+      order_tracking: { $size: key_of_type + 1 },
+      ...(account_id && { account_id }),
       status: 1,
     };
-    return await this.getOrders(query, page, limit);
+    return await this.getOrders({ query, page, limit });
   }
   static async findOrderById({ account_id = null, order_id }) {
     checkValidId(order_id);
     const query = {
       _id: new mongoose.Types.ObjectId(order_id),
-      account_id: account_id,
+      ...(account_id && { account_id }),
       status: 1,
     };
     return await _Order
@@ -64,13 +65,14 @@ class OrderRepository {
     await newOrder.save();
     return newOrder;
   }
-  static async update(order_id, order_tracking) {
+  static async update(order_id, order_tracking, note) {
     const query = {
       _id: new mongoose.Types.ObjectId(order_id),
       status: 1,
     };
+    const update = { name: order_tracking, note: note };
     return await _Order.updateOne(query, {
-      $set: { order_tracking: order_tracking, status: 0 },
+      $push: { order_tracking: update },
     });
   }
   static async createOrderGuest(order) {

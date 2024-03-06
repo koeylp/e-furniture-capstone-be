@@ -18,8 +18,8 @@ class VoucherService {
     return await VoucherRepository.create(voucher);
   }
 
-  static async getAllActiveVouchers() {
-    const QUERY = { is_active: 1 };
+  static async getAllVouchers() {
+    const QUERY = {};
     const SORT = [["createdAt", -1]];
     return await VoucherRepository.findAllByQuery(QUERY, SORT);
   }

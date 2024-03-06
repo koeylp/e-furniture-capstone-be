@@ -14,10 +14,10 @@ class VoucherController {
     }).send(res);
   }
 
-  static async getAllActiveVouchers(req, res) {
+  static async getAllVouchers(req, res) {
     return new OK({
       message: "All active vouchers",
-      metaData: await VoucherSerivce.getAllActiveVouchers(),
+      metaData: await VoucherSerivce.getAllVouchers(),
     }).send(res);
   }
 

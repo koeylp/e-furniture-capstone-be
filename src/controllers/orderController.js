@@ -44,6 +44,20 @@ class OrderController {
     }).send(res);
   }
 
+  static async findOrderByTypeU(req, res) {
+    const { page, limit, type } = req.query;
+    const { account_id } = req.payload;
+    return new OK({
+      message: "List Of Order By Type",
+      metaData: await OrderService.findOrderByTypeU(
+        account_id,
+        capitalizeFirstLetter(type),
+        page,
+        limit
+      ),
+    }).send(res);
+  }
+
   static async removeOrder(req, res) {
     const { order_id } = req.params;
     if (!order_id) throw new BadRequestError();
@@ -67,10 +81,12 @@ class OrderController {
 
   static async updateTracking(req, res) {
     const { order_id } = req.params;
+    const { note } = req.body;
+    if (!note) throw new BadRequestError("note is required");
     if (!order_id) throw new BadRequestError();
     return new OK({
       message: "Update Tracking Successfully!",
-      metaData: await OrderService.updateTracking(order_id),
+      metaData: await OrderService.updateTracking(order_id, note),
     }).send(res);
   }
 

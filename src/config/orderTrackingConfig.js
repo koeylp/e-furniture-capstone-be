@@ -1,10 +1,11 @@
 const orderTrackingMap = new Map([
-  [1, "Pending"],
-  [2, "Processing"],
-  [3, "Shipping"],
-  [4, "Done"],
-  [5, "Cancel_pending"],
-  [6, "cancel_confirm"],
+  [0, "Pending"],
+  [1, "Processing"],
+  [2, "Shipping"],
+  [3, "Done"],
+  [4, "Cancel"],
+  [5, "Failed"],
+  [6, "Refunded"],
 ]);
 
 module.exports = { orderTrackingMap };
