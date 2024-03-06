@@ -24,6 +24,12 @@ router.get(
 );
 
 router.get(
+  "/state/u",
+  hasPermission(global.PermissionConstants.USER_GET),
+  asyncHandler(OrderController.findOrderByTypeU)
+);
+
+router.get(
   "/:order_id",
   hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(OrderController.findOrder)
