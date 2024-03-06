@@ -43,8 +43,9 @@ class WareHouseService {
     if (product.stock <= 0)
       throw new BadRequestError("Quantity must be greater than 0");
     const index = warehouse.products.findIndex(
-      (el) => el._id.toHexString === product.product
+      (el) => el.product.toHexString() === product.product
     );
+    console.log(warehouse.products[index]);
     if (index === -1) warehouse.products.push(product);
     else warehouse.products[index].stock += product.stock;
     const inventory = await InventoryRepository.findByQuery({
