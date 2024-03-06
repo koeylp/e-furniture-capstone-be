@@ -33,12 +33,12 @@ router.put(
   asyncHandler(AccountController.editRole)
 );
 router.delete(
-  "/enable/:account_id",
+  "/enable/",
   hasPermission(global.PermissionConstants.ADMIN_MASTER_DELETE),
   asyncHandler(AccountController.enableAccount)
 );
 router.delete(
-  "/disable/:account_id",
+  "/disable/",
   hasPermission(global.PermissionConstants.ADMIN_MASTER_DELETE),
   asyncHandler(AccountController.disableAccount)
 );

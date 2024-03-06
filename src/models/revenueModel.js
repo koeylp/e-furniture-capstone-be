@@ -8,7 +8,7 @@ const schema = new Schema(
   {
     profit: { type: Number, default: 0 },
     date: { type: Date, default: () => new Date().setUTCHours(0, 0, 0, 0) },
-    status: { type: Number, default: 0 },
+    status: { type: Number, default: 1 },
   },
   {
     collection: COLLECTION_NAME,

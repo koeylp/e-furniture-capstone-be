@@ -71,7 +71,7 @@ class AccountController {
     }).send(res);
   }
   static async enableAccount(req, res) {
-    const { account_id } = req.params;
+    const { account_id } = req.body;
     if (!account_id) throw new BadRequestError();
     return new OK({
       message: "Change Account Status Successfully!",
@@ -79,7 +79,7 @@ class AccountController {
     }).send(res);
   }
   static async disableAccount(req, res) {
-    const { account_id } = req.params;
+    const { account_id } = req.body;
     if (!account_id) throw new BadRequestError();
     return new OK({
       message: "Change Account Status Successfully!",
