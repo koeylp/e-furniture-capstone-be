@@ -122,7 +122,7 @@ const validateCreateWareHouse = (data) => {
     district: Joi.string().required(),
     ward: Joi.string().required(),
     province: Joi.string().required(),
-    longtitude: Joi.number().required(),
+    longitude: Joi.number().required(),
     latitude: Joi.number().required(),
   });
   return schema.validate(data);
