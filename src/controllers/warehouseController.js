@@ -51,5 +51,13 @@ class WareHouseController {
       metaData: await WareHouseService.removewWareHouse(warehouse_id),
     }).send(res);
   }
+  static async addProductToWareHouse(req, res) {
+    const { warehouse_id } = req.params;
+    if (!warehouse_id) throw new BadRequestError();
+    return new OK({
+      message: "Add product to Warehouse Successfully!",
+      metaData: await WareHouseService.addProductToWareHouse(warehouse_id, req.body),
+    }).send(res);
+  }
 }
 module.exports = WareHouseController;

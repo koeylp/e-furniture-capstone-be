@@ -9,6 +9,7 @@ const {
 } = require("../utils/skipLimitForProduct");
 const TypeRepository = require("../models/repositories/typeRepository");
 const SubTypeService = require("./subTypeService");
+const InventoryRepository = require("../models/repositories/inventoryRepository");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -40,6 +41,7 @@ class ProductService {
         type
       );
     });
+    await InventoryRepository.createInventory({ product: product._id });
     return product;
   }
   static async getProductsByType(

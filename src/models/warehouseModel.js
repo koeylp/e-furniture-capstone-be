@@ -6,19 +6,22 @@ const DOCUMENT_NAME = "Warehouse";
 
 const schema = new Schema(
   {
-    product_id: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: "Product",
-    },
-    street: { type: String, required: true },
-    city: { type: String, required: true },
+    products: [
+      {
+        product: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: "Product",
+        },
+        stock: { type: Number, required: true },
+      },
+    ],
     province: { type: String, required: true },
+    district: { type: String, required: true },
+    ward: { type: String, required: true },
     longitude: { type: Number, default: 0 },
     latitude: { type: Number, default: 0 },
     location: { type: String, required: true },
-    sold: { type: Number, default: 0 },
-    stock: { type: Number, default: 1 },
   },
   {
     collection: COLLECTION_NAME,

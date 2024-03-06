@@ -30,10 +30,11 @@ class OrderRepository {
     };
     return await this.getOrders(query, page, limit);
   }
-  static async findOrderById(order_id) {
+  static async findOrderById({ account_id = null, order_id }) {
     checkValidId(order_id);
     const query = {
       _id: new mongoose.Types.ObjectId(order_id),
+      account_id: account_id,
       status: 1,
     };
     return await _Order
@@ -55,10 +56,12 @@ class OrderRepository {
       account_id: account_id,
       order_checkout: order.order_checkout,
       order_products: order.order_products,
-      payment: order.payment,
+      payment_method: order.payment_method,
       order_shipping: order.order_shipping,
     });
-    if (!order) throw new InternalServerError();
+    if (!newOrder) throw new InternalServerError();
+    newOrder.order_tracking.push({ note: order.note });
+    await newOrder.save();
     return newOrder;
   }
   static async update(order_id, order_tracking) {
@@ -67,7 +70,7 @@ class OrderRepository {
       status: 1,
     };
     return await _Order.updateOne(query, {
-      $set: { order_tracking: order_tracking },
+      $set: { order_tracking: order_tracking, status: 0 },
     });
   }
   static async createOrderGuest(order) {
@@ -79,6 +82,8 @@ class OrderRepository {
       order_shipping: order.order_shipping,
     });
     if (!order) throw new InternalServerError();
+    newOrder.order_tracking.push({ note: order.note });
+    await newOrder.save();
     return newOrder;
   }
 }

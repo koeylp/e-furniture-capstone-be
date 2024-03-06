@@ -117,9 +117,13 @@ const validateCreateProduct = (data) => {
 };
 const validateCreateWareHouse = (data) => {
   const schema = Joi.object({
-    product_id: Joi.string().required(),
     location: Joi.string().required(),
-    stock: Joi.number().min(1).required(),
+    street: Joi.string().required(),
+    district: Joi.string().required(),
+    ward: Joi.string().required(),
+    province: Joi.string().required(),
+    longtitude: Joi.number().required(),
+    latitude: Joi.number().required(),
   });
   return schema.validate(data);
 };
@@ -172,10 +176,11 @@ const validateOrderInput = (data) => {
   const schema = Joi.object({
     order_checkout: Joi.object().required(),
     order_products: Joi.array().required(),
-    payment: Joi.string()
+    payment_method: Joi.string()
       .valid("Online Payment", "COD")
       .default("Online Payment"),
     order_shipping: Joi.object().required(),
+    note: Joi.any(),
   });
   return schema.validate(data);
 };

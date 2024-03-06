@@ -1,16 +1,10 @@
 const WareHouseRepository = require("../models/repositories/warehouseRepository");
 const ProductRepository = require("../models/repositories/productRepository");
-const { BadRequestError } = require("../utils/errorHanlder");
+const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const { removeUndefineObject } = require("../utils");
+const InventoryRepository = require("../models/repositories/inventoryRepository");
 class WareHouseService {
   static async createWareHouse(payload) {
-    const product = await ProductRepository.findProductById(payload.product_id);
-    if (!product)
-      throw new BadRequestError("Cannot Find Any Product To Create WareHouse!");
-    if (!product.is_published)
-      throw new BadRequestError("Cannot Create WareHouse With Draft Product!");
-    if (payload.stock <= 0)
-      throw new BadRequestError("Quantity must be greater than 0");
     return await WareHouseRepository.createWareHouse(payload);
   }
   static async getWareHouse(page = 1, limit = 12) {
@@ -34,6 +28,35 @@ class WareHouseService {
   }
   static async removewWareHouse(warehouse_id) {
     return await WareHouseRepository.removeWareHouse(warehouse_id);
+  }
+  static async addProductToWareHouse(warehouse_id, product) {
+    const warehouse = await this.findWareHouseById(warehouse_id);
+    if (!warehouse)
+      throw new NotFoundError(`Warehouse not found with id ${warehouse_id}`);
+    const foundProduct = await ProductRepository.findProductById(
+      product.product
+    );
+    if (!foundProduct)
+      throw new BadRequestError("Cannot Find Any Product To Create WareHouse!");
+    if (!foundProduct.is_published)
+      throw new BadRequestError("Cannot Create WareHouse With Draft Product!");
+    if (product.stock <= 0)
+      throw new BadRequestError("Quantity must be greater than 0");
+    const index = warehouse.products.findIndex(
+      (el) => el._id.toHexString === product.product
+    );
+    if (index === -1) warehouse.products.push(product);
+    else warehouse.products[index].stock += product.stock;
+    const inventory = await InventoryRepository.findByQuery({
+      product: product.product,
+    });
+    if (!inventory)
+      throw new NotFoundError(
+        `Inventory not found with product ${product.product}`
+      );
+    inventory.stock += product.stock;
+    await InventoryRepository.save(inventory._id, inventory.stock);
+    return await WareHouseRepository.save(warehouse);
   }
 }
 module.exports = WareHouseService;

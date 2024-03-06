@@ -5,14 +5,13 @@ const { InternalServerError } = require("../../utils/errorHanlder");
 class WareHouseRepository {
   static async createWareHouse(payload) {
     const warehouse = await _WareHouse.create({
-      product_id: payload.product_id,
       street: payload.street,
-      city: payload.city,
+      district: payload.district,
+      ward: payload.ward,
       province: payload.province,
       longitude: payload.longitude,
       latitude: payload.latitude,
       location: payload.location,
-      sold: payload.sold,
       stock: payload.stock,
     });
     if (!warehouse) throw new InternalServerError();
@@ -53,6 +52,9 @@ class WareHouseRepository {
   }
   static async findByQuery(query) {
     return await _WareHouse.findOne(query).exec();
+  }
+  static async save(warehouse) {
+    return await _WareHouse.updateOne({ _id: warehouse._id }, warehouse);
   }
 }
 module.exports = WareHouseRepository;
