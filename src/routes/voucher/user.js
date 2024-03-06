@@ -11,11 +11,6 @@ const { verifyToken } = require("../../jwt/verifyToken");
 router.use(verifyToken);
 router.use(hasAccess(2));
 
-router.get(
-  "/",
-  hasPermission(global.PermissionConstants.USER_GET),
-  asyncHandler(VoucherController.getAllActiveVouchers)
-);
 router.post(
   "/apply-voucher/:voucher_id",
   hasPermission(global.PermissionConstants.USER_POST),
