@@ -213,6 +213,26 @@ const validateUpdateFlashSale = (data) => {
   });
   return schema.validate(data);
 };
+const validateCreateBankInfor = (data) => {
+  const schema = Joi.object({
+    bank_code: Joi.string().required(),
+    account_number: Joi.string().required(),
+    template: Joi.string(),
+  });
+  return schema.validate(data);
+};
+const validateCreateTransaction = (data) => {
+  const schema = Joi.object({
+    account_Bank_Id: Joi.number().required(),
+    amount: Joi.number().required(),
+    bank_Code_Name: Joi.string().required(),
+    bank_Sub_Acc_Id: Joi.string().required(),
+    cusum_Balance: Joi.number().required(),
+    description: Joi.string().required(),
+    tid: Joi.string().required(),
+  });
+  return schema.validate(data);
+};
 
 module.exports = {
   validateEmail,
@@ -232,4 +252,6 @@ module.exports = {
   validateCreateDistrict,
   validateCreateFlashSale,
   validateUpdateFlashSale,
+  validateCreateBankInfor,
+  validateCreateTransaction,
 };

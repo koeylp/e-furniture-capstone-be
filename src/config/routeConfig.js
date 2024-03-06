@@ -24,6 +24,8 @@ const routes = [
   { path: "/flashsale", route: require("../routes/flashSale") },
   { path: "/revenue", route: require("../routes/revenue") },
   { path: "/inventory", route: require("../routes/inventory") },
+  { path: "/bankInfor", route: require("../routes/bankInfor") },
+  { path: "/transaction", route: require("../routes/transaction") },
 ];
 
 const configureRoutes = (app) => {
