@@ -29,6 +29,7 @@ class VoucherService {
   }
 
   static async getByAccountId(account_id) {
+    await this.handleWishlist(account_id);
     const QUERY = { account: account_id };
     const wishlist = await WishlistRepositoy.findByQueryPopulate(QUERY);
     return wishlist.products;
