@@ -69,7 +69,9 @@ class CartService {
   }
 
   static async getCart(account_id) {
-    let cart = await CartService.handleCart(account_id);
+    let cart = await CartRepository.findByAccountId({
+      account_id: account_id,
+    });
     if (!cart) {
       cart = await CartRepository.createCart(account_id);
     }
