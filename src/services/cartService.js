@@ -23,7 +23,7 @@ class CartService {
     if (!cart) {
       cart = await CartRepository.createCart(account_id);
     }
-    const foundProduct = await verifyProductExistence(product._id);
+    await verifyProductExistence(product._id);
     const foundIndex = cart.products.findIndex((el) => el._id === product._id);
     if (foundIndex === -1) {
       cart.count_product++;
@@ -56,7 +56,7 @@ class CartService {
 
   static async updateItemQuantity(account_id, product, newQuantity) {
     const cart = await CartService.handleCart(account_id);
-    const foundProduct = await verifyProductExistence(product._id);
+    await verifyProductExistence(product._id);
     const foundIndex = cart.products.findIndex((el) => el._id === product._id);
     if (foundIndex === -1)
       throw new NotFoundError(
@@ -69,11 +69,14 @@ class CartService {
   }
 
   static async getCart(account_id) {
-    const cart = await CartService.handleCart(account_id);
+    let cart = await CartService.handleCart(account_id);
+    if (!cart) {
+      cart = await CartRepository.createCart(account_id);
+    }
     const productPromises = cart.products.map(async (product, index) => {
       const foundProduct = await verifyProductExistence(product._id);
       if (foundProduct) {
-        foundProduct.quantity_in_cart = cart.products[index].quantity
+        foundProduct.quantity_in_cart = cart.products[index].quantity;
         cart.products[index] = foundProduct;
       }
     });
@@ -93,13 +96,13 @@ class CartService {
     if (updatedQuantity === 0) {
       cart.products[foundIndex].quantity++;
       cart = await this.remove(cart, foundProduct, foundIndex);
-    } 
+    }
     return await CartRepository.save(cart);
   }
 
   static async increaseItemQuantity(account_id, product) {
     const cart = await CartService.handleCart(account_id);
-    const foundProduct = await verifyProductExistence(product._id);
+    await verifyProductExistence(product._id);
     const foundIndex = cart.products.findIndex((el) => el._id === product._id);
     if (foundIndex === -1)
       throw new NotFoundError(
@@ -136,7 +139,7 @@ class CartService {
       cart = await CartRepository.createCart(account_id);
     }
     for (let i = 0; i < products.length; i++) {
-      const foundProduct = await verifyProductExistence(products[i]._id);
+      await verifyProductExistence(products[i]._id);
       const foundIndex = cart.products.findIndex(
         (el) => el._id === products[i]._id
       );

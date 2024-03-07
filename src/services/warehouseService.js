@@ -45,7 +45,6 @@ class WareHouseService {
     const index = warehouse.products.findIndex(
       (el) => el.product.toHexString() === product.product
     );
-    console.log(warehouse.products[index]);
     if (index === -1) warehouse.products.push(product);
     else warehouse.products[index].stock += product.stock;
     const inventory = await InventoryRepository.findByQuery({
