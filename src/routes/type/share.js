@@ -28,5 +28,13 @@ router.get(
   ]),
   asyncHandler(TypeController.getAllType)
 );
+router.get(
+  "/:type_slug",
+  hasPermission([
+    global.PermissionConstants.STAFF_GET,
+    global.PermissionConstants.ADMIN_GET,
+  ]),
+  asyncHandler(TypeController.getSubTypeByTypeStaff)
+);
 
 module.exports = router;
