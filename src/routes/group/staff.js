@@ -16,5 +16,10 @@ router.post(
   hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(SubTypeGroupController.create)
 );
+router.get(
+  "/",
+  hasPermission(global.PermissionConstants.STAFF_GET),
+  asyncHandler(SubTypeGroupController.getGroups)
+);
 
 module.exports = router;

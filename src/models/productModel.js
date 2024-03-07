@@ -12,16 +12,8 @@ const schema = new Schema(
     description: { type: String, required: true },
     slug: { type: String },
     regular_price: { type: Number, required: true },
-    sale_price: { type: Number, required: true },
+    sale_price: { type: Number, default: 0 },
     type: { type: Schema.Types.ObjectId, required: true, ref: "Types" },
-    width: { type: Number, required: true },
-    height: { type: Number, required: true },
-    variation: [
-      {
-        material: { type: String, required: true },
-        subPrice: { type: Number, required: true },
-      },
-    ],
     attributes: {
       type: { type: Array, required: true },
       attributeType: { type: Schema.Types.Mixed },
