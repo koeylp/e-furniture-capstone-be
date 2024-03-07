@@ -7,5 +7,11 @@ class SubTypeGroupController {
       metaData: await SubTypeGroupService.create(req.body),
     }).send(res);
   }
+  static async getGroups(req, res) {
+    return new OK({
+      message: "List Of Group!",
+      metaData: await SubTypeGroupService.getGroups(),
+    }).send(res);
+  }
 }
 module.exports = SubTypeGroupController;

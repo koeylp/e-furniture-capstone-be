@@ -38,5 +38,8 @@ class SubTypeGroupRepository {
     if (!group) throw new NotFoundError();
     return group;
   }
+  static async getGroups() {
+    return await _SubTypeGroup.find();
+  }
 }
 module.exports = SubTypeGroupRepository;

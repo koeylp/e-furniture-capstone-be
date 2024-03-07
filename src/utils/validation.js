@@ -104,10 +104,7 @@ const validateCreateProduct = (data) => {
     regular_price: Joi.number().required(),
     sale_price: Joi.number().min(0),
     type: Joi.string().required(),
-    width: Joi.number().required(),
-    height: Joi.number().required(),
     room: Joi.string().min(0),
-    variation: Joi.array(),
     attributes: Joi.object(),
     model3D: Joi.string(),
     is_draft: Joi.boolean(),
@@ -218,6 +215,9 @@ const validateCreateBankInfor = (data) => {
     bank_code: Joi.string().required(),
     account_number: Joi.string().required(),
     template: Joi.string(),
+    bank_logo: Joi.string().required(),
+    bank_name: Joi.string().required(),
+    bank_account_name: Joi.string().required(),
   });
   return schema.validate(data);
 };

@@ -13,9 +13,6 @@ class Product {
     regular_price,
     sale_price,
     type,
-    variation = [],
-    width,
-    height,
     attributes = [],
     model3D,
     isDraft = true,
@@ -27,9 +24,6 @@ class Product {
     this.regular_price = regular_price;
     this.sale_price = sale_price;
     this.type = type;
-    this.variation = variation;
-    this.width = width;
-    this.height = height;
     this.attributes = attributes;
     this.model3D = model3D;
     this.isDraft = isDraft;
