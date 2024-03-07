@@ -74,6 +74,11 @@ class TypeService {
     const groupedItems = FilterSubType(subTypes);
     return groupedItems;
   }
+  static async getSubTypeByTypeStaff(type_slug) {
+    const subTypeModel = global.subTypeSchemasMap.get(type_slug);
+    if (!subTypeModel) throw new BadRequestError("Type is not in use!");
+    return await SubTypeRepository.getSubTypesWithoutPopulate(subTypeModel);
+  }
   static async removeType(type_slug) {
     const type = await TypeRepository.findTypeBySlug(type_slug);
     const result = await TypeRepository.removeType(type._id);

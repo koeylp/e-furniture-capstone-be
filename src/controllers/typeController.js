@@ -41,6 +41,14 @@ class TypeController {
       metaData: await TypeService.getSubTypeByType(type_slug),
     }).send(res);
   }
+  static async getSubTypeByTypeStaff(req, res) {
+    const { type_slug } = req.params;
+    if (!type_slug) throw new BadRequestError();
+    return new OK({
+      message: "List Of Type!",
+      metaData: await TypeService.getSubTypeByTypeStaff(type_slug),
+    }).send(res);
+  }
   static async removeType(req, res) {
     const { type_slug } = req.params;
     if (!type_slug) throw new BadRequestError();
