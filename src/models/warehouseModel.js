@@ -19,8 +19,8 @@ const schema = new Schema(
     province: { type: String, required: true },
     district: { type: String, required: true },
     ward: { type: String, required: true },
-    longitude: { type: Number, default: 0 },
-    latitude: { type: Number, default: 0 },
+    longitude: { type: Number, required: true },
+    latitude: { type: Number, required: true },
     location: { type: String, required: true },
   },
   {
