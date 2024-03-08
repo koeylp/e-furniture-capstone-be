@@ -1,7 +1,12 @@
 const { draftProduct } = require("../models/repositories/productRepository");
 const WarehouseRepository = require("../models/repositories/warehouseRepository");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
-const { BadRequestError, NotFoundError } = require("./errorHanlder");
+const {
+  BadRequestError,
+  NotFoundError,
+  InternalServerError,
+} = require("./errorHanlder");
+const { getMapData } = require("./mapDataUtils");
 
 class StockUtil {
   static async checkProductStock(product) {
@@ -21,16 +26,38 @@ class StockUtil {
     }
   }
 
-  static async updateWarehouseStock(product) {
-    const { product_id, location, quantity } = product;
-    const query = { product_id, location };
-    const foundWarehouse = await WarehouseRepository.findByQuery(query);
-    const warehouse_id = foundWarehouse._id.toHexString();
-    const updatedStock = foundWarehouse.stock - quantity;
-    if (updatedStock === 0) await draftProduct(product_id);
-    await WarehouseRepository.updateWareHouse(warehouse_id, {
-      stock: updatedStock,
-    });
+  static async updateWarehouseStock(product, order_shipping) {
+    const { longitude, latitude } = order_shipping;
+    const { product_id, quantity } = product;
+    const foundWarehouses = await WarehouseRepository.findManyByQuery(
+      product_id
+    );
+    const nearestWarehouse = await StockUtil.findNearestWarehouse(
+      foundWarehouses,
+      longitude,
+      latitude
+    );
+    const product_index = nearestWarehouse.products.findIndex(
+      (el) => el.product
+    );
+    nearestWarehouse.products[product_index].stock -= quantity;
+    return await WarehouseRepository.save(nearestWarehouse);
+  }
+
+  static async findNearestWarehouse(warehouses, longitude, latitude) {
+    let nearestWarehouse = {};
+    let nearest_distance = Infinity;
+    for (let warehouse of warehouses) {
+      let mapDataDistance2Point = await getMapData(
+        `${warehouse.longitude},${warehouse.latitude};${longitude},${latitude}`
+      );
+      let temp_distance = mapDataDistance2Point.routes[0].distance;
+      if (temp_distance < nearest_distance) {
+        nearestWarehouse = warehouse;
+        nearest_distance = temp_distance;
+      }
+    }
+    return nearestWarehouse;
   }
 
   static async updateInventoryStock(product) {
@@ -39,7 +66,11 @@ class StockUtil {
     const foundInventory = await InventoryRepository.findByQuery(query);
     const updatedStock = foundInventory.stock - quantity;
     if (updatedStock === 0) await draftProduct(product_id);
-    await InventoryRepository.save(foundInventory._id, updatedStock);
+    const savedInventory = await InventoryRepository.save(
+      foundInventory._id,
+      updatedStock
+    );
+    if (!savedInventory) throw new InternalServerError();
   }
 }
 

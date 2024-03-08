@@ -9,6 +9,8 @@ const { getKeyByValue } = require("../utils/keyValueUtil");
 const { capitalizeFirstLetter } = require("../utils/format");
 const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
 const VoucherRepository = require("../models/repositories/voucherRepository");
+const { getMapData } = require("../utils/mapDataUtils");
+const RevenueRepository = require("../models/repositories/revenueRepository");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -43,14 +45,22 @@ class OrderService {
   }
   static async createOrder(account_id, order) {
     await verifyProductStockExistence(order);
-    const updatedVoucher = await VoucherRepository.save(
-      order.order_checkout.voucher
-    );
-    if (!updatedVoucher)
-      throw new ForbiddenError(
-        `Voucher ${found_voucher._id} was applied failed`
+    if (order.order_checkout.voucher) {
+      const updatedVoucher = await VoucherRepository.save(
+        order.order_checkout.voucher
       );
-    return await OrderRepository.createOrder(account_id, order);
+      if (!updatedVoucher)
+        throw new ForbiddenError(
+          `Voucher ${found_voucher._id} was applied failed`
+        );
+    }
+    const newOrder = await OrderRepository.createOrder(account_id, order);
+    if (newOrder) {
+      const day = new Date().setUTCHours(0, 0, 0, 0);
+      const profit = order.order_checkout.final_total;
+      await RevenueRepository.updateOrInsert(profit, day);
+    }
+    return newOrder;
   }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);

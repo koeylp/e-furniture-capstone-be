@@ -19,6 +19,9 @@ class VerifyExistence {
     for (const product of products) {
       await updateInventoryStock(product);
     }
+    for (const product of products) {
+      await updateWarehouseStock(product, order.order_shipping);
+    }
   }
 
   static async verifyOrderExistence(order_id) {
