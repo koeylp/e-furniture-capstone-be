@@ -100,6 +100,8 @@ class VoucherUtil {
       : found_voucher.users_used[user_used_index].used_count++;
 
     found_voucher.used_turn_count++;
+    if (found_voucher.used_turn_count === found_voucher.maximum_use)
+      found_voucher.is_active = 0;
   }
 
   static async validateCreatingVoucher(voucher) {

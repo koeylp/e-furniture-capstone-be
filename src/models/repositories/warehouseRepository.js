@@ -56,5 +56,16 @@ class WareHouseRepository {
   static async save(warehouse) {
     return await _WareHouse.updateOne({ _id: warehouse._id }, warehouse);
   }
+  static async findManyByQuery(product_id) {
+    const query = {
+      products: {
+        $elemMatch: {
+          product: new mongoose.Types.ObjectId(product_id),
+          stock: { $gt: 0 },
+        },
+      },
+    };
+    return await _WareHouse.find(query).exec();
+  }
 }
 module.exports = WareHouseRepository;
