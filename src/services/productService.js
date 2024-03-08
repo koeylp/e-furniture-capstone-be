@@ -41,7 +41,11 @@ class ProductService {
         type
       );
     });
-    await InventoryRepository.createInventory({ product: product._id });
+    const foundInventory = await InventoryRepository.findByQuery({
+      product: product._id,
+    });
+    if (!foundInventory)
+      await InventoryRepository.createInventory({ product: product._id });
     return product;
   }
   static async getProductsByType(
