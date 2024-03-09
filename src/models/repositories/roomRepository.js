@@ -61,6 +61,7 @@ class RoomRepository {
       .sort(sortBy)
       .skip(skip)
       .limit(limit)
+      .populate("products.product")
       .select(getSelectData(filter))
       .lean();
   }
