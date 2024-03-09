@@ -51,13 +51,6 @@ class TypeProduct extends Product {
     );
     if (!subType)
       throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
-    if (subType.attributes) {
-      const attribute = await SubTypeService.getAttributeBySubType(
-        this.type,
-        this.attributes.type
-      );
-      validateSubType(this.attributes.attributeType, attribute);
-    }
     this.type = type._id;
     return await super.createProduct();
   }
