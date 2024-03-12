@@ -13,7 +13,7 @@ const schema = new Schema(
       final_total: { type: Number },
       total: { type: Number, required: true },
       voucher: { type: Object },
-      paid: { type: Number, default: 0 },
+      is_paid: { type: Boolean, default: false },
     },
     order_products: { type: Array, required: true },
     payment_method: {
