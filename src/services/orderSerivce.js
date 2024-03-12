@@ -21,6 +21,7 @@ class OrderService {
     return await OrderRepository.getOrdersByUser(account_id, page, limit);
   }
   static async findOrderByType(type, page, limit) {
+    if (type === "All") return await OrderRepository.getOrders({ page, limit });
     const key_of_type = getKeyByValue(
       orderTrackingMap,
       capitalizeFirstLetter(type)
@@ -28,13 +29,12 @@ class OrderService {
     return await OrderRepository.getOrdersByType({ key_of_type, page, limit });
   }
   static async findOrderByTypeU(account_id, type, page, limit) {
-    const key_of_type = getKeyByValue(
-      orderTrackingMap,
-      capitalizeFirstLetter(type)
-    );
+    if (type === "All")
+      return await OrderRepository.getOrders({ account_id, page, limit });
+
     return await OrderRepository.getOrdersByType({
       account_id,
-      key_of_type,
+      type,
       page,
       limit,
     });
