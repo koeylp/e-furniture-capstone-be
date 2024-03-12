@@ -12,7 +12,7 @@ class OrderRepository {
       .limit(limit)
       .lean()
       .exec();
-
+    console.log(query);
     return { total: orders.length, data: result };
   }
   static async getOrdersByUser(account_id, page, limit) {
@@ -23,12 +23,13 @@ class OrderRepository {
     };
     return await this.getOrders(query, page, limit);
   }
-  static async getOrdersByType({ account_id, key_of_type, page, limit }) {
-    const query = {
-      order_tracking: { $size: key_of_type + 1 },
-      ...(account_id && { account_id }),
-      status: 1,
-    };
+  static async getOrdersByType({ account_id, type, page, limit }) {
+    const query = { ...(account_id && { account_id }), status: 1 };
+    if (type) {
+      query.$expr = {
+        $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type],
+      };
+    }
     return await this.getOrders({ query, page, limit });
   }
   static async findOrderById({ account_id = null, order_id }) {
@@ -72,7 +73,6 @@ class OrderRepository {
     };
     const update = { name: order_tracking, note: note };
     return await _Order.updateOne(query, {
-      $set: { status: 0 },
       $push: { order_tracking: update },
     });
   }
