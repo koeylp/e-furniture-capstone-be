@@ -9,7 +9,6 @@ const { getKeyByValue } = require("../utils/keyValueUtil");
 const { capitalizeFirstLetter } = require("../utils/format");
 const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
 const VoucherRepository = require("../models/repositories/voucherRepository");
-const { getMapData } = require("../utils/mapDataUtils");
 const RevenueRepository = require("../models/repositories/revenueRepository");
 class OrderService {
   static async getOrders(page, limit) {
@@ -91,7 +90,7 @@ class OrderService {
       throw new BadRequestError(
         "The order was confirmed, you cannot cancel the order!"
       );
-    return await OrderRepository.update(order_id, orderTrackingMap.get(5));
+    return await OrderRepository.update(order_id, orderTrackingMap.get(4));
   }
 }
 module.exports = OrderService;

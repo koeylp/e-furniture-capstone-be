@@ -11,6 +11,8 @@
   "author": "koey",
   "license": "ISC",
   "dependencies": {
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
+    "@mailchimp/mailchimp_transactional": "^1.0.59",
     "axios": "^1.6.2",
     "bcrypt": "^5.1.1",
     "chai": "^4.3.10",
@@ -24,6 +26,7 @@
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "mailtrap": "^3.3.0",
     "mocha": "^10.2.0",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.45",
