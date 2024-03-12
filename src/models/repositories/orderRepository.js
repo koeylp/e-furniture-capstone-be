@@ -1,5 +1,5 @@
 const _Order = require("../orderModel");
-const { getUnSelectData, checkValidId } = require("../../utils/index");
+const { getUnSelectData, checkValidId } = require("../../utils");
 const { default: mongoose } = require("mongoose");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
@@ -72,6 +72,7 @@ class OrderRepository {
     };
     const update = { name: order_tracking, note: note };
     return await _Order.updateOne(query, {
+      $set: { status: 0 },
       $push: { order_tracking: update },
     });
   }

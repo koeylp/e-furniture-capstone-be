@@ -84,13 +84,15 @@ class OrderService {
     const foundOrder = await verifyOrderExistenceWithUser(account_id, order_id);
     const key_of_type = getKeyByValue(
       orderTrackingMap,
-      capitalizeFirstLetter(foundOrder.order_tracking)
+      capitalizeFirstLetter(
+        foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
+      )
     );
-    if (key_of_type !== 1)
+    if (key_of_type !== 0)
       throw new BadRequestError(
         "The order was confirmed, you cannot cancel the order!"
       );
-    return await OrderRepository.update(order_id, orderTrackingMap.get(4));
+    return await OrderRepository.update(order_id, orderTrackingMap.get(4), "");
   }
 }
 module.exports = OrderService;
