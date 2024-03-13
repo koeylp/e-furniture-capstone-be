@@ -1,18 +1,19 @@
 const _Order = require("../orderModel");
 const { getUnSelectData, checkValidId } = require("../../utils");
 const { default: mongoose } = require("mongoose");
+const { generateOrderCode } = require("../../utils/generateOrderCode");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
     const orders = await _Order.find({ status: 1 });
     const result = await _Order
       .find(query)
+      .sort([["createdAt", -1]])
       .select(getUnSelectData(["__v"]))
       .skip(skip)
       .limit(limit)
       .lean()
       .exec();
-    console.log(query);
     return { total: orders.length, data: result };
   }
   static async getOrdersByUser(account_id, page, limit) {
@@ -54,12 +55,14 @@ class OrderRepository {
     return await _Order.deleteOne(query);
   }
   static async createOrder(account_id, order) {
+    const order_code = generateOrderCode();
     const newOrder = await _Order.create({
       account_id: account_id,
       order_checkout: order.order_checkout,
       order_products: order.order_products,
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
+      order_code: order_code,
     });
     if (!newOrder) throw new InternalServerError();
     newOrder.order_tracking.push({ note: order.note });

@@ -94,5 +94,8 @@ class OrderService {
       );
     return await OrderRepository.update(order_id, orderTrackingMap.get(4), "");
   }
+  static async paid(account_id, order) {
+    
+  }
 }
 module.exports = OrderService;
