@@ -10,6 +10,7 @@ const { capitalizeFirstLetter } = require("../utils/format");
 const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
 const VoucherRepository = require("../models/repositories/voucherRepository");
 const RevenueRepository = require("../models/repositories/revenueRepository");
+const CartUtils = require("../utils/cartUtils");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -58,6 +59,10 @@ class OrderService {
       const day = new Date().setUTCHours(0, 0, 0, 0);
       const profit = order.order_checkout.final_total;
       await RevenueRepository.updateOrInsert(profit, day);
+      const products = order.order_products;
+      for (let product of products) {
+        await CartUtils.removeItem(account_id, product);
+      }
     }
     return newOrder;
   }
@@ -94,8 +99,6 @@ class OrderService {
       );
     return await OrderRepository.update(order_id, orderTrackingMap.get(4), "");
   }
-  static async paid(account_id, order) {
-    
-  }
+  static async paid(account_id, order) {}
 }
 module.exports = OrderService;
