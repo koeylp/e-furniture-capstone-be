@@ -1,6 +1,5 @@
 const AccountRepository = require("../models/repositories/accountRepository");
 const mongoose = require("mongoose");
-const { checkRoleNumber } = require("../utils");
 const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const { encryptCode, hashCode } = require("../utils/hashCode");
 const RoleFactory = require("./roleFactory/role");
