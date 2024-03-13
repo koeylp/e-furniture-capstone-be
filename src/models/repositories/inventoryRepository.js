@@ -5,7 +5,9 @@ class InventoryRepository {
     const newInventory = await _Inventory.create(inventory);
     return newInventory;
   }
-
+  static async getInventory(query) {
+    return await _Inventory.find(query).populate("product").lean();
+  }
   static async findByQuery(query) {
     return await _Inventory
       .findOne(query)

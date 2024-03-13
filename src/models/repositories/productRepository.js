@@ -92,6 +92,7 @@ class ProductRepository {
       .sort(sortType)
       .skip(skip)
       .limit(limit)
+      .populate("type")
       .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
       .lean();
     return { total: products.length, data: result };
