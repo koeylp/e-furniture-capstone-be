@@ -1,6 +1,5 @@
 "use strict";
 const { model, Schema } = require("mongoose");
-const { generateOrderCode } = require("../utils/generateOrderCode");
 
 const COLLECTION_NAME = "Orders";
 const DOCUMENT_NAME = "Order";
@@ -8,7 +7,11 @@ const DOCUMENT_NAME = "Order";
 const schema = new Schema(
   {
     account_id: { type: String, ref: "Account" },
-    order_code: { type: String, required: true, default: generateOrderCode() },
+    order_code: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     order_checkout: {
       final_total: { type: Number },
       total: { type: Number, required: true },

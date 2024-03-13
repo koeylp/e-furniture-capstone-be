@@ -109,5 +109,14 @@ class OrderController {
       metaData: await OrderService.cancelOrder(account_id, order_id),
     }).send(res);
   }
+
+  static async paid(req, res) {
+    const { account_id } = req.payload;
+    const { order_id } = req.params;
+    return new OK({
+      message: "You paid this order... Let's chill!",
+      metaData: await OrderService.paid(account_id, order_id),
+    }).send(res);
+  }
 }
 module.exports = OrderController;
