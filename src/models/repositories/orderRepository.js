@@ -80,12 +80,14 @@ class OrderRepository {
     });
   }
   static async createOrderGuest(order) {
+    const order_code = generateOrderCode();
     const newOrder = await _Order.create({
       guest: true,
       order_checkout: order.order_checkout,
       order_products: order.order_products,
       payment: order.payment,
       order_shipping: order.order_shipping,
+      order_code: order_code,
     });
     if (!order) throw new InternalServerError();
     newOrder.order_tracking.push({ note: order.note });
