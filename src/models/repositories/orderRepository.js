@@ -86,7 +86,7 @@ class OrderRepository {
       guest: true,
       order_checkout: order.order_checkout,
       order_products: order.order_products,
-      payment: order.payment,
+      payment_method: order.payment_method,
       order_shipping: order.order_shipping,
       order_code: order_code,
     });
