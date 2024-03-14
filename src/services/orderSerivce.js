@@ -7,11 +7,16 @@ const {
 const { orderTrackingMap } = require("../config/orderTrackingConfig");
 const { getKeyByValue } = require("../utils/keyValueUtil");
 const { capitalizeFirstLetter } = require("../utils/format");
-const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
+const {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+} = require("../utils/errorHanlder");
 const VoucherRepository = require("../models/repositories/voucherRepository");
 const RevenueRepository = require("../models/repositories/revenueRepository");
 const CartUtils = require("../utils/cartUtils");
 const StockUtil = require("../utils/stockUtil");
+const TransactionRepository = require("../models/repositories/transactionRepository");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -101,6 +106,16 @@ class OrderService {
       );
     return await OrderRepository.update(order_id, orderTrackingMap.get(4), "");
   }
-  static async paid(account_id, order) {}
+  static async paid(account_id, transaction) {
+    transaction.account_id = account_id;
+    const transactionCreation = await TransactionRepository.create(transaction);
+    if (!transactionCreation)
+      throw new InternalServerError("Saving transaction failed!");
+    const updatedOrder = await OrderRepository.paid(
+      account_id,
+      transaction.order_id
+    );
+    return updatedOrder;
+  }
 }
 module.exports = OrderService;

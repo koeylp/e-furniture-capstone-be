@@ -1,7 +1,7 @@
 const _Transaction = require("../transactionModel");
 const { InternalServerError } = require("../../utils/errorHanlder");
 class TransactionRepository {
-  static async create(payload) {
+  static async   create(payload) {
     const result = await _Transaction.create(payload);
     if (!result) throw new InternalServerError();
     return result;

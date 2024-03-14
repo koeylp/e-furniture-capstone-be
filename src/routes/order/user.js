@@ -24,7 +24,7 @@ router.get(
 );
 
 router.get(
-  "/state/u",
+  "/state/tracking",
   hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(OrderController.findOrderByTypeU)
 );
@@ -39,6 +39,12 @@ router.put(
   "/:order_id/cancel",
   hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(OrderController.cancelOrder)
+);
+
+router.post(
+  "/paid",
+  hasPermission(global.PermissionConstants.USER_POST),
+  asyncHandler(OrderController.paid)
 );
 
 module.exports = router;
