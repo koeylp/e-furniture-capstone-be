@@ -142,5 +142,8 @@ class ProductService {
       limit,
     });
   }
+  static async getBestSeller(page = 1, limit = 12) {
+    return await InventoryRepository.findByQueryPopulate(page, limit);
+  }
 }
 module.exports = ProductService;

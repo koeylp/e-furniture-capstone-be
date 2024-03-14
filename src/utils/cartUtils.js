@@ -1,4 +1,5 @@
 const CartRepository = require("../models/repositories/cartRepository");
+const { NotFoundError } = require("./errorHanlder");
 const { verifyProductExistence } = require("./verifyExistence");
 
 class CartUtils {

@@ -105,5 +105,12 @@ class ProductController {
       metaData: await ProductService.searchProductByName(text, page, limit),
     }).send(res);
   }
+  static async getBestSeller(req, res) {
+    const { page, limit } = req.query;
+    return new OK({
+      message: "List Of Best-seller Products!!",
+      metaData: await ProductService.getBestSeller(page, limit),
+    }).send(res);
+  }
 }
 module.exports = ProductController;

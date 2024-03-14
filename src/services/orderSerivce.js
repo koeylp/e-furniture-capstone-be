@@ -44,7 +44,6 @@ class OrderService {
     return await OrderRepository.removeOrder(order_id);
   }
   static async createOrder(account_id, order) {
-    await verifyProductStockExistence(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
         order.order_checkout.voucher
@@ -54,15 +53,16 @@ class OrderService {
           `Voucher ${found_voucher._id} was applied failed`
         );
     }
+    const products = order.order_products;
+    for (let product of products) {
+      await CartUtils.removeItem(account_id, product);
+    }
     const newOrder = await OrderRepository.createOrder(account_id, order);
     if (newOrder) {
       const day = new Date().setUTCHours(0, 0, 0, 0);
       const profit = order.order_checkout.final_total;
       await RevenueRepository.updateOrInsert(profit, day);
-      const products = order.order_products;
-      for (let product of products) {
-        await CartUtils.removeItem(account_id, product);
-      }
+      await verifyProductStockExistence(order);
     }
     return newOrder;
   }

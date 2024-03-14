@@ -65,9 +65,11 @@ class StockUtil {
     const query = { product: product_id };
     const foundInventory = await InventoryRepository.findByQuery(query);
     const updatedStock = foundInventory.stock - quantity;
+    const updatedSold = foundInventory.sold + quantity;
     if (updatedStock === 0) await draftProduct(product_id);
     const savedInventory = await InventoryRepository.save(
       foundInventory._id,
+      updatedSold,
       updatedStock
     );
     if (!savedInventory) throw new InternalServerError();
