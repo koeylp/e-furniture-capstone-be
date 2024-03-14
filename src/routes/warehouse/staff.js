@@ -16,9 +16,9 @@ router.post(
   hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(WareHouseController.createWareHouse)
 );
-router.post(
+router.put(
   "/:warehouse_id",
-  hasPermission(global.PermissionConstants.STAFF_POST),
+  hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(WareHouseController.addProductToWareHouse)
 );
 router.put(
