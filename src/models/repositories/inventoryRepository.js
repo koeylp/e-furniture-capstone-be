@@ -23,13 +23,27 @@ class InventoryRepository {
     return await _Inventory.updateOne(query, update);
   }
 
-  static async findByQueryPopulate(page, limit) {
-    return await _Inventory
+  static async findByQueryPopulate(limit) {
+    const inventories = await _Inventory
       .find({})
       .populate("product")
-      .sort([['sold', -1]])
+      .sort([["sold", -1]])
       .select(getUnSelectData(["__v"]))
+      .limit(limit)
       .lean();
+    return { total: inventories.length, data: inventories };
+  }
+  static async findAllByQueryPopulate(page, limit) {
+    const skip = (page - 1) * limit;
+    const inventories = await _Inventory
+      .find({})
+      .populate("product")
+      .sort([["createdAt", -1]])
+      .select(getUnSelectData(["__v"]))
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    return { total: inventories.length, data: inventories };
   }
 }
 module.exports = InventoryRepository;

@@ -56,12 +56,12 @@ class WareHouseRepository {
   static async save(warehouse) {
     return await _WareHouse.updateOne({ _id: warehouse._id }, warehouse);
   }
-  static async findManyByQuery(product_id) {
+  static async findManyByQuery(product_id, quantity) {
     const query = {
       products: {
         $elemMatch: {
           product: new mongoose.Types.ObjectId(product_id),
-          stock: { $gt: 0 },
+          stock: { $gte: quantity },
         },
       },
     };

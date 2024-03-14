@@ -47,7 +47,7 @@ class WareHouseController {
     const { warehouse_id } = req.params;
     if (!warehouse_id) throw new BadRequestError();
     return new OK({
-      message: "Removew WareHouse SuccessFully!",
+      message: "Remove WareHouse SuccessFully!",
       metaData: await WareHouseService.removewWareHouse(warehouse_id),
     }).send(res);
   }
@@ -59,5 +59,6 @@ class WareHouseController {
       metaData: await WareHouseService.addProductToWareHouse(warehouse_id, req.body),
     }).send(res);
   }
+  
 }
 module.exports = WareHouseController;
