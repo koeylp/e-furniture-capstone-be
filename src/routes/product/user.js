@@ -12,6 +12,6 @@ router.get(
   asyncHandler(ProductController.getProductsBySubType)
 );
 router.get("/", asyncHandler(ProductController.getPublishedProduct));
-router.get("/top/u/best-seller", asyncHandler(ProductController.getBestSeller));
+router.get("/featured/best/list", asyncHandler(ProductController.getBestSeller));
 
 module.exports = router;

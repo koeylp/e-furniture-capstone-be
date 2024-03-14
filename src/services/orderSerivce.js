@@ -12,6 +12,7 @@ const VoucherRepository = require("../models/repositories/voucherRepository");
 const RevenueRepository = require("../models/repositories/revenueRepository");
 const CartUtils = require("../utils/cartUtils");
 const StockUtil = require("../utils/stockUtil");
+const TransactionRepository = require("../models/repositories/transactionRepository");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -101,6 +102,9 @@ class OrderService {
       );
     return await OrderRepository.update(order_id, orderTrackingMap.get(4), "");
   }
-  static async paid(account_id, order) {}
+  static async paid(account_id, transaction) {
+    transaction.account_id = account_id;
+    return await TransactionRepository.create(transaction);
+  }
 }
 module.exports = OrderService;

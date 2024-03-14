@@ -112,10 +112,10 @@ class OrderController {
 
   static async paid(req, res) {
     const { account_id } = req.payload;
-    const { order_id } = req.params;
+    const transaction = req.body;
     return new OK({
       message: "You paid this order... Let's chill!",
-      metaData: await OrderService.paid(account_id, order_id),
+      metaData: await OrderService.paid(account_id, transaction),
     }).send(res);
   }
 }
