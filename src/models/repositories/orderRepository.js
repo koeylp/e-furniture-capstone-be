@@ -2,6 +2,7 @@ const _Order = require("../orderModel");
 const { getUnSelectData, checkValidId } = require("../../utils");
 const { default: mongoose } = require("mongoose");
 const { generateOrderCode } = require("../../utils/generateOrderCode");
+const { findOneAndUpdate } = require("../attributeModel");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
@@ -93,6 +94,15 @@ class OrderRepository {
     newOrder.order_tracking.push({ note: order.note });
     await newOrder.save();
     return newOrder;
+  }
+  static async paid(account_id, order_id) {
+    return await _Order.updateOne(
+      {
+        _id: new mongoose.Types.ObjectId(order_id),
+        account_id: account_id,
+      },
+      { $set: { "order_checkout.is_paid": true } }
+    );
   }
 }
 module.exports = OrderRepository;
