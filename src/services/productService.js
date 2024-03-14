@@ -142,8 +142,11 @@ class ProductService {
       limit,
     });
   }
-  static async getBestSeller(page = 1, limit = 12) {
-    return await InventoryRepository.findByQueryPopulate(page, limit);
+  static async getBestSeller(limit) {
+    return await InventoryRepository.findByQueryPopulate(limit);
+  }
+  static async getAllProducts(page, limit) {
+    return await InventoryRepository.findAllByQueryPopulate(page, limit);
   }
 }
 module.exports = ProductService;

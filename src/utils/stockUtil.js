@@ -30,15 +30,17 @@ class StockUtil {
     const { longitude, latitude } = order_shipping;
     const { product_id, quantity } = product;
     const foundWarehouses = await WarehouseRepository.findManyByQuery(
-      product_id
+      product_id,
+      product.quantity
     );
     const nearestWarehouse = await StockUtil.findNearestWarehouse(
       foundWarehouses,
       longitude,
       latitude
     );
+
     const product_index = nearestWarehouse.products.findIndex(
-      (el) => el.product
+      (el) => el.product.toHexString() === product_id
     );
     nearestWarehouse.products[product_index].stock -= quantity;
     return await WarehouseRepository.save(nearestWarehouse);
@@ -73,6 +75,16 @@ class StockUtil {
       updatedStock
     );
     if (!savedInventory) throw new InternalServerError();
+  }
+
+  static async updateStock(order) {
+    const products = order.order_products;
+    for (const product of products) {
+      await this.updateInventoryStock(product);
+    }
+    for (const product of products) {
+      await this.updateWarehouseStock(product, order.order_shipping);
+    }
   }
 }
 

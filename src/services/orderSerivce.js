@@ -11,6 +11,7 @@ const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
 const VoucherRepository = require("../models/repositories/voucherRepository");
 const RevenueRepository = require("../models/repositories/revenueRepository");
 const CartUtils = require("../utils/cartUtils");
+const StockUtil = require("../utils/stockUtil");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -44,6 +45,7 @@ class OrderService {
     return await OrderRepository.removeOrder(order_id);
   }
   static async createOrder(account_id, order) {
+    await verifyProductStockExistence(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
         order.order_checkout.voucher
@@ -62,7 +64,7 @@ class OrderService {
       const day = new Date().setUTCHours(0, 0, 0, 0);
       const profit = order.order_checkout.final_total;
       await RevenueRepository.updateOrInsert(profit, day);
-      await verifyProductStockExistence(order);
+      await StockUtil.updateStock(order);
     }
     return newOrder;
   }

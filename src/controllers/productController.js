@@ -106,10 +106,17 @@ class ProductController {
     }).send(res);
   }
   static async getBestSeller(req, res) {
-    const { page, limit } = req.query;
+    const { limit } = req.query;
     return new OK({
       message: "List Of Best-seller Products!!",
-      metaData: await ProductService.getBestSeller(page, limit),
+      metaData: await ProductService.getBestSeller(limit),
+    }).send(res);
+  }
+  static async getAllProducts(req, res) {
+    const { page, limit } = req.query;
+    return new OK({
+      message: "List Of All Products!!",
+      metaData: await ProductService.getAllProducts(page, limit),
     }).send(res);
   }
 }
