@@ -79,18 +79,19 @@ class WareHouseService {
     const foundInventory = await InventoryRepository.findByQuery({
       product: product.product,
     });
+    if (!foundInventory)
+      throw new NotFoundError("Inventory not found with specific product");
     const foundWarehouse = await WareHouseRepository.findByQuery({
       _id: warehouse_id,
     });
+    if (!foundWarehouse)
+      throw new NotFoundError("Warehouse not found with id " + warehouse_id);
     const product_index = foundWarehouse.products.findIndex(
       (el) => el.product.toHexString() === product.product
     );
     foundInventory.stock -= foundWarehouse.products[product_index].stock;
     foundWarehouse.products[product_index].stock = product.stock;
     foundInventory.stock += foundWarehouse.products[product_index].stock;
-    console.log(
-      foundInventory.stock + " " + foundWarehouse.products[product_index].stock
-    );
     const updatedInventory = await InventoryRepository.save(
       foundInventory._id,
       foundInventory.sold,
