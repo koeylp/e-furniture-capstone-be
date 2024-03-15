@@ -33,7 +33,7 @@ class WareHouseRepository {
     const query = {
       _id: new mongoose.Types.ObjectId(warehouse_id),
     };
-    return await _WareHouse.findOne(query).lean();
+    return await _WareHouse.findOne(query).populate("products.product").lean();
   }
   static async updateWareHouse(warehouse_id, update) {
     checkValidId(warehouse_id);

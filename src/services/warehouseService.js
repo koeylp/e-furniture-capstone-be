@@ -1,8 +1,13 @@
 const WareHouseRepository = require("../models/repositories/warehouseRepository");
 const ProductRepository = require("../models/repositories/productRepository");
-const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
+const {
+  BadRequestError,
+  NotFoundError,
+  InternalServerError,
+} = require("../utils/errorHanlder");
 const { removeUndefineObject } = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
+const { default: mongoose } = require("mongoose");
 class WareHouseService {
   static async createWareHouse(payload) {
     return await WareHouseRepository.createWareHouse(payload);
@@ -48,8 +53,9 @@ class WareHouseService {
       if (product.stock <= 0)
         throw new BadRequestError("Quantity must be greater than 0");
       const index = warehouse.products.findIndex(
-        (el) => el.product.toHexString() === product.product
+        (el) => el.product._id.toHexString() === product.product
       );
+      console.log(index);
       if (index === -1) warehouse.products.push(product);
       else warehouse.products[index].stock += product.stock;
       const inventory = await InventoryRepository.findByQuery({
@@ -60,10 +66,38 @@ class WareHouseService {
           `Inventory not found with product ${product.product}`
         );
       inventory.stock += product.stock;
-      await InventoryRepository.save(inventory._id, inventory.stock);
+      await InventoryRepository.save(
+        inventory._id,
+        inventory.sold,
+        inventory.stock
+      );
     }
 
     return await WareHouseRepository.save(warehouse);
+  }
+  static async updateProductStockInWarehouse(warehouse_id, product) {
+    const foundInventory = await InventoryRepository.findByQuery({
+      product: product.product,
+    });
+    const foundWarehouse = await WareHouseRepository.findByQuery({
+      _id: warehouse_id,
+    });
+    const product_index = foundWarehouse.products.findIndex(
+      (el) => el.product.toHexString() === product.product
+    );
+    foundInventory.stock -= foundWarehouse.products[product_index].stock;
+    foundWarehouse.products[product_index].stock = product.stock;
+    foundInventory.stock += foundWarehouse.products[product_index].stock;
+    console.log(
+      foundInventory.stock + " " + foundWarehouse.products[product_index].stock
+    );
+    const updatedInventory = await InventoryRepository.save(
+      foundInventory._id,
+      foundInventory.sold,
+      foundInventory.stock
+    );
+    if (!updatedInventory) throw new InternalServerError();
+    return await WareHouseRepository.save(foundWarehouse);
   }
 }
 module.exports = WareHouseService;
