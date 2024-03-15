@@ -12,7 +12,6 @@ class OrderRepository {
       .limit(limit)
       .lean()
       .exec();
-    console.log(query);
     return { total: orders.length, data: result };
   }
   static async getOrdersByUser(account_id, page, limit) {

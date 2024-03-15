@@ -28,17 +28,12 @@ class BankInforService {
     return await BankInforRepository.findBank(query);
   }
   static async setDefault(account_id, bankInfor_id) {
-    let query = {
-      account_id,
-      is_default: true,
-    };
+    let query = { account_id, is_default: true };
     let update = {
       $set: { is_default: false },
     };
     await BankInforRepository.updateBank(query, update);
-    query = {
-      _id: new mongoose.Types.ObjectId(bankInfor_id),
-    };
+    query = { _id: new mongoose.Types.ObjectId(bankInfor_id) };
     update = {
       $set: { is_default: true },
     };
