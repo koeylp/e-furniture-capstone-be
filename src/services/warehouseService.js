@@ -35,7 +35,9 @@ class WareHouseService {
     return await WareHouseRepository.removeWareHouse(warehouse_id);
   }
   static async addProductToWareHouse(warehouse_id, products) {
-    const warehouse = await this.findWareHouseById(warehouse_id);
+    const warehouse = await WareHouseRepository.findByQuery({
+      _id: warehouse_id,
+    });
     if (!warehouse)
       throw new NotFoundError(`Warehouse not found with id ${warehouse_id}`);
     for (let product of products) {
@@ -52,10 +54,9 @@ class WareHouseService {
         );
       if (product.stock <= 0)
         throw new BadRequestError("Quantity must be greater than 0");
-      const index = warehouse.products.findIndex(
-        (el) => el.product._id.toHexString() === product.product
+      const index = warehouse.products.findIndex((el) => 
+        el.product.toHexString() === product.product
       );
-      console.log(index);
       if (index === -1) warehouse.products.push(product);
       else warehouse.products[index].stock += product.stock;
       const inventory = await InventoryRepository.findByQuery({
