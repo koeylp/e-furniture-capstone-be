@@ -75,6 +75,22 @@ class InternalServerError extends ErrorResponse {
     super(message, statusCode);
   }
 }
+class RedisErrorResponse extends ErrorResponse {
+  constructor(
+    message = ReasonStatusCode.INTERNAL,
+    statusCode = StatusCode.INTERNAL
+  ) {
+    super(message, statusCode);
+  }
+}
+class RabbitMQErrorResponse extends ErrorResponse {
+  constructor(
+    message = ReasonStatusCode.INTERNAL,
+    statusCode = StatusCode.INTERNAL
+  ) {
+    super(message, statusCode);
+  }
+}
 module.exports = {
   ConflictRequestError,
   BadRequestError,
@@ -82,4 +98,6 @@ module.exports = {
   ForbiddenError,
   UnAuthorizedError,
   InternalServerError,
+  RedisErrorResponse,
+  RabbitMQErrorResponse,
 };

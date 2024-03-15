@@ -233,6 +233,14 @@ const validateCreateTransaction = (data) => {
   });
   return schema.validate(data);
 };
+const validateCreateFeedBack = (data) => {
+  const schema = Joi.object({
+    product_id: Joi.string().required(),
+    content: Joi.string().required(),
+    rating: Joi.number(),
+  });
+  return schema.validate(data);
+};
 
 module.exports = {
   validateEmail,
@@ -254,4 +262,5 @@ module.exports = {
   validateUpdateFlashSale,
   validateCreateBankInfor,
   validateCreateTransaction,
+  validateCreateFeedBack,
 };

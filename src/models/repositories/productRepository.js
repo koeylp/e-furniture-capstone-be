@@ -135,7 +135,6 @@ class ProductRepository {
     };
     return await _Product.deleteOne(query);
   }
-  static async removeMany(query) {}
   static async draftRangeProductByType(type_id) {
     const query = {
       type: type_id,
