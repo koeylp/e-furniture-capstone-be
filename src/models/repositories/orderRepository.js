@@ -26,7 +26,11 @@ class OrderRepository {
     return await this.getOrders(query, page, limit);
   }
   static async getOrdersByType({ account_id, type, page, limit }) {
-    const query = { ...(account_id && { account_id }), status: 1 };
+    const query = {
+      ...(account_id && { account_id }),
+      guest: false,
+      status: 1,
+    };
     if (type) {
       query.$expr = {
         $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type],
@@ -100,6 +104,7 @@ class OrderRepository {
       {
         _id: new mongoose.Types.ObjectId(order_id),
         account_id: account_id,
+        guest: false,
       },
       { $set: { "order_checkout.is_paid": true } }
     );
