@@ -7,7 +7,6 @@ const {
 } = require("../utils/errorHanlder");
 const { removeUndefineObject } = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
-const { default: mongoose } = require("mongoose");
 class WareHouseService {
   static async createWareHouse(payload) {
     return await WareHouseRepository.createWareHouse(payload);
@@ -54,8 +53,8 @@ class WareHouseService {
         );
       if (product.stock <= 0)
         throw new BadRequestError("Quantity must be greater than 0");
-      const index = warehouse.products.findIndex((el) => 
-        el.product.toHexString() === product.product
+      const index = warehouse.products.findIndex(
+        (el) => el.product.toHexString() === product.product
       );
       if (index === -1) warehouse.products.push(product);
       else warehouse.products[index].stock += product.stock;
@@ -73,7 +72,6 @@ class WareHouseService {
         inventory.stock
       );
     }
-
     return await WareHouseRepository.save(warehouse);
   }
   static async updateProductStockInWarehouse(warehouse_id, product) {

@@ -11,6 +11,7 @@ const {
   BadRequestError,
   ForbiddenError,
   InternalServerError,
+  NotFoundError,
 } = require("../utils/errorHanlder");
 const VoucherRepository = require("../models/repositories/voucherRepository");
 const RevenueRepository = require("../models/repositories/revenueRepository");
@@ -36,9 +37,13 @@ class OrderService {
     return await OrderRepository.getOrdersByType({ key_of_type, page, limit });
   }
   static async findOrderByTypeU(account_id, type, page, limit) {
-    if (type === "All")
-      return await OrderRepository.getOrders({ account_id, page, limit });
-
+    if (type === "All") {
+      const query = {
+        account_id: account_id,
+        guest: false,
+      };
+      return await OrderRepository.getOrders({ query, page, limit });
+    }
     return await OrderRepository.getOrdersByType({
       account_id,
       type,
@@ -107,14 +112,17 @@ class OrderService {
     return await OrderRepository.update(order_id, orderTrackingMap.get(4), "");
   }
   static async paid(account_id, transaction) {
+    const order_id = transaction.order_id;
+    const foundOrder = await OrderRepository.findOrderById({
+      account_id,
+      order_id,
+    });
+    if (!foundOrder) throw new NotFoundError("Order not found for this user");
     transaction.account_id = account_id;
     const transactionCreation = await TransactionRepository.create(transaction);
     if (!transactionCreation)
       throw new InternalServerError("Saving transaction failed!");
-    const updatedOrder = await OrderRepository.paid(
-      account_id,
-      transaction.order_id
-    );
+    const updatedOrder = await OrderRepository.paid(account_id, order_id);
     return updatedOrder;
   }
 }
