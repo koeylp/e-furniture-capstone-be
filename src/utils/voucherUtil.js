@@ -1,5 +1,5 @@
 const VoucherRepository = require("../models/repositories/voucherRepository");
-const { ForbiddenError } = require("../utils/errorHanlder");
+const { ForbiddenError, BadRequestError } = require("../utils/errorHanlder");
 
 const TYPE = {
   FIXED_AMOUNT: "fixed_amoount",

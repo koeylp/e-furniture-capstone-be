@@ -1,19 +1,24 @@
 const { MailtrapClient } = require("mailtrap");
 
-const TOKEN = "734e41e6cbd2420ad1c021541481c0f4";
-const SENDER_EMAIL = "khoiltse160615@fpt.edu.vn";
-const RECIPIENT_EMAIL = "khoiltse160615@fpt.edu.vn";
+const TOKEN = "4ddd80a13ad89cc71116388587f0c656";
+const SENDER_EMAIL = "no-reply@efurniturenotification.live";
+const RECIPIENT_EMAIL = "lethekhoi1919@gmail.com";
 
 const client = new MailtrapClient({ token: TOKEN });
 
-const sender = { name: "Mailtrap Test", email: SENDER_EMAIL };
+const sender = { name: "eFutniture", email: SENDER_EMAIL };
+class Mailtrap {
+  static async send() {
+    await client
+      .send({
+        from: sender,
+        to: [{ email: RECIPIENT_EMAIL }],
+        subject: "Order Confirmation!",
+        text: "Welcome to Mailtrap Sending!",
+      })
+      .then(console.log)
+      .catch(console.error);
+  }
+}
 
-client
-  .send({
-    from: sender,
-    to: [{ email: RECIPIENT_EMAIL }],
-    subject: "Hello from Mailtrap!",
-    text: "Welcome to Mailtrap Sending!",
-  })
-  .then(console.log)
-  .catch(console.error);
+module.exports = Mailtrap;
