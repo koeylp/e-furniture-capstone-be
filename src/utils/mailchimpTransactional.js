@@ -3,7 +3,7 @@ const _mailchimpTx = require("@mailchimp/mailchimp_transactional")(
 );
 
 const message = {
-  from_email: "khoiltse160615@fpt.edu.vn",
+  from_email: "no-reply@efurniturenotification.live",
   subject: "Hello world",
   text: "Welcome to Mailchimp Transactional!",
   to: [
