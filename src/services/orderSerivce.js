@@ -92,8 +92,10 @@ class OrderService {
   }
   static async createOrderGuest(order) {
     await verifyProductStockExistence(order);
-    await Mailtrap.send();
-    return await OrderRepository.createOrderGuest(order);
+    const newOrder = await OrderRepository.createOrderGuest(order);
+    if (!newOrder) throw InternalServerError();
+    await Mailtrap.send(newOrder);
+    return newOrder;
   }
   static async cancelOrder(account_id, order_id) {
     const foundOrder = await verifyOrderExistenceWithUser(account_id, order_id);
