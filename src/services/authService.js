@@ -7,29 +7,45 @@ const { promisify } = require("util");
 const { hashCode, encryptCode } = require("../utils/hashCode");
 const { createToken } = require("../jwt/jwtHandler");
 const { verifyRefreshToken } = require("../jwt/verifyToken");
+const { checkPermissionLogin } = require("../utils/authUtils");
 
 class AuthService {
-  static async login(username, password) {
+  static async login(username, password, role_login = "login_user") {
     const setAsync = promisify(client.set).bind(client);
     const userCheck = await AccountRepository.findAccountByUsername(username);
     if (!userCheck) throw new BadRequestError("Invalid Username!");
     const isValid = await encryptCode(password, userCheck.password);
     if (!isValid) throw new BadRequestError();
+    const checkPermission = await checkPermissionLogin(
+      userCheck.role,
+      role_login
+    );
+    if (!checkPermission)
+      throw new BadRequestError("Cannot Login To eFurniture");
     const token = await createToken({
       account_id: userCheck._id.toString(),
       username: userCheck.username,
       role: userCheck.role,
     });
 
-    await setAsync(
-      `access_token_efurniture_${userCheck._id.toString()}`,
-      token.access_token
-    );
-    await setAsync(
-      `refresh_token_efurniture_${userCheck._id.toString()}`,
-      token.refresh_token
-    );
+    // await setAsync(
+    //   `access_token_efurniture_${userCheck._id.toString()}`,
+    //   token.access_token
+    // );
+    // await setAsync(
+    //   `refresh_token_efurniture_${userCheck._id.toString()}`,
+    //   token.refresh_token
+    // );
     return token;
+  }
+  static async loginUser(username, password) {
+    return await this.login(username, password, "login_user");
+  }
+  static async loginEfurniture(username, password) {
+    return await this.login(username, password, "login_efurniture");
+  }
+  static async loginDelivery(username, password) {
+    return await this.login(username, password, "login_delivery");
   }
 
   static async logout(account_id) {

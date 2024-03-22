@@ -11,7 +11,15 @@ class FeedBackRepository {
   }
   static async getFeedBacks(query = {}, page, limit) {
     const skip = (page - 1) * limit;
-    return await _FeedBack.find(query).skip(skip).limit(limit).lean();
+    return await _FeedBack
+      .find(query)
+      .populate({
+        path: "account_id",
+        select: "first_name last_name",
+      })
+      .skip(skip)
+      .limit(limit)
+      .lean();
   }
 }
 module.exports = FeedBackRepository;
