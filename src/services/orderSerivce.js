@@ -18,7 +18,7 @@ const RevenueRepository = require("../models/repositories/revenueRepository");
 const CartUtils = require("../utils/cartUtils");
 const StockUtil = require("../utils/stockUtil");
 const TransactionRepository = require("../models/repositories/transactionRepository");
-const Mailtrap = require("../utils/mailtrap");
+const MailtrapService = require("./mailtrapService");
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -94,7 +94,7 @@ class OrderService {
     await verifyProductStockExistence(order);
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
-    await Mailtrap.send(newOrder);
+    await MailtrapService.send(newOrder);
     return newOrder;
   }
   static async cancelOrder(account_id, order_id) {

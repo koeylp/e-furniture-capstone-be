@@ -2,7 +2,7 @@ const { MailtrapClient } = require("mailtrap");
 const ejs = require("ejs");
 const fs = require("fs");
 const ProductRepository = require("../models/repositories/productRepository");
-const { vndFormatCurrency } = require("./format");
+const { vndFormatCurrency } = require("../utils/format");
 
 const TOKEN = process.env.MAILTRAP_TOKEN;
 const SENDER_EMAIL = "no-reply@efurniturenotification.live";
@@ -11,11 +11,11 @@ const emailTemplate = fs.readFileSync(filePath, "utf-8");
 
 const client = new MailtrapClient({ token: TOKEN });
 
-const sender = { name: "eFutniture", email: SENDER_EMAIL };
+const sender = { name: "eFurniture", email: SENDER_EMAIL };
 
 const compiledTemplate = ejs.compile(emailTemplate);
 
-class Mailtrap {
+class MailtrapService {
   static async send(order) {
     try {
       const productsPromises = order.order_products.map(async (product) => {
@@ -44,7 +44,7 @@ class Mailtrap {
       await client.send({
         from: sender,
         to: [{ email: order.order_shipping.email }],
-        subject: "Order Confirmation!",
+        subject: "Order Confirmation",
         html: renderedTemplate,
       });
 
@@ -55,4 +55,4 @@ class Mailtrap {
   }
 }
 
-module.exports = Mailtrap;
+module.exports = MailtrapService;
