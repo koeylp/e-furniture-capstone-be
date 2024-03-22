@@ -8,17 +8,14 @@ const {
   hasPermission,
 } = require("../../middlewares/rolePermission");
 
-router.use(verifyToken);
-router.use(hasAccess(2));
-
 router.post(
   "/",
+  verifyToken,
   hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(FeedBackController.create)
 );
 router.get(
   "/:product_id",
-  hasPermission(global.PermissionConstants.USER_GET),
   asyncHandler(FeedBackController.getFeedBacksByProduct)
 );
 

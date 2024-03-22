@@ -10,13 +10,34 @@ class AuthController {
     if (!username || !password) {
       throw new BadRequestError("Username or password is missing");
     }
-    const token = await AuthService.login(username, password);
+    const token = await AuthService.loginUser(username, password);
+    return new OK({
+      message: "Login To Efurniture Successfully!",
+      metaData: token,
+    }).send(res);
+  }
+  static async loginEfurniture(req, res) {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      throw new BadRequestError("Username or password is missing");
+    }
+    const token = await AuthService.loginEfurniture(username, password);
     return new OK({
       message: "Success",
       metaData: token,
     }).send(res);
   }
-
+  static async loginDelivery(req, res) {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      throw new BadRequestError("Username or password is missing");
+    }
+    const token = await AuthService.loginDelivery(username, password);
+    return new OK({
+      message: "Success",
+      metaData: token,
+    }).send(res);
+  }
   static async logout(req, res) {
     const { account_id } = req.payload;
     if (!account_id) throw new BadRequestError();

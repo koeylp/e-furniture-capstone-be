@@ -12,6 +12,13 @@ class RoleFactory {
   static async getRolePermission(role_action) {
     return RoleFactory.roleRegistry[role_action];
   }
+  static async getListRolePermission(role_actions) {
+    let permissions = [];
+    for (const action of role_actions) {
+      permissions.push(await this.getRolePermission(action));
+    }
+    return permissions;
+  }
   static async registerRoles() {
     const roles = await RoleRepository.getRoles();
     roles.forEach((role) => {
