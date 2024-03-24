@@ -104,9 +104,11 @@ class OrderController {
   static async cancelOrder(req, res) {
     const { account_id } = req.payload;
     const { order_id } = req.params;
+    const { note } = req.body;
+    if (!note) throw new BadRequestError("Note's cancel is required");
     return new OK({
       message: "Send cancel order request successfully! Please, wait!",
-      metaData: await OrderService.cancelOrder(account_id, order_id),
+      metaData: await OrderService.cancelOrder(account_id, order_id, note),
     }).send(res);
   }
 
@@ -116,6 +118,21 @@ class OrderController {
     return new OK({
       message: "You paid this order... Let's chill!",
       metaData: await OrderService.paid(account_id, transaction),
+    }).send(res);
+  }
+
+  static async acceptCancel(req, res) {
+    const { order_id } = req.params;
+    return new OK({
+      message: "Cancel Request Was Accepted!",
+      metaData: await OrderService.acceptCancel(order_id),
+    }).send(res);
+  }
+
+  static async getCancelRequests(req, res) {
+    return new OK({
+      message: "All Cancel Requests!",
+      metaData: await OrderService.getCancelRequests(),
     }).send(res);
   }
 }

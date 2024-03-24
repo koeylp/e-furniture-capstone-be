@@ -3,9 +3,8 @@ const orderTrackingMap = new Map([
   [1, "Processing"],
   [2, "Shipping"],
   [3, "Done"],
-  [4, "Cancel"],
-  [5, "Failed"],
-  [6, "Refunded"],
+  [4, "Cancelled"],
+  [5, "Refunded"],
 ]);
 
 module.exports = { orderTrackingMap };
