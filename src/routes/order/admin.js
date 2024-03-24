@@ -29,4 +29,16 @@ router.get(
   asyncHandler(OrderController.getOrders)
 );
 
+router.put(
+  "/:order_id",
+  hasPermission(global.PermissionConstants.ADMIN_PUT),
+  asyncHandler(OrderController.acceptCancel)
+);
+
+router.get(
+  "/cancel/requests",
+  hasPermission(global.PermissionConstants.ADMIN_GET),
+  asyncHandler(OrderController.getCancelRequests)
+);
+
 module.exports = router;

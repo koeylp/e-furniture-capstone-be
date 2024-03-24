@@ -86,6 +86,27 @@ class StockUtil {
       await this.updateWarehouseStock(product, order.order_shipping);
     }
   }
+
+  static async restoreStock(order) {
+    const products = order.order_products;
+    for (const product of products) {
+      await this.restoreInventoryStock(product);
+    }
+  }
+
+  static async restoreInventoryStock(product) {
+    const { product_id, quantity } = product;
+    const query = { product: product_id };
+    const foundInventory = await InventoryRepository.findByQuery(query);
+    const updatedStock = foundInventory.stock + quantity;
+    const updatedSold = foundInventory.sold - quantity;
+    const savedInventory = await InventoryRepository.save(
+      foundInventory._id,
+      updatedSold,
+      updatedStock
+    );
+    if (!savedInventory) throw new InternalServerError();
+  }
 }
 
 module.exports = StockUtil;

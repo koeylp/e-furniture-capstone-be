@@ -2,11 +2,9 @@ const _Order = require("../orderModel");
 const { getUnSelectData, checkValidId } = require("../../utils");
 const { default: mongoose } = require("mongoose");
 const { generateOrderCode } = require("../../utils/generateOrderCode");
-const { findOneAndUpdate } = require("../attributeModel");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
-    const orders = await _Order.find({ status: 1 });
     const result = await _Order
       .find(query)
       .sort([["createdAt", -1]])
@@ -15,7 +13,7 @@ class OrderRepository {
       .limit(limit)
       .lean()
       .exec();
-    return { total: orders.length, data: result };
+    return { total: result.length, data: result };
   }
   static async getOrdersByUser(account_id, page, limit) {
     checkValidId(account_id);
@@ -74,12 +72,11 @@ class OrderRepository {
     await newOrder.save();
     return newOrder;
   }
-  static async update(order_id, order_tracking, note) {
+  static async updateOrderTracking(order_id, update) {
     const query = {
       _id: new mongoose.Types.ObjectId(order_id),
       status: 1,
     };
-    const update = { name: order_tracking, note: note };
     return await _Order.updateOne(query, {
       $push: { order_tracking: update },
     });
@@ -107,6 +104,17 @@ class OrderRepository {
         guest: false,
       },
       { $set: { "order_checkout.is_paid": true } }
+    );
+  }
+  static async acceptCancel(order_id) {
+    const query = {
+      _id: new mongoose.Types.ObjectId(order_id),
+      status: 1,
+    };
+    return await _Order.updateOne(
+      query,
+      { $set: { "order_tracking.$[element].status": 1 } },
+      { arrayFilters: [{ "element.name": "Cancelled" }] }
     );
   }
 }

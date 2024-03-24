@@ -19,6 +19,8 @@ const CartUtils = require("../utils/cartUtils");
 const StockUtil = require("../utils/stockUtil");
 const TransactionRepository = require("../models/repositories/transactionRepository");
 const MailtrapService = require("./mailtrapService");
+const OrderTrackingUtil = require("../utils/orderTrackingUtils");
+
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -83,12 +85,9 @@ class OrderService {
         order.order_tracking[order.order_tracking.length - 1].name
       )
     );
-    if (key_of_type === 4) throw new BadRequestError("Order was done!");
-    return await OrderRepository.update(
-      order_id,
-      orderTrackingMap.get(key_of_type + 1),
-      note
-    );
+    await OrderTrackingUtil.validatePresentTrackUpdate(key_of_type);
+    const update = { name: orderTrackingMap.get(key_of_type + 1), note: note };
+    return await OrderRepository.updateOrderTracking(order_id, update);
   }
   static async createOrderGuest(order) {
     await verifyProductStockExistence(order);
@@ -97,7 +96,7 @@ class OrderService {
     await MailtrapService.send(newOrder);
     return newOrder;
   }
-  static async cancelOrder(account_id, order_id) {
+  static async cancelOrder(account_id, order_id, note) {
     const foundOrder = await verifyOrderExistenceWithUser(account_id, order_id);
     const key_of_type = getKeyByValue(
       orderTrackingMap,
@@ -105,11 +104,24 @@ class OrderService {
         foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
       )
     );
-    if (key_of_type !== 0)
-      throw new BadRequestError(
-        "The order was confirmed, you cannot cancel the order!"
-      );
-    return await OrderRepository.update(order_id, orderTrackingMap.get(4), "");
+    await OrderTrackingUtil.validatePresentTrackCancel(key_of_type);
+    const status = key_of_type === 0 ? 1 : 0;
+    const update = {
+      name: orderTrackingMap.get(4),
+      note: note,
+      status: status,
+    };
+    const updateTracking = await OrderRepository.updateOrderTracking(
+      order_id,
+      update
+    );
+    if (
+      updateTracking &&
+      updateTracking.order_tracking[updateTracking.order_tracking.length - 1]
+        .status === 1
+    )
+      await StockUtil.restoreStock(foundOrder);
+    return updateTracking;
   }
   static async paid(account_id, transaction) {
     const order_id = transaction.order_id;
@@ -124,6 +136,31 @@ class OrderService {
       throw new InternalServerError("Saving transaction failed!");
     const updatedOrder = await OrderRepository.paid(account_id, order_id);
     return updatedOrder;
+  }
+
+  static async acceptCancel(order_id) {
+    const order = await verifyOrderExistence(order_id);
+    if (
+      order.order_tracking[order.order_tracking.length - 1].status === 1 &&
+      order.order_tracking[order.order_tracking.length - 1].name === "Cancelled"
+    )
+      throw new BadRequestError("Order's cancel was accepted");
+    return await OrderRepository.acceptCancel(order_id);
+  }
+
+  static async getCancelRequests() {
+    const query = {
+      status: 1,
+      $expr: {
+        $and: [
+          {
+            $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, "Cancelled"],
+          },
+          { $eq: [{ $arrayElemAt: ["$order_tracking.status", -1] }, 0] },
+        ],
+      },
+    };
+    return await OrderRepository.getOrders({ query });
   }
 }
 module.exports = OrderService;
