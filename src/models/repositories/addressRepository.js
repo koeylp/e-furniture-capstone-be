@@ -2,24 +2,10 @@ const { default: mongoose } = require("mongoose");
 const _Address = require("../addressModel");
 const {
   InternalServerError,
-  BadRequestError,
   NotFoundError,
 } = require("../../utils/errorHanlder");
-const {
-  checkValidId,
-  getUnSelectData,
-  removeUndefineObject,
-} = require("../../utils");
+const { checkValidId, removeUndefineObject } = require("../../utils");
 class AddressRepository {
-  static async getAddressById(address_id) {
-    checkValidId(address_id);
-    const query = {
-      _id: new mongoose.Types.ObjectId(address_id),
-    };
-    const address = await _Address.findOne(query);
-    if (!address) throw new NotFoundError("Cannot Find Any Address!");
-    return address;
-  }
   static async createAddress(account_id, payload) {
     checkValidId(account_id);
     const address = await _Address.create({
@@ -33,12 +19,35 @@ class AddressRepository {
     if (!address) throw new InternalServerError();
     return address;
   }
+  static async findAddress(query) {
+    const address = await _Address.findOne(query).populate({
+      path: "account_id",
+      select: "first_name last_name",
+    });
+    if (!address) throw new NotFoundError("Cannot Find Any Address!");
+    return address;
+  }
+  static async getAddresses(query) {
+    const address = await _Address.find(query).populate({
+      path: "account_id",
+      select: "first_name last_name",
+    });
+    return address;
+  }
+  static async getAddressById(address_id) {
+    checkValidId(address_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(address_id),
+    };
+    return this.findAddress(query);
+  }
+
   static async getAddressByAccountId(account_id) {
     checkValidId(account_id);
     const query = {
       account_id: new mongoose.Types.ObjectId(account_id),
     };
-    return await _Address.find(query).sort({ _id: 1 });
+    return await this.getAddresses(query);
   }
   static async getAccountDefaultAddress(account_id) {
     checkValidId(account_id);
@@ -46,11 +55,7 @@ class AddressRepository {
       account_id: new mongoose.Types.ObjectId(account_id),
       is_default: true,
     };
-    return await _Address
-      .findOne(query)
-      .select(getUnSelectData(["__v"]))
-      .lean()
-      .exec();
+    return await this.findAddress(query);
   }
   static async setAddressNotDefault(account_id) {
     checkValidId(account_id);
