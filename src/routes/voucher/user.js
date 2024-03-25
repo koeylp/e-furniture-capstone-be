@@ -16,9 +16,9 @@ router.post(
   hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(VoucherController.applyVoucher)
 );
-router.get(
+router.post(
   "/get-by-specified",
-  hasPermission(global.PermissionConstants.USER_GET),
+  hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(VoucherController.getBySpecified)
 );
 
