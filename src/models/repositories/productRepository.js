@@ -191,19 +191,14 @@ class ProductRepository {
     const skip = (page - 1) * limit;
 
     const result = await _Product
-      .find(
-        { $text: { $search: regexSearch }, ...options },
-        { score: { $meta: "textScore" } }
-      )
-      .sort({ score: { $meta: "textScore" } })
+      .find({ name: { $regex: searchValue, $options: "i" } })
       .skip(skip)
       .limit(limit)
       .select(getSelectData(filter))
       .lean();
-    const products = await _Product.find(
-      { $text: { $search: regexSearch }, ...options },
-      { score: { $meta: "textScore" } }
-    );
+    const products = await _Product.find({
+      name: { $regex: searchValue, $options: "i" },
+    });
     return { total: products.length, data: result };
   }
 }
