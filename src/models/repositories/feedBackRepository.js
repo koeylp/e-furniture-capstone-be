@@ -1,8 +1,5 @@
 const _FeedBack = require("../feedBackModel");
-const {
-  NotFoundError,
-  InternalServerError,
-} = require("../../utils/errorHanlder");
+const { InternalServerError } = require("../../utils/errorHanlder");
 class FeedBackRepository {
   static async createFeedBack(payload) {
     const result = await _FeedBack.create(payload);
