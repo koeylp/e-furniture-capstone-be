@@ -128,5 +128,9 @@ class AccountService {
   static async searchByName(text) {
     return AccountRepository.searchByText({ keySearch: text });
   }
+  static async checkAccountStatus(account_id) {
+    const account = await AccountRepository.findAccountById(account_id);
+    return account.status;
+  }
 }
 module.exports = AccountService;

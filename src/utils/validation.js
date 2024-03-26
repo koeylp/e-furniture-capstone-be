@@ -241,6 +241,13 @@ const validateCreateFeedBack = (data) => {
   });
   return schema.validate(data);
 };
+const validateCreateDeliveryTrip = (data) => {
+  const schema = Joi.object({
+    account_id: Joi.string().required(),
+    orders: Joi.array().required(),
+  });
+  return schema.validate(data);
+};
 
 module.exports = {
   validateEmail,
@@ -263,4 +270,5 @@ module.exports = {
   validateCreateBankInfor,
   validateCreateTransaction,
   validateCreateFeedBack,
+  validateCreateDeliveryTrip,
 };

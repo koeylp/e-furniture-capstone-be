@@ -102,5 +102,13 @@ class AccountController {
       metaData: await AccountService.editRoleAccount(account_id, role),
     }).send(res);
   }
+  static async checkAccountStatus(req, res) {
+    const { account_id } = req.payload;
+    if (!account_id) throw new BadRequestError();
+    return new OK({
+      message: "Account Status!",
+      metaData: await AccountService.checkAccountStatus(account_id),
+    }).send(res);
+  }
 }
 module.exports = AccountController;
