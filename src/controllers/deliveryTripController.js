@@ -19,13 +19,21 @@ class DeliveryTripController {
       metaData: await DeliveryTripService.findTrip(trip_id),
     }).send(res);
   }
-  static async updateTripDoneStatus(req, res) {
+  static async updateOrderInTripStatus(req, res) {
     const { trip_id } = req.params;
-    const { order_id } = req.body;
-    if (!trip_id || !order_id) throw new BadRequestError();
+    const { order_id, state } = req.body;
+    if (!trip_id || !order_id || !state) throw new BadRequestError();
     return new OK({
       message: "Trip Detail!",
-      metaData: await DeliveryTripService.updateTrip(trip_id, order_id),
+      metaData: await DeliveryTripService.updateTrip(trip_id, order_id, state),
+    }).send(res);
+  }
+  static async updateTripStatus(req, res) {
+    const { trip_id } = req.params;
+    if (!trip_id) throw new BadRequestError();
+    return new OK({
+      message: "Done Trip Successfully!",
+      metaData: await DeliveryTripService.updateTripStatus(trip_id),
     }).send(res);
   }
 }

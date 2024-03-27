@@ -22,28 +22,26 @@ class DeliveryTripService {
   static async findTrip(trip_id) {
     return await DeliveryTripRepository.findTripById(trip_id);
   }
-  static async updateTrip(trip_id, order_id) {
+  static async updateTrip(trip_id, order_id, state) {
     const order = await this.findTrip(trip_id);
-    await this.updateOrderInsideOrders(order.orders, order_id);
-    if (await this.checkAllOrderStatus(order.orders)) {
-      await AccountRepository.updateStateAccount(payload.account_id, 1);
-      return await this.updateOrdersWithMainStatus(order);
-    }
+    await this.updateOrderInsideOrders(order.orders, order_id, state);
     return await this.updateOrders(order);
   }
-  static async updateOrderInsideOrders(orders, order_id) {
+  static async updateTripStatus(trip_id) {
+    await this.findTrip(trip_id);
+    return await this.updateOrdersWithMainStatus(trip_id);
+  }
+  static async updateOrderInsideOrders(orders, order_id, state) {
     await Promise.all(
       orders.map(async (order) => {
         if (order.order._id.toString() === order_id) {
-          order.status = 1;
+          order.status = state;
         }
       })
     );
     return orders;
   }
-  static async checkAllOrderStatus(orders) {
-    return orders.every((order) => order.status == 1);
-  }
+
   static async updateOrders(order) {
     const payload = {
       _id: new mongoose.Types.ObjectId(order._id),
@@ -55,13 +53,15 @@ class DeliveryTripService {
     };
     return await DeliveryTripRepository.updateTrip(payload, update);
   }
-  static async updateOrdersWithMainStatus(order) {
+  static async checkAllOrderStatus(orders) {
+    return orders.every((order) => order.status == 1);
+  }
+  static async updateOrdersWithMainStatus(trip_id) {
     const payload = {
-      _id: new mongoose.Types.ObjectId(order._id),
+      _id: new mongoose.Types.ObjectId(trip_id),
     };
     const update = {
       $set: {
-        orders: order.orders,
         status: 1,
       },
     };
