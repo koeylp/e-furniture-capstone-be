@@ -8,13 +8,14 @@ const _Account = require("../accountModel");
 const {
   BadRequestError,
   InternalServerError,
+  NotFoundError,
 } = require("../../utils/errorHanlder");
 const { hashCode } = require("../../utils/hashCode");
 class AccountRepository {
   static async findAccountByUsername(username) {
     const query = {
       username: username,
-      status: 1,
+      status: { $gt: 0 },
     };
     return await _Account
       .findOne(query)
@@ -26,7 +27,7 @@ class AccountRepository {
     checkValidId(account_id);
     const query = {
       _id: new mongoose.Types.ObjectId(account_id),
-      status: 1,
+      status: { $gt: 0 },
     };
     const account = await _Account
       .findOne(query)
@@ -143,6 +144,17 @@ class AccountRepository {
     });
     if (!account) throw new InternalServerError();
     return account;
+  }
+  static async updateStateAccount(account_id, state) {
+    return await _Account.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(account_id) },
+      {
+        $set: {
+          status: state,
+        },
+      },
+      { new: true }
+    );
   }
 }
 module.exports = AccountRepository;

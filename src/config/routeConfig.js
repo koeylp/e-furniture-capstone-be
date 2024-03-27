@@ -27,6 +27,7 @@ const routes = [
   { path: "/bankInfor", route: require("../routes/bankInfor") },
   { path: "/transaction", route: require("../routes/transaction") },
   { path: "/feedback", route: require("../routes/feedback") },
+  { path: "/deliveryTrip", route: require("../routes/deliveryTrip") },
 ];
 
 const configureRoutes = (app) => {
