@@ -22,6 +22,9 @@ class DeliveryTripService {
   static async findTrip(trip_id) {
     return await DeliveryTripRepository.findTripById(trip_id);
   }
+  static async findTripByAccount(account_id) {
+    return await DeliveryTripRepository.findTripByAccount(account_id);
+  }
   static async updateTrip(trip_id, order_id, state) {
     const order = await this.findTrip(trip_id);
     await this.updateOrderInsideOrders(order.orders, order_id, state);
