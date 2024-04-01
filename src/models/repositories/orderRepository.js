@@ -7,6 +7,7 @@ class OrderRepository {
     const skip = (page - 1) * limit;
     const result = await _Order
       .find(query)
+      .populate("order_products.product_id")
       .sort([["createdAt", -1]])
       .select(getUnSelectData(["__v"]))
       .skip(skip)
@@ -45,6 +46,7 @@ class OrderRepository {
     };
     const order = await _Order
       .findOne(query)
+      .populate("order_products.product_id")
       .select(getUnSelectData(["__v"]))
       .lean({ virtuals: true })
       .exec();

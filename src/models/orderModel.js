@@ -22,7 +22,7 @@ const schema = new Schema(
     order_products: [
       {
         _id: false,
-        product_id: { type: Schema.Types.ObjectId },
+        product_id: { type: Schema.Types.ObjectId, ref: "Product" },
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
       },
