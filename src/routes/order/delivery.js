@@ -35,4 +35,10 @@ router.get(
   asyncHandler(OrderController.findOrderByType)
 );
 
+router.put(
+  "/update-tracking/substate/:order_id",
+  hasPermission(global.PermissionConstants.DELIVERY_PUT),
+  asyncHandler(OrderController.updateSubstateShipping)
+);
+
 module.exports = router;

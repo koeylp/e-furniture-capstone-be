@@ -8,6 +8,7 @@ const schema = new Schema(
   {
     products: [
       {
+        _id: false,
         product: {
           type: Schema.Types.ObjectId,
           required: true,
