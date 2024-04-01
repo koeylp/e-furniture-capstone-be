@@ -34,6 +34,14 @@ class DeliveryRepository {
     };
     return this.findTrip(payload);
   }
+  static async findTripByAccount(account_id) {
+    checkValidId(account_id);
+    const payload = {
+      account_id: new mongoose.Types.ObjectId(account_id),
+      status: 0,
+    };
+    return this.findTrip(payload);
+  }
   static async updateTrip(payload, update) {
     return await _DeliveryTrip.findOneAndUpdate(payload, update, { new: true });
   }

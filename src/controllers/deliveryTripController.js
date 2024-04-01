@@ -19,6 +19,14 @@ class DeliveryTripController {
       metaData: await DeliveryTripService.findTrip(trip_id),
     }).send(res);
   }
+  static async findTripByAccount(req, res) {
+    const { account_id } = req.params;
+    if (!account_id) throw new BadRequestError();
+    return new OK({
+      message: "List Trip!",
+      metaData: await DeliveryTripService.findTripByAccount(account_id),
+    }).send(res);
+  }
   static async updateOrderInTripStatus(req, res) {
     const { trip_id } = req.params;
     const { order_id, state } = req.body;
