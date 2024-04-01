@@ -17,7 +17,12 @@ router.post(
   asyncHandler(DeliveryController.createTrip)
 );
 router.get(
-  "/:trip_id",
+  "/:account_id",
+  hasPermission(global.PermissionConstants.DELIVERY_GET),
+  asyncHandler(DeliveryController.findTripByAccount)
+);
+router.get(
+  "/detail/:trip_id",
   hasPermission(global.PermissionConstants.DELIVERY_GET),
   asyncHandler(DeliveryController.findTrip)
 );
