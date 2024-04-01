@@ -11,7 +11,7 @@ class OrderRepository {
       .select(getUnSelectData(["__v"]))
       .skip(skip)
       .limit(limit)
-      .lean()
+      .lean({ virtuals: true })
       .exec();
     return { total: result.length, data: result };
   }
@@ -43,11 +43,12 @@ class OrderRepository {
       ...(account_id && { account_id }),
       status: 1,
     };
-    return await _Order
+    const order = await _Order
       .findOne(query)
       .select(getUnSelectData(["__v"]))
-      .lean()
+      .lean({ virtuals: true })
       .exec();
+    return order;
   }
   static async removeOrder(order_id) {
     checkValidId(order_id);
@@ -115,6 +116,13 @@ class OrderRepository {
       query,
       { $set: { "order_tracking.$[element].status": 1 } },
       { arrayFilters: [{ "element.name": "Cancelled" }] }
+    );
+  }
+  static async update(order_id, newSubstate) {
+    return await _Order.findByIdAndUpdate(
+      order_id,
+      { $push: { "order_tracking.$[element].substate": newSubstate } },
+      { arrayFilters: [{ "element.name": "Shipping" }], new: true }
     );
   }
 }

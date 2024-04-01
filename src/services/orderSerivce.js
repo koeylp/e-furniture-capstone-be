@@ -162,5 +162,15 @@ class OrderService {
     };
     return await OrderRepository.getOrders({ query });
   }
+
+  static async updateSubstateShipping(order_id, name) {
+    const foundOrder = await verifyOrderExistence(order_id);
+    const newSubstate = { name: name };
+
+    if (foundOrder.current_order_tracking.name != "Shipping")
+      throw new BadRequestError("Order is not in shipping state");
+    const updatedOrder = await OrderRepository.update(order_id, newSubstate);
+    return updatedOrder;
+  }
 }
 module.exports = OrderService;
