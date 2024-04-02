@@ -82,10 +82,14 @@ class OrderRepository {
       _id: new mongoose.Types.ObjectId(order_id),
       status: 1,
     };
-    return await _Order.updateOne(query, {
-      $push: { order_tracking: updatePush },
-      $set: updateSet,
-    });
+    return await _Order.findOneAndUpdate(
+      query,
+      {
+        $push: { order_tracking: updatePush },
+        $set: updateSet,
+      },
+      { new: true }
+    );
   }
   static async createOrderGuest(order) {
     const order_code = generateOrderCode();
