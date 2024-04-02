@@ -8,6 +8,7 @@ const {
 } = require("./errorHanlder");
 const { getMapData } = require("./mapDataUtils");
 const ProductInventory = require("../models/repositories/productRepository");
+const NotificationEfurnitureRepository = require("../models/repositories/notificationEfurnitureRepository");
 const LOW_QUANTITY = 10;
 
 class StockUtil {
@@ -44,13 +45,31 @@ class StockUtil {
     const product_index = nearestWarehouse.products.findIndex(
       (el) => el.product.toHexString() === product_id
     );
+
     nearestWarehouse.products[product_index].stock -= quantity;
-    console.log(nearestWarehouse);
-    if (nearestWarehouse.products[product_index].stock < LOW_QUANTITY)
-      _io.emit("lowstockWareHouse", nearestWarehouse);
+    await this.checkLowStockQuantity(nearestWarehouse.products[product_index]);
+
     return await WarehouseRepository.save(nearestWarehouse);
   }
-
+  static async checkLowStockQuantity(product) {
+    let lowStock = product.lowStock;
+    let isNoti = product.isNoti;
+    if (isNoti && product.stock < lowStock) {
+      const productForNoti = await ProductInventory.findProductById(
+        product.product
+      );
+      const payload = {
+        title: "Low Stock",
+        message: `Low Stock With Product Name is ${productForNoti.name}`,
+        status: 1,
+      };
+      const notification = await NotificationEfurnitureRepository.create(
+        payload
+      );
+      console.log(notification);
+      _io.emit("lowstockWareHouse", true);
+    }
+  }
   static async findNearestWarehouse(warehouses, longitude, latitude) {
     let nearestWarehouse = {};
     let nearest_distance = Infinity;
@@ -73,12 +92,6 @@ class StockUtil {
     const foundInventory = await InventoryRepository.findByQuery(query);
     const updatedStock = foundInventory.stock - quantity;
     const updatedSold = foundInventory.sold + quantity;
-    const productForLowStock = await ProductInventory.findProductById(
-      product_id
-    );
-    console.log(productForLowStock);
-    if (updatedStock < LOW_QUANTITY)
-      _io.emit("lowstockInventory", productForLowStock.name);
     if (updatedStock === 0) await draftProduct(product_id);
     const savedInventory = await InventoryRepository.save(
       foundInventory._id,

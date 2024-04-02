@@ -44,17 +44,17 @@ class DeliveryTripController {
       metaData: await DeliveryTripService.updateTripStatus(trip_id),
     }).send(res);
   }
-  static async getTripPending(req, res) {
-    return new OK({
-      message: "List Trip!",
-      metaData: await DeliveryTripService.getTripPending(),
-    }).send(res);
-  }
-  static async getAllTrip(req, res) {
-    return new OK({
-      message: "List Trip!",
-      metaData: await DeliveryTripService.getAllTrip(),
-    }).send(res);
-  }
+  // static async getTripPending(req, res) {
+  //   return new OK({
+  //     message: "List Trip!",
+  //     metaData: await DeliveryTripService.getDeliveryTripPending(),
+  //   }).send(res);
+  // }
+  // static async getAllTrip(req, res) {
+  //   return new OK({
+  //     message: "List Trip!",
+  //     metaData: await DeliveryTripService.getAllDeliveryTrip(),
+  //   }).send(res);
+  // }
 }
 module.exports = DeliveryTripController;

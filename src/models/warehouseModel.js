@@ -15,6 +15,8 @@ const schema = new Schema(
           ref: "Product",
         },
         stock: { type: Number, required: true },
+        lowStock: { type: Number, default: 0 },
+        isNoti: { type: Boolean, default: false },
       },
     ],
     province: { type: String, required: true },
