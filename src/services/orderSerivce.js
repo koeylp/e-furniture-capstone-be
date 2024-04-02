@@ -21,6 +21,8 @@ const TransactionRepository = require("../models/repositories/transactionReposit
 const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 
+const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
+
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -86,11 +88,19 @@ class OrderService {
       )
     );
     await OrderTrackingUtil.validatePresentTrackUpdate(key_of_type);
-    if (orderTrackingMap.get(key_of_type + 1) === "Done") {
-      
+    let updateSet = {};
+    if (orderTrackingMap.get(key_of_type + 1) === TRACKING[3]) {
+      updateSet = { "order_products.$[].status": 1 };
     }
-    const update = { name: orderTrackingMap.get(key_of_type + 1), note: note };
-    return await OrderRepository.updateOrderTracking(order_id, update);
+    const updatePush = {
+      name: orderTrackingMap.get(key_of_type + 1),
+      note: note,
+    };
+    return await OrderRepository.updateOrderTracking(
+      order_id,
+      updatePush,
+      updateSet
+    );
   }
   static async createOrderGuest(order) {
     await verifyProductStockExistence(order);
@@ -153,7 +163,7 @@ class OrderService {
     const order = await verifyOrderExistence(order_id);
     if (
       order.order_tracking[order.order_tracking.length - 1].status === 1 &&
-      order.order_tracking[order.order_tracking.length - 1].name === "Cancelled"
+      order.order_tracking[order.order_tracking.length - 1].name === TRACKING[4]
     )
       throw new BadRequestError("Order's cancel was accepted");
     return await OrderRepository.acceptCancel(order_id);
@@ -165,7 +175,7 @@ class OrderService {
       $expr: {
         $and: [
           {
-            $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, "Cancelled"],
+            $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, TRACKING[4]],
           },
           { $eq: [{ $arrayElemAt: ["$order_tracking.status", -1] }, 0] },
         ],
@@ -178,7 +188,7 @@ class OrderService {
     const foundOrder = await verifyOrderExistence(order_id);
     const newSubstate = { name: name };
 
-    if (foundOrder.current_order_tracking.name != "Shipping")
+    if (foundOrder.current_order_tracking.name != TRACKING[2])
       throw new BadRequestError("Order is not in shipping state");
     const updatedOrder = await OrderRepository.update(order_id, newSubstate);
     return updatedOrder;

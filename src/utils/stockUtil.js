@@ -45,7 +45,6 @@ class StockUtil {
       (el) => el.product.toHexString() === product_id
     );
     nearestWarehouse.products[product_index].stock -= quantity;
-    console.log(nearestWarehouse);
     if (nearestWarehouse.products[product_index].stock < LOW_QUANTITY)
       _io.emit("lowstockWareHouse", nearestWarehouse);
     return await WarehouseRepository.save(nearestWarehouse);

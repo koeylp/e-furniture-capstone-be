@@ -77,13 +77,14 @@ class OrderRepository {
     await newOrder.save();
     return newOrder;
   }
-  static async updateOrderTracking(order_id, update) {
+  static async updateOrderTracking(order_id, updatePush, updateSet) {
     const query = {
       _id: new mongoose.Types.ObjectId(order_id),
       status: 1,
     };
     return await _Order.updateOne(query, {
-      $push: { order_tracking: update },
+      $push: { order_tracking: updatePush },
+      $set: updateSet,
     });
   }
   static async createOrderGuest(order) {
