@@ -103,19 +103,21 @@ class OrderRepository {
     return newOrder;
   }
   static async paid(account_id, order_id) {
-    return await _Order.findOneAndUpdate(
-      {
-        _id: new mongoose.Types.ObjectId(order_id),
-        account_id: account_id,
-        guest: false,
-        payment_method: "Online Payment",
-      },
-      {
-        $set: { "order_checkout.is_paid": true },
-        $push: { order_tracking: { name: "Processing" } },
-      },
-      { new: true }
-    );
+    return await _Order
+      .findOneAndUpdate(
+        {
+          _id: new mongoose.Types.ObjectId(order_id),
+          account_id: account_id,
+          guest: false,
+          payment_method: "Online Payment",
+        },
+        {
+          $set: { "order_checkout.is_paid": true },
+          $push: { order_tracking: { name: "Processing" } },
+        },
+        { new: true }
+      )
+      .populate("order_products.product_id");
   }
   static async acceptCancel(order_id) {
     const query = {
