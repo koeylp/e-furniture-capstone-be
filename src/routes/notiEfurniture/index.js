@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-router.use("/", require("./delivery"));
-// router.use("/staff", require("./staff"));
+router.use("/shared", require("./shared"));
 
 module.exports = router;
