@@ -132,7 +132,8 @@ class OrderService {
     };
     const updateTracking = await OrderRepository.updateOrderTracking(
       order_id,
-      update
+      update,
+      {}
     );
     if (
       updateTracking &&
