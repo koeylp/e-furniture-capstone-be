@@ -87,7 +87,6 @@ class OrderService {
     );
     await OrderTrackingUtil.validatePresentTrackUpdate(key_of_type);
     if (orderTrackingMap.get(key_of_type + 1) === "Done") {
-      
     }
     const update = { name: orderTrackingMap.get(key_of_type + 1), note: note };
     return await OrderRepository.updateOrderTracking(order_id, update);
@@ -96,6 +95,12 @@ class OrderService {
     await verifyProductStockExistence(order);
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
+    else {
+      const day = new Date().setUTCHours(0, 0, 0, 0);
+      const profit = order.order_checkout.final_total;
+      await RevenueRepository.updateOrInsert(profit, day);
+      await StockUtil.updateStock(order);
+    }
     await MailtrapService.send(newOrder);
     return newOrder;
   }
