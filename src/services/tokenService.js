@@ -12,6 +12,7 @@ class TokenService {
     const token = await TokenRepository.findTokenByAccountId(account_id);
     if (!token) return null;
     const checkUsed = token.token_used.some((used) => used === refresh_token);
+    _io.emit("loginOutside", true);
     if (checkUsed) throw new ConflictRequestError();
     return token;
   }
