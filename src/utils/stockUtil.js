@@ -7,6 +7,7 @@ const {
   InternalServerError,
 } = require("./errorHanlder");
 const { getMapData } = require("./mapDataUtils");
+const ProductInventory = require("../models/repositories/productRepository");
 const LOW_QUANTITY = 10;
 
 class StockUtil {
@@ -45,7 +46,7 @@ class StockUtil {
     );
     nearestWarehouse.products[product_index].stock -= quantity;
     if (nearestWarehouse.products[product_index].stock < LOW_QUANTITY)
-      _io.emit("lowstock", nearestWarehouse);
+      _io.emit("lowstockWareHouse", nearestWarehouse);
     return await WarehouseRepository.save(nearestWarehouse);
   }
 
@@ -71,6 +72,9 @@ class StockUtil {
     const foundInventory = await InventoryRepository.findByQuery(query);
     const updatedStock = foundInventory.stock - quantity;
     const updatedSold = foundInventory.sold + quantity;
+    const product = await ProductInventory.findProductById(product_id);
+    console.log(product);
+    _io.emit("lowstockInventory", product.name);
     if (updatedStock === 0) await draftProduct(product_id);
     const savedInventory = await InventoryRepository.save(
       foundInventory._id,

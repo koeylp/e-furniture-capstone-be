@@ -18,7 +18,7 @@ class DeliveryRepository {
       })
       .lean();
   }
-  static async getTrips(payload) {
+  static async getTrips(payload = {}) {
     return await _DeliveryTrip
       .find(payload)
       .populate({
