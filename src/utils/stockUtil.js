@@ -45,6 +45,7 @@ class StockUtil {
       (el) => el.product.toHexString() === product_id
     );
     nearestWarehouse.products[product_index].stock -= quantity;
+    console.log(nearestWarehouse);
     if (nearestWarehouse.products[product_index].stock < LOW_QUANTITY)
       _io.emit("lowstockWareHouse", nearestWarehouse);
     return await WarehouseRepository.save(nearestWarehouse);
@@ -74,7 +75,8 @@ class StockUtil {
     const updatedSold = foundInventory.sold + quantity;
     const product = await ProductInventory.findProductById(product_id);
     console.log(product);
-    _io.emit("lowstockInventory", product.name);
+    if (updatedStock < LOW_QUANTITY)
+      _io.emit("lowstockInventory", product.name);
     if (updatedStock === 0) await draftProduct(product_id);
     const savedInventory = await InventoryRepository.save(
       foundInventory._id,
