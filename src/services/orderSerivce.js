@@ -26,7 +26,7 @@ class OrderService {
     return await OrderRepository.getOrders({ page, limit });
   }
   static async findOrderDetail(order_id) {
-    return await OrderRepository.findOrderById({ order_id });
+    return await verifyOrderExistence(order_id);
   }
   static async findOrderByUser(account_id, page, limit) {
     return await OrderRepository.getOrdersByUser(account_id, page, limit);
@@ -86,6 +86,8 @@ class OrderService {
       )
     );
     await OrderTrackingUtil.validatePresentTrackUpdate(key_of_type);
+    if (orderTrackingMap.get(key_of_type + 1) === "Done") {
+    }
     const update = { name: orderTrackingMap.get(key_of_type + 1), note: note };
     return await OrderRepository.updateOrderTracking(order_id, update);
   }
@@ -93,6 +95,12 @@ class OrderService {
     await verifyProductStockExistence(order);
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
+    else {
+      const day = new Date().setUTCHours(0, 0, 0, 0);
+      const profit = order.order_checkout.final_total;
+      await RevenueRepository.updateOrInsert(profit, day);
+      await StockUtil.updateStock(order);
+    }
     await MailtrapService.send(newOrder);
     return newOrder;
   }
@@ -130,6 +138,8 @@ class OrderService {
       order_id,
     });
     if (!foundOrder) throw new NotFoundError("Order not found for this user");
+    if (foundOrder.order_checkout.is_paid)
+      throw new BadRequestError("Order was paid");
     transaction.account_id = account_id;
     const transactionCreation = await TransactionRepository.create(transaction);
     if (!transactionCreation)

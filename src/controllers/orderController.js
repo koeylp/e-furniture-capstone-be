@@ -144,5 +144,12 @@ class OrderController {
       metaData: await OrderService.updateSubstateShipping(order_id, name),
     }).send(res);
   }
+  static async requestRefund(req, res) {
+    const { order_id } = req.params;
+    return new OK({
+      message: "Request refund successfully",
+      metaData: await OrderService.requestRefund(order_id),
+    }).send(res);
+  }
 }
 module.exports = OrderController;
