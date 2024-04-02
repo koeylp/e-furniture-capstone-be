@@ -87,6 +87,7 @@ class OrderService {
     );
     await OrderTrackingUtil.validatePresentTrackUpdate(key_of_type);
     if (orderTrackingMap.get(key_of_type + 1) === "Done") {
+      
     }
     const update = { name: orderTrackingMap.get(key_of_type + 1), note: note };
     return await OrderRepository.updateOrderTracking(order_id, update);
