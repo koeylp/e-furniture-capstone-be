@@ -71,17 +71,20 @@ class OrderRepository {
       order_code: order_code,
     });
     if (!newOrder) throw new InternalServerError();
-    newOrder.order_tracking.push({ note: order.note });
+    if (order.payment_method === "COD")
+      newOrder.order_tracking.push({ name: "Processing", note: order.note });
+    else newOrder.order_tracking.push({ note: order.note });
     await newOrder.save();
     return newOrder;
   }
-  static async updateOrderTracking(order_id, update) {
+  static async updateOrderTracking(order_id, updatePush, updateSet) {
     const query = {
       _id: new mongoose.Types.ObjectId(order_id),
       status: 1,
     };
     return await _Order.updateOne(query, {
-      $push: { order_tracking: update },
+      $push: { order_tracking: updatePush },
+      $set: updateSet,
     });
   }
   static async createOrderGuest(order) {
@@ -95,18 +98,23 @@ class OrderRepository {
       order_code: order_code,
     });
     if (!order) throw new InternalServerError();
-    newOrder.order_tracking.push({ note: order.note });
+    newOrder.order_tracking.push({ name: "Processing", note: order.note });
     await newOrder.save();
     return newOrder;
   }
   static async paid(account_id, order_id) {
-    return await _Order.updateOne(
+    return await _Order.findOneAndUpdate(
       {
         _id: new mongoose.Types.ObjectId(order_id),
         account_id: account_id,
         guest: false,
+        payment_method: "Online Payment",
       },
-      { $set: { "order_checkout.is_paid": true } }
+      {
+        $set: { "order_checkout.is_paid": true },
+        $push: { order_tracking: { name: "Processing" } },
+      },
+      { new: true }
     );
   }
   static async acceptCancel(order_id) {

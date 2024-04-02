@@ -26,7 +26,7 @@ services:
         max-file: "3"
   mongodb:
     image: mongo
-    container_name: capstone-mongo1
+    container_name: capstone-mongo2
     ports:
       - 27018:27018
     volumes:

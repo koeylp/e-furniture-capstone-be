@@ -47,4 +47,10 @@ router.post(
   asyncHandler(OrderController.paid)
 );
 
+router.post(
+  "/refund/:order_id",
+  hasPermission(global.PermissionConstants.USER_POST),
+  asyncHandler(OrderController.requestRefund)
+);
+
 module.exports = router;
