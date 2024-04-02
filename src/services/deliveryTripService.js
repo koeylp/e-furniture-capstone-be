@@ -22,6 +22,15 @@ class DeliveryTripService {
   static async findTrip(trip_id) {
     return await DeliveryTripRepository.findTripById(trip_id);
   }
+  static async getDeliveryTripPending() {
+    let payload = {
+      status: 0,
+    };
+    return await DeliveryTripRepository.getTrips(payload);
+  }
+  static async getAllDeliveryTrip() {
+    return await DeliveryTripRepository.getTrips();
+  }
   static async findTripByAccount(account_id) {
     return await DeliveryTripRepository.findTripByAccount(account_id);
   }
@@ -65,7 +74,7 @@ class DeliveryTripService {
     };
     const update = {
       $set: {
-        status: 1,
+        status: 2,
       },
     };
     return await DeliveryTripRepository.updateTrip(payload, update);
