@@ -73,10 +73,12 @@ class StockUtil {
     const foundInventory = await InventoryRepository.findByQuery(query);
     const updatedStock = foundInventory.stock - quantity;
     const updatedSold = foundInventory.sold + quantity;
-    const product = await ProductInventory.findProductById(product_id);
-    console.log(product);
+    const productForLowStock = await ProductInventory.findProductById(
+      product_id
+    );
+    console.log(productForLowStock);
     if (updatedStock < LOW_QUANTITY)
-      _io.emit("lowstockInventory", product.name);
+      _io.emit("lowstockInventory", productForLowStock.name);
     if (updatedStock === 0) await draftProduct(product_id);
     const savedInventory = await InventoryRepository.save(
       foundInventory._id,
