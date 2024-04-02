@@ -25,6 +25,7 @@ const schema = new Schema(
         product_id: { type: Schema.Types.ObjectId, ref: "Product" },
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
+        status: { type: Number, default: 0 },
       },
     ],
     payment_method: {
