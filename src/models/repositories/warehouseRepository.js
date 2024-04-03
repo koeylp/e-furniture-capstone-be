@@ -33,7 +33,15 @@ class WareHouseRepository {
     const query = {
       _id: new mongoose.Types.ObjectId(warehouse_id),
     };
-    return await _WareHouse.findOne(query).populate("products.product").lean();
+    const result = await _WareHouse
+      .findOne(query)
+      .populate("products.product")
+      .lean();
+    const productFilter = result.products.filter(
+      (product) => product.is_published === true
+    );
+    result.products = productFilter;
+    return result;
   }
   static async updateWareHouse(warehouse_id, update) {
     checkValidId(warehouse_id);
@@ -66,6 +74,56 @@ class WareHouseRepository {
       },
     };
     return await _WareHouse.find(query).exec();
+  }
+  static async draftProductInsideWareHouse(product_id) {
+    _WareHouse
+      .find({
+        "products.product": { $eq: new mongoose.Types.ObjectId(product_id) },
+      })
+      .then((warehouses) => {
+        if (warehouses.length > 0) {
+          warehouses.forEach((warehouse) => {
+            const productIndex = warehouse.products.findIndex((product) =>
+              product.product.equals(new mongoose.Types.ObjectId(product_id))
+            );
+            if (productIndex !== -1) {
+              warehouse.products[productIndex].is_draft = true;
+              warehouse.products[productIndex].is_published = false;
+            }
+          });
+          Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
+            (error) => console.error(error)
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+  static async publishProductInsideWareHouse(product_id) {
+    _WareHouse
+      .find({
+        "products.product": { $eq: new mongoose.Types.ObjectId(product_id) },
+      })
+      .then((warehouses) => {
+        if (warehouses.length > 0) {
+          warehouses.forEach((warehouse) => {
+            const productIndex = warehouse.products.findIndex((product) =>
+              product.product.equals(new mongoose.Types.ObjectId(product_id))
+            );
+            if (productIndex !== -1) {
+              warehouse.products[productIndex].is_draft = false;
+              warehouse.products[productIndex].is_published = true;
+            }
+          });
+          Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
+            (error) => console.error(error)
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 }
 module.exports = WareHouseRepository;

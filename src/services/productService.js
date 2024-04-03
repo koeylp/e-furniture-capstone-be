@@ -10,6 +10,9 @@ const {
 const TypeRepository = require("../models/repositories/typeRepository");
 const SubTypeService = require("./subTypeService");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
+const WareHouseRepository = require("../models/repositories/warehouseRepository");
+const CartRepository = require("../models/repositories/cartRepository");
+const WishlistRepositoy = require("../models/repositories/wishlistRepository");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -49,6 +52,7 @@ class ProductService {
     } else if (foundInventory && foundInventory.is_draft) {
       await InventoryRepository.publishInventory(foundInventory._id);
     }
+    await WareHouseRepository.publishProductInsideWareHouse(product._id);
 
     return product;
   }
@@ -118,6 +122,9 @@ class ProductService {
     });
     if (foundInventory && foundInventory.is_published)
       await InventoryRepository.draftInventory(foundInventory._id);
+    await WareHouseRepository.draftProductInsideWareHouse(product._id);
+    await CartRepository.deleteProductInCart(product._id);
+    await WishlistRepositoy.deleteProductInWishList(product._id);
     return await ProductRepository.draftProduct(product._id);
   }
   static async updateRangeProductSalePrice(products) {
