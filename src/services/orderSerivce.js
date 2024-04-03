@@ -22,7 +22,7 @@ const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
-
+const PAY_TYPE = ["Not Paid", "Deposit"];
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -57,6 +57,7 @@ class OrderService {
   }
   static async createOrder(account_id, order) {
     await verifyProductStockExistence(order);
+    order = await this.categorizePaymentMethod(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
         order.order_checkout.voucher
@@ -66,8 +67,7 @@ class OrderService {
           `Voucher ${found_voucher._id} was applied failed`
         );
     }
-    const products = order.order_products;
-    for (let product of products) {
+    for (let product of order.order_products) {
       await CartUtils.removeItem(account_id, product);
     }
     const newOrder = await OrderRepository.createOrder(account_id, order);
@@ -90,7 +90,11 @@ class OrderService {
     await OrderTrackingUtil.validatePresentTrackUpdate(key_of_type);
     let updateSet = {};
     if (orderTrackingMap.get(key_of_type + 1) === TRACKING[3]) {
-      updateSet = { "order_products.$[].status": 1 };
+      updateSet = {
+        "order_products.$[].status": 1,
+        "order_checkout.is_paid": true,
+        "order_checkout.paid.paid_amount": order.order_checkout.final_total,
+      };
     }
     const updatePush = {
       name: orderTrackingMap.get(key_of_type + 1),
@@ -132,7 +136,8 @@ class OrderService {
     };
     const updateTracking = await OrderRepository.updateOrderTracking(
       order_id,
-      update
+      update,
+      {}
     );
     if (
       updateTracking &&
@@ -149,13 +154,22 @@ class OrderService {
       order_id,
     });
     if (!foundOrder) throw new NotFoundError("Order not found for this user");
+    if (foundOrder.order_checkout.paid.must_paid > transaction.amount)
+      throw new BadRequestError(
+        "Not enough amount of money, must be equal to " +
+          foundOrder.order_checkout.paid.must_paid
+      );
     if (foundOrder.order_checkout.is_paid)
       throw new BadRequestError("Order was paid");
     transaction.account_id = account_id;
     const transactionCreation = await TransactionRepository.create(transaction);
     if (!transactionCreation)
       throw new InternalServerError("Saving transaction failed!");
-    const updatedOrder = await OrderRepository.paid(account_id, order_id);
+    const updatedOrder = await OrderRepository.paid(
+      account_id,
+      order_id,
+      transaction.amount
+    );
     return updatedOrder;
   }
 
@@ -166,7 +180,13 @@ class OrderService {
       order.order_tracking[order.order_tracking.length - 1].name === TRACKING[4]
     )
       throw new BadRequestError("Order's cancel was accepted");
-    return await OrderRepository.acceptCancel(order_id);
+    const acceptedCancel = await OrderRepository.acceptCancel(order_id);
+    if (acceptedCancel) {
+      const day = new Date().setUTCHours(0, 0, 0, 0);
+      const profit = order.order_checkout.final_total;
+      await RevenueRepository.updateOrInsert(-profit, day);
+    }
+    return acceptedCancel;
   }
 
   static async getCancelRequests() {
@@ -192,6 +212,23 @@ class OrderService {
       throw new BadRequestError("Order is not in shipping state");
     const updatedOrder = await OrderRepository.update(order_id, newSubstate);
     return updatedOrder;
+  }
+
+  static async categorizePaymentMethod(order) {
+    if (
+      order.payment_method === "COD" &&
+      order.order_checkout.final_total > 1000000
+    ) {
+      order.order_checkout.paid = {
+        type: PAY_TYPE[1],
+        must_paid: order.order_checkout.final_total * 0.1,
+      };
+    } else {
+      order.order_checkout.paid = {
+        must_paid: order.order_checkout.final_total,
+      };
+    }
+    return order;
   }
 }
 module.exports = OrderService;
