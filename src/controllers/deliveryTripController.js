@@ -36,25 +36,33 @@ class DeliveryTripController {
       metaData: await DeliveryTripService.updateTrip(trip_id, order_id, state),
     }).send(res);
   }
-  static async updateTripStatus(req, res) {
+  static async DoneTripStatus(req, res) {
     const { trip_id } = req.params;
     if (!trip_id) throw new BadRequestError();
     return new OK({
       message: "Done Trip Successfully!",
-      metaData: await DeliveryTripService.updateTripStatus(trip_id),
+      metaData: await DeliveryTripService.DoneDeliveryTrip(trip_id),
     }).send(res);
   }
-  // static async getTripPending(req, res) {
-  //   return new OK({
-  //     message: "List Trip!",
-  //     metaData: await DeliveryTripService.getDeliveryTripPending(),
-  //   }).send(res);
-  // }
-  // static async getAllTrip(req, res) {
-  //   return new OK({
-  //     message: "List Trip!",
-  //     metaData: await DeliveryTripService.getAllDeliveryTrip(),
-  //   }).send(res);
-  // }
+  static async getTripPending(req, res) {
+    return new OK({
+      message: "List Trip!",
+      metaData: await DeliveryTripService.getDeliveryTripPending(),
+    }).send(res);
+  }
+  static async getAllTrip(req, res) {
+    return new OK({
+      message: "List Trip!",
+      metaData: await DeliveryTripService.getAllDeliveryTrip(),
+    }).send(res);
+  }
+  static async confirmDeliveryTrip(req, res) {
+    const { trip_id } = req.params;
+    if (!trip_id) throw new BadRequestError();
+    return new OK({
+      message: "Done Trip Successfully!",
+      metaData: await DeliveryTripService.confirmDeliveryTrip(trip_id),
+    }).send(res);
+  }
 }
 module.exports = DeliveryTripController;

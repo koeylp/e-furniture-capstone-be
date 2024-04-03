@@ -103,6 +103,21 @@ const validateCreateProduct = (data) => {
     description: Joi.string().required(),
     regular_price: Joi.number().min(1).required(),
     sale_price: Joi.number().min(0),
+    variation: Joi.array()
+      .required()
+      .items(
+        Joi.object({
+          name: Joi.string().min(1).required(),
+          properties: Joi.array()
+            .required()
+            .items(
+              Joi.object({
+                value: Joi.string().min(1).required(),
+                sub_price: Joi.number().min(0).required(),
+              })
+            ),
+        })
+      ),
     type: Joi.string().required(),
     room: Joi.string().min(0),
     attributes: Joi.object(),

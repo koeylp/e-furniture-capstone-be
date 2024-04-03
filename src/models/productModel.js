@@ -13,6 +13,17 @@ const schema = new Schema(
     slug: { type: String },
     regular_price: { type: Number, required: true },
     sale_price: { type: Number, default: 0 },
+    variation: [
+      {
+        name: { type: String, required: true },
+        properties: [
+          {
+            value: { type: String, required: true },
+            sub_price: { type: Number, required: true },
+          },
+        ],
+      },
+    ],
     type: { type: Schema.Types.ObjectId, required: true, ref: "Types" },
     attributes: {
       type: { type: Array, required: true },

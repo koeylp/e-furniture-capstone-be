@@ -5,6 +5,7 @@ const { Server } = require("socket.io");
 const SocketIOService = require("./src/services/socketIOService");
 
 global._io = io;
+global.onlineUsers = new Map();
 
 const startServer = async (app) => {
   try {
@@ -19,8 +20,6 @@ const startServer = async (app) => {
           "https://emate-user.vercel.app",
           "https://emate-admin.vercel.app",
         ],
-        methods: ["GET", "POST"],
-        transports: ["websocket", "polling"],
         credentials: true,
       },
       allowEIO3: true,
