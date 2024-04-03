@@ -17,6 +17,8 @@ const schema = new Schema(
         stock: { type: Number, required: true },
         lowStock: { type: Number, default: 0 },
         isNoti: { type: Boolean, default: false },
+        is_draft: { type: Boolean, default: false },
+        is_published: { type: Boolean, default: true },
       },
     ],
     province: { type: String, required: true },
