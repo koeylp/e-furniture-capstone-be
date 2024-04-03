@@ -3,8 +3,7 @@ const { NotFoundError } = require("./errorHanlder");
 const { verifyProductExistence } = require("./verifyExistence");
 
 class CartUtils {
-  static async remove(cart, foundProduct, foundIndex) {
-    cart.total -= cart.products[foundIndex].quantity * foundProduct.price;
+  static async remove(cart, foundIndex) {
     cart.products.splice(foundIndex, 1);
     cart.count_product--;
     return cart;
@@ -22,7 +21,9 @@ class CartUtils {
   static async removeItem(account_id, product) {
     let cart = await CartUtils.handleCart(account_id);
     const foundProduct = await verifyProductExistence(product.product_id);
-    const foundIndex = cart.products.findIndex((el) => el._id === product.product_id);
+    const foundIndex = cart.products.findIndex(
+      (el) => el._id === product.product_id
+    );
     if (foundIndex === -1)
       throw new NotFoundError(
         "Product with id: " + product.product_id + " not found in cart"

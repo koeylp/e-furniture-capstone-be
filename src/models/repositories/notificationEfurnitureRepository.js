@@ -7,7 +7,10 @@ class NotificationEfurnitureRepository {
     return result;
   }
   static async getNotifications() {
-    return await _NotificationEfuniture.find().lean();
+    return await _NotificationEfuniture
+      .find()
+      .sort([["createdAt", -1]])
+      .lean();
   }
 }
 module.exports = NotificationEfurnitureRepository;

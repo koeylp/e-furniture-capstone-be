@@ -125,5 +125,27 @@ class WareHouseRepository {
         console.error(error);
       });
   }
+  static async deleteProductInsideWareHouse(product_id) {
+    _WareHouse
+      .find({
+        "products.product": { $eq: new mongoose.Types.ObjectId(product_id) },
+      })
+      .then((warehouses) => {
+        if (warehouses.length > 0) {
+          warehouses.forEach((warehouse) => {
+            const productIndex = warehouse.products.findIndex((product) =>
+              product.product.equals(new mongoose.Types.ObjectId(product_id))
+            );
+            warehouse.products.splice(productIndex, 1);
+          });
+          Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
+            (error) => console.error(error)
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 }
 module.exports = WareHouseRepository;

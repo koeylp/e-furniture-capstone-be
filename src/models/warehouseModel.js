@@ -14,6 +14,8 @@ const schema = new Schema(
           required: true,
           ref: "Product",
         },
+        variation: { type: Array },
+        code: { type: String, required: true },
         stock: { type: Number, required: true },
         lowStock: { type: Number, default: 0 },
         isNoti: { type: Boolean, default: false },
@@ -27,6 +29,8 @@ const schema = new Schema(
     longitude: { type: Number, required: true },
     latitude: { type: Number, required: true },
     location: { type: String, required: true },
+    is_draft: { type: Boolean, default: false },
+    is_published: { type: Boolean, default: true },
   },
   {
     collection: COLLECTION_NAME,

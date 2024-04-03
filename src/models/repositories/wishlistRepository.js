@@ -15,7 +15,7 @@ class WishlistRepositoy {
     return await _Wishlist
       .findOne(query)
       .select(getUnSelectData(["__v"]))
-      .populate("products")
+      .populate("products._id")
       .lean();
   }
 
@@ -28,26 +28,28 @@ class WishlistRepositoy {
     return await _Wishlist.findOneAndUpdate({ _id: wishlist._id }, wishlist);
   }
   static async deleteProductInWishList(product_id) {
-    const data = await _Wishlist.find();
-    const wishlists = data.filter((wishlist) =>
-      wishlist.products.some((productId) => productId.equals(product_id))
-    );
-    if (wishlists.length > 0) {
-      wishlists.forEach((wishlist) => {
-        const productIndex = wishlist.products.findIndex((product) =>
-          product.equals(product_id)
-        );
-        if (productIndex !== -1) {
-          const updatedProducts = wishlist.products
-            .slice(0, productIndex)
-            .concat(wishlist.products.slice(productIndex + 1));
-          wishlist.products = updatedProducts;
+    _Wishlist
+      .find({
+        "products._id": { $eq: product_id },
+      })
+      .then((wishlists) => {
+        if (wishlists.length > 0) {
+          wishlists.forEach((wishlist) => {
+            const productIndex = wishlist.products.findIndex(
+              (product) => product._id === product_id.toString()
+            );
+            if (productIndex !== -1) {
+              const updatedProducts = wishlist.products
+                .slice(0, productIndex)
+                .concat(wishlist.products.slice(productIndex + 1));
+              wishlist.products = updatedProducts;
+            }
+          });
+          Promise.all(wishlists.map((wishlist) => wishlist.save())).catch(
+            (error) => console.error(error)
+          );
         }
       });
-      Promise.all(wishlists.map((wishlist) => wishlist.save())).catch((error) =>
-        console.error(error)
-      );
-    }
   }
 }
 module.exports = WishlistRepositoy;

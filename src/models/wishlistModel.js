@@ -11,11 +11,13 @@ const schema = new Schema(
       required: true,
       ref: "Account",
     },
-    products: {
-      type: [Schema.Types.ObjectId],
-      default: [],
-      ref: "Product",
-    },
+    products: [
+      {
+        _id: { type: String, required: true, ref: "Product" },
+        variation: { type: Array },
+        code: { type: String, required: true },
+      },
+    ],
   },
   {
     collection: COLLECTION_NAME,

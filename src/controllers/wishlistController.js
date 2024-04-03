@@ -3,11 +3,11 @@ const { OK } = require("../utils/successHandler");
 
 class WishlistController {
   static async addToWishlist(req, res) {
-    const product_id = req.params.product_id;
     const { account_id } = req.payload;
+    const product = req.body;
     return new OK({
       message: "Add to wishlist successfully!",
-      metaData: await WishlistService.addToWishlist(account_id, product_id),
+      metaData: await WishlistService.addToWishlist(account_id, product),
     }).send(res);
   }
 

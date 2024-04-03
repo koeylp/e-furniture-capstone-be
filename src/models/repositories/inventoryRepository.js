@@ -1,5 +1,6 @@
 const _Inventory = require("../inventoryModel");
 const { getUnSelectData } = require("../../utils");
+const { default: mongoose } = require("mongoose");
 class InventoryRepository {
   static async createInventory(inventory) {
     const newInventory = await _Inventory.create(inventory);
@@ -69,6 +70,30 @@ class InventoryRepository {
       .limit(limit)
       .lean();
     return { total: inventories.length, data: inventories };
+  }
+  static async draftInventoryByProduct(product_id) {
+    const query = {
+      product: new mongoose.Types.ObjectId(product_id),
+    };
+    const update = {
+      $set: { is_draft: true, is_published: false },
+    };
+    return await _Inventory.updateMany(query, update);
+  }
+  static async publishInventoryByProduct(product_id) {
+    const query = {
+      product: new mongoose.Types.ObjectId(product_id),
+    };
+    const update = {
+      $set: { is_draft: false, is_published: true },
+    };
+    return await _Inventory.updateMany(query, update);
+  }
+  static async deleteInventoryByProduct(product_id) {
+    const query = {
+      product: new mongoose.Types.ObjectId(product_id),
+    };
+    return await _Inventory.deleteMany(query);
   }
 }
 module.exports = InventoryRepository;
