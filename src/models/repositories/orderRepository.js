@@ -2,6 +2,7 @@ const _Order = require("../orderModel");
 const { getUnSelectData, checkValidId } = require("../../utils");
 const { default: mongoose } = require("mongoose");
 const { generateOrderCode } = require("../../utils/generateOrderCode");
+const { InternalServerError } = require("../../utils/errorHanlder");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
@@ -71,7 +72,10 @@ class OrderRepository {
       order_code: order_code,
     });
     if (!newOrder) throw new InternalServerError();
-    if (order.payment_method === "COD")
+    if (
+      order.payment_method === "COD" &&
+      order.order_checkout.final_total < 1000000
+    )
       newOrder.order_tracking.push({ name: "Processing", note: order.note });
     else newOrder.order_tracking.push({ note: order.note });
     await newOrder.save();
@@ -110,22 +114,43 @@ class OrderRepository {
     await newOrder.save();
     return newOrder;
   }
-  static async paid(account_id, order_id) {
-    return await _Order
-      .findOneAndUpdate(
-        {
-          _id: new mongoose.Types.ObjectId(order_id),
-          account_id: account_id,
-          guest: false,
-          payment_method: "Online Payment",
-        },
-        {
-          $set: { "order_checkout.is_paid": true },
-          $push: { order_tracking: { name: "Processing" } },
-        },
-        { new: true }
-      )
-      .populate("order_products.product_id");
+  static async paid(account_id, order_id, paid_amount) {
+    const order = await _Order
+      .findOne({
+        _id: new mongoose.Types.ObjectId(order_id),
+        account_id: account_id,
+        guest: false,
+        "order_tracking.name": "Processing",
+      })
+      .lean({ virtuals: true });
+    if (order.order_checkout.final_total < 1000000)
+      throw new InternalServerError(
+        "This order has price enough to do not make deposit"
+      );
+    if (!order) {
+      return await _Order
+        .findOneAndUpdate(
+          {
+            _id: new mongoose.Types.ObjectId(order_id),
+            account_id: account_id,
+            guest: false,
+            "order_tracking.name": { $ne: "Processing" }, // Check if "Processing" doesn't already exist
+          },
+          {
+            $set: {
+              "order_checkout.is_paid": true,
+              "order_checkout.paid.paid_amount": paid_amount,
+            },
+            $push: {
+              order_tracking: { name: "Processing" },
+            },
+          },
+          { new: true }
+        )
+        .populate("order_products.product_id");
+    } else {
+      return order;
+    }
   }
   static async acceptCancel(order_id) {
     const query = {

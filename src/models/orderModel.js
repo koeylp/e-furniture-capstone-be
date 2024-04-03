@@ -14,10 +14,20 @@ const schema = new Schema(
       unique: true,
     },
     order_checkout: {
+      _id: false,
       final_total: { type: Number },
       total: { type: Number, required: true },
       voucher: { type: Object },
       is_paid: { type: Boolean, default: false },
+      paid: {
+        paid_amount: { type: Number, required: true, default: 0 },
+        type: {
+          type: String,
+          enum: ["Not Paid", "Deposit"],
+          default: "Not Paid",
+        },
+        must_paid: { type: Number, required: true },
+      },
     },
     order_products: [
       {
