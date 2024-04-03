@@ -10,6 +10,9 @@ const schema = new Schema(
     orders: [
       {
         order: { type: Schema.Types.ObjectId, required: true, ref: "Order" },
+        //payment
+        //amount
+        //date
         status: { type: Number, default: 0 },
       },
     ],

@@ -34,7 +34,7 @@ router.put(
 router.put(
   "/done/:trip_id",
   hasPermission(global.PermissionConstants.DELIVERY_PUT),
-  asyncHandler(DeliveryController.updateTripStatus)
+  asyncHandler(DeliveryController.DoneTripStatus)
 );
 
 module.exports = router;

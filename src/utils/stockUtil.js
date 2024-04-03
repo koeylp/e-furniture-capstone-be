@@ -9,6 +9,7 @@ const {
 const { getMapData } = require("./mapDataUtils");
 const ProductInventory = require("../models/repositories/productRepository");
 const NotificationEfurnitureRepository = require("../models/repositories/notificationEfurnitureRepository");
+const NotificationEfurnitureService = require("../services/NotificationEfurnitureService");
 const LOW_QUANTITY = 10;
 
 class StockUtil {
@@ -58,16 +59,7 @@ class StockUtil {
       const productForNoti = await ProductInventory.findProductById(
         product.product
       );
-      const payload = {
-        title: "Low Stock",
-        message: `Low Stock With Product Name is ${productForNoti.name}`,
-        status: 1,
-      };
-      const notification = await NotificationEfurnitureRepository.create(
-        payload
-      );
-      console.log(notification);
-      _io.emit("lowstockWareHouse", true);
+      await NotificationEfurnitureService.notiLowStock(productForNoti.name);
     }
   }
   static async findNearestWarehouse(warehouses, longitude, latitude) {

@@ -14,6 +14,8 @@ const schema = new Schema(
     },
     stock: { type: Number, required: true, default: 0 },
     sold: { type: Number, required: true, default: 0 },
+    is_draft: { type: Boolean, default: false },
+    is_published: { type: Boolean, default: true },
   },
   {
     collection: COLLECTION_NAME,

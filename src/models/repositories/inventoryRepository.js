@@ -27,7 +27,10 @@ class InventoryRepository {
 
   static async findByQueryPopulate(limit) {
     const inventories = await _Inventory
-      .find({})
+      .find({
+        is_draft: false,
+        is_published: true,
+      })
       .populate("product")
       .sort([["sold", -1]])
       .select(getUnSelectData(["__v"]))

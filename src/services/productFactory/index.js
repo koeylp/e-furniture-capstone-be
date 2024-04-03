@@ -12,6 +12,7 @@ class Product {
     description,
     regular_price,
     sale_price,
+    variation,
     type,
     attributes = [],
     model3D,
@@ -23,6 +24,7 @@ class Product {
     this.description = description;
     this.regular_price = regular_price;
     this.sale_price = sale_price;
+    this.variation = variation;
     this.type = type;
     this.attributes = attributes;
     this.model3D = model3D;
