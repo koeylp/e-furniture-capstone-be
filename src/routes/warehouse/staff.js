@@ -24,7 +24,7 @@ router.put(
 router.put(
   "/lowstock/:warehouse_id",
   hasPermission(global.PermissionConstants.STAFF_PUT),
-  asyncHandler(WareHouseController.updateLowStockForProduct)
+  asyncHandler(WareHouseController.updateIsLowStock)
 );
 router.put(
   "/:warehouse_id",
@@ -35,6 +35,11 @@ router.put(
   "/stock/update/:warehouse_id",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(WareHouseController.updateProductStockInWarehouse)
+);
+router.put(
+  "/lowStock/update/:warehouse_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(WareHouseController.updateLowStockValue)
 );
 
 module.exports = router;

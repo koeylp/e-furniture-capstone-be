@@ -99,19 +99,37 @@ class WareHouseService {
     if (!updatedInventory) throw new InternalServerError();
     return await WareHouseRepository.save(foundWarehouse);
   }
-  static async CreateLowStockProductInWareHouse(warehouse_id, product) {
+  static async UpdateIsLowStockNotification(warehouse_id, product) {
+    const { foundWarehouse, product_index } = await this.findProductInWareHouse(
+      warehouse_id,
+      product
+    );
+    foundWarehouse.products[product_index].isNoti = product.isNoti;
+    return await WareHouseRepository.save(foundWarehouse);
+  }
+
+  static async updateLowStockValueInWarehouse(warehouse_id, product) {
+    const { foundWarehouse, product_index } = await this.findProductInWareHouse(
+      warehouse_id,
+      product
+    );
+    foundWarehouse.products[product_index].lowStock = product.lowStock;
+    return await WareHouseRepository.save(foundWarehouse);
+  }
+
+  static async findProductInWareHouse(warehouse_id, product) {
     const foundWarehouse = await WareHouseRepository.findByQuery({
       _id: warehouse_id,
     });
+
     if (!foundWarehouse)
       throw new NotFoundError("Warehouse not found with id " + warehouse_id);
+
     const product_index = foundWarehouse.products.findIndex(
       (el) => el.product.toHexString() === product.product
     );
-    foundWarehouse.products[product_index].lowStock = product.lowStock;
-    foundWarehouse.products[product_index].isNoti = product.isNoti;
 
-    return await WareHouseRepository.save(foundWarehouse);
+    return { foundWarehouse, product_index };
   }
 }
 module.exports = WareHouseService;

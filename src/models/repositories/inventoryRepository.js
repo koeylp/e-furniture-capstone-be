@@ -25,6 +25,26 @@ class InventoryRepository {
     return await _Inventory.updateOne(query, update);
   }
 
+  static async draftInventory(inventory_id) {
+    const query = {
+      _id: inventory_id,
+    };
+    const update = {
+      $set: { is_draft: true, is_published: false },
+    };
+    return await _Inventory.updateOne(query, update);
+  }
+
+  static async publishInventory(inventory_id) {
+    const query = {
+      _id: inventory_id,
+    };
+    const update = {
+      $set: { is_draft: false, is_published: true },
+    };
+    return await _Inventory.updateOne(query, update);
+  }
+
   static async findByQueryPopulate(limit) {
     const inventories = await _Inventory
       .find({
