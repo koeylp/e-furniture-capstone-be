@@ -90,14 +90,16 @@ class OrderRepository {
       _id: new mongoose.Types.ObjectId(order_id),
       status: 1,
     };
-    return await _Order.findOneAndUpdate(
-      query,
-      {
-        $push: { order_tracking: updatePush },
-        $set: updateSet,
-      },
-      { new: true }
-    );
+    return await _Order
+      .findOneAndUpdate(
+        query,
+        {
+          $push: { order_tracking: updatePush },
+          $set: updateSet,
+        },
+        { new: true }
+      )
+      .lean({ virtuals: true });
   }
   static async createOrderGuest(order) {
     const order_code = generateOrderCode();
@@ -123,10 +125,11 @@ class OrderRepository {
         "order_tracking.name": "Processing",
       })
       .lean({ virtuals: true });
-    if (order.order_checkout.final_total < 1000000)
-      throw new InternalServerError(
-        "This order has price enough to do not make deposit"
-      );
+
+    // if (order.order_checkout.final_total < 1000000)
+    //   throw new InternalServerError(
+    //     "This order has price enough to do not make deposit"
+    //   );
     if (!order) {
       return await _Order
         .findOneAndUpdate(
@@ -147,7 +150,8 @@ class OrderRepository {
           },
           { new: true }
         )
-        .populate("order_products.product_id");
+        .populate("order_products.product_id")
+        .lean({ virtuals: true });
     } else {
       return order;
     }
