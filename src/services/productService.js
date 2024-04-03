@@ -44,8 +44,12 @@ class ProductService {
     const foundInventory = await InventoryRepository.findByQuery({
       product: product._id,
     });
-    if (!foundInventory)
+    if (!foundInventory) {
       await InventoryRepository.createInventory({ product: product._id });
+    } else if (foundInventory && foundInventory.is_draft) {
+      await InventoryRepository.publishInventory(foundInventory._id);
+    }
+
     return product;
   }
   static async getProductsByType(
@@ -109,6 +113,11 @@ class ProductService {
         );
       }
     });
+    const foundInventory = await InventoryRepository.findByQuery({
+      product: product._id,
+    });
+    if (foundInventory && foundInventory.is_published)
+      await InventoryRepository.draftInventory(foundInventory._id);
     return await ProductRepository.draftProduct(product._id);
   }
   static async updateRangeProductSalePrice(products) {

@@ -73,12 +73,23 @@ class WareHouseController {
       ),
     }).send(res);
   }
-  static async updateLowStockForProduct(req, res) {
+  static async updateIsLowStock(req, res) {
     const { warehouse_id } = req.params;
     if (!warehouse_id) throw new BadRequestError();
     return new OK({
-      message: "Update Product LowStock Successfully!",
-      metaData: await WareHouseService.CreateLowStockProductInWareHouse(
+      message: "Update Notification Of LowStock Successfully!",
+      metaData: await WareHouseService.UpdateIsLowStockNotification(
+        warehouse_id,
+        req.body
+      ),
+    }).send(res);
+  }
+  static async updateLowStockValue(req, res) {
+    const { warehouse_id } = req.params;
+    if (!warehouse_id) throw new BadRequestError();
+    return new OK({
+      message: "Update Notification Of LowStock Successfully!",
+      metaData: await WareHouseService.updateLowStockValueInWarehouse(
         warehouse_id,
         req.body
       ),
