@@ -12,6 +12,14 @@ class ProductRepository {
     if (!product) throw new InternalServerError();
     return product;
   }
+  // static async findProduct(query, filter) {
+  //   return await _Product
+  //     .findOne({
+  //       name: name,
+  //     })
+  //     .lean()
+  //     .exec();
+  // }
   static async findProductById(product_id, filter = []) {
     checkValidId(product_id);
     return await _Product
@@ -33,7 +41,7 @@ class ProductRepository {
       .exec();
   }
   static async findProductBySlug(slug) {
-    return await _Product
+    let result = await _Product
       .findOne({
         slug: slug,
       })
@@ -44,12 +52,19 @@ class ProductRepository {
       })
       .lean()
       .exec();
+    result.select_variation = result.variation.map((item) => {
+      return {
+        variation_id: item._id,
+        property_id: item.properties[0]._id,
+      };
+    });
+    return result;
   }
   static async updateProduct(query, update) {
     return await _Product.updateOne(query, update, { new: true });
   }
   static async publishProduct(product_id) {
-    const product = await this.findProductById(product_id);
+    await this.findProductById(product_id);
     return await _Product.findByIdAndUpdate(
       { _id: product_id },
       {
@@ -87,7 +102,7 @@ class ProductRepository {
   static async getAlls(query, page, limit, sortType) {
     const skip = (page - 1) * limit;
     const products = await _Product.find(query);
-    const result = await _Product
+    let result = await _Product
       .find(query)
       .sort(sortType)
       .skip(skip)
@@ -95,6 +110,15 @@ class ProductRepository {
       .populate("type")
       .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
       .lean();
+    result = result.map((data) => {
+      data.select_variation = data.variation.map((item) => {
+        return {
+          variation_id: item._id,
+          property_id: item.properties[0]._id,
+        };
+      });
+      return { ...data };
+    });
     return { total: products.length, data: result };
   }
   static async getAllDraft(page, limit, sortType) {
@@ -187,15 +211,8 @@ class ProductRepository {
   }) {
     const searchValue =
       typeof keySearch === "object" ? keySearch.text : keySearch;
-    const regexSearch = new RegExp(searchValue);
-    const skip = (page - 1) * limit;
-
-    const result = await _Product
-      .find({ name: { $regex: searchValue, $options: "i" } })
-      .skip(skip)
-      .limit(limit)
-      .select(getSelectData(filter))
-      .lean();
+    const query = { name: { $regex: searchValue, $options: "i" } };
+    const result = await this.getAlls(query, page, limit, {});
     const products = await _Product.find({
       name: { $regex: searchValue, $options: "i" },
     });

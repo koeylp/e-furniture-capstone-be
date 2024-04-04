@@ -80,15 +80,26 @@ class SubTypeRepository {
     const query = {
       slug: slug,
     };
-    return await subTypeModel
+    let result = await subTypeModel
       .findOne(query)
       .select(getUnSelectData(["createdAt", "updatedAt", "__v", "attributes"]))
       .populate({
         path: "products.productId",
         model: "Product",
         select:
-          "-is_draft -is_published -createdAt -updatedAt -__v -attributes -variation ",
+          "-is_draft -is_published -createdAt -updatedAt -__v -attributes ",
+      })
+      .lean();
+    result.products = result.products.map((data) => {
+      data.productId.select_variation = data.productId.variation.map((item) => {
+        return {
+          variation_id: item._id,
+          property_id: item.properties[0]._id,
+        };
       });
+      return { ...data };
+    });
+    return result;
   }
   static async findSubTypeByName(name, subTypeModel) {
     const query = {

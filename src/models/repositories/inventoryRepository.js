@@ -6,8 +6,31 @@ class InventoryRepository {
     const newInventory = await _Inventory.create(inventory);
     return newInventory;
   }
-  static async getInventory(query) {
-    return await _Inventory.find(query).populate("product").lean();
+  static async getInventory({
+    query = {},
+    page = 1,
+    limit = 12,
+    sortType = {},
+  }) {
+    const skip = (page - 1) * limit;
+    let inventories = await _Inventory
+      .find(query)
+      .populate("product")
+      .skip(skip)
+      .sort(sortType)
+      .select(getUnSelectData(["__v"]))
+      .limit(limit)
+      .lean();
+    inventories = inventories.map((data) => {
+      data.product.select_variation = data.product.variation.map((item) => {
+        return {
+          variation_id: item._id,
+          property_id: item.properties[0]._id,
+        };
+      });
+      return { ...data };
+    });
+    return inventories;
   }
   static async findByQuery(query) {
     return await _Inventory
@@ -47,28 +70,20 @@ class InventoryRepository {
   }
 
   static async findByQueryPopulate(limit) {
-    const inventories = await _Inventory
-      .find({
-        is_draft: false,
-        is_published: true,
-      })
-      .populate("product")
-      .sort([["sold", -1]])
-      .select(getUnSelectData(["__v"]))
-      .limit(limit)
-      .lean();
+    const query = {
+      is_draft: false,
+      is_published: true,
+    };
+    const sortType = [["sold", -1]];
+    let inventories = await this.getInventory({
+      query: query,
+      sortType: sortType,
+    });
+
     return { total: inventories.length, data: inventories };
   }
   static async findAllByQueryPopulate(page, limit) {
-    const skip = (page - 1) * limit;
-    const inventories = await _Inventory
-      .find({})
-      .populate("product")
-      .sort([["createdAt", -1]])
-      .select(getUnSelectData(["__v"]))
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    const inventories = await this.getInventory({ page: page, limit: limit });
     return { total: inventories.length, data: inventories };
   }
   static async draftInventoryByProduct(product_id) {
