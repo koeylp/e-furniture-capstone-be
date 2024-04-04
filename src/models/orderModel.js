@@ -58,6 +58,7 @@ const schema = new Schema(
             "Done",
             "Cancelled",
             "Refunded",
+            "Failed",
           ],
           default: "Pending",
         },
@@ -68,6 +69,11 @@ const schema = new Schema(
           {
             _id: false,
             name: { type: String },
+            type: {
+              type: String,
+              enum: ["Failed", "In Progress"],
+              default: "In Progress",
+            },
             date: { type: Date, default: Date.now },
           },
         ],

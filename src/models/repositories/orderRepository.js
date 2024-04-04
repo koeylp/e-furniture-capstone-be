@@ -170,11 +170,66 @@ class OrderRepository {
     );
   }
   static async update(order_id, newSubstate) {
-    return await _Order.findByIdAndUpdate(
-      order_id,
-      { $push: { "order_tracking.$[element].substate": newSubstate } },
-      { arrayFilters: [{ "element.name": "Shipping" }], new: true }
-    );
+    return await _Order
+      .findByIdAndUpdate(
+        order_id,
+        { $push: { "order_tracking.$[element].substate": newSubstate } },
+        { arrayFilters: [{ "element.name": "Shipping" }], new: true }
+      )
+      .lean({ virtuals: true });
+  }
+  static async checkFailedOrders(orderId) {
+    const failedOrder = await _Order.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(orderId),
+          status: 1, // Only consider orders with status 1
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          order_tracking: 1,
+          failedCount: {
+            $size: {
+              $filter: {
+                input: "$order_tracking.substate",
+                as: "substate",
+                cond: { $eq: ["$$substate.type", "Failed"] },
+              },
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          failedCount: { $gte: 3 }, // Check if failedCount is 3 or more
+        },
+      },
+    ]);
+
+    // Update the status of failed order
+    if (failedOrder.length > 0) {
+      const updatedOrder = await _Order.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(orderId) },
+        {
+          $push: {
+            order_tracking: {
+              name: "Failed",
+              status: 1,
+            },
+          },
+          $set: { status: 0 },
+        },
+        { new: true }
+      );
+      return updatedOrder;
+    }
+
+    return failedOrder;
+  }
+  static async updateOrder(order) {
+    await _Order.findByIdAndUpdate(order._id, order);
   }
 }
 module.exports = OrderRepository;
