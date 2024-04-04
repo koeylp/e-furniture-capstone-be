@@ -42,6 +42,8 @@ class StockUtil {
       longitude,
       latitude
     );
+    if (!nearestWarehouse)
+      throw NotFoundError("Cannot find neareast warehouse");
     const product_index = nearestWarehouse.products.findIndex(
       (el) => el.product.toHexString() === product_id
     );

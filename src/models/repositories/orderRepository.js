@@ -229,7 +229,9 @@ class OrderRepository {
     return failedOrder;
   }
   static async updateOrder(order) {
-    await _Order.findByIdAndUpdate(order._id, order);
+    await _Order
+      .findOneAndUpdate(order._id, order, { new: true })
+      .lean({ virtuals: true });
   }
 }
 module.exports = OrderRepository;

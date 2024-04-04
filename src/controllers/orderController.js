@@ -150,5 +150,21 @@ class OrderController {
       metaData: await OrderService.requestRefund(order_id),
     }).send(res);
   }
+  static async processingToShiping(req, res) {
+    const { order_id } = req.params;
+    const { note } = req.body;
+    return new OK({
+      message: "Accept processing to shipping successfully",
+      metaData: await OrderService.processingToShiping(order_id, note),
+    }).send(res);
+  }
+  static async doneShipping(req, res) {
+    const { order_id } = req.params;
+    const { note } = req.body;
+    return new OK({
+      message: "Done shipping!",
+      metaData: await OrderService.doneShipping(order_id, note),
+    }).send(res);
+  }
 }
 module.exports = OrderController;
