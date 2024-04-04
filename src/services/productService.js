@@ -161,5 +161,22 @@ class ProductService {
   static async getAllProducts(page, limit) {
     return await InventoryRepository.findAllByQueryPopulate(page, limit);
   }
+  static async findVariationValues(product_id, variation) {
+    let result = [];
+    const product = await ProductRepository.findProductById(product_id);
+    let dataVariation = product.variation;
+    dataVariation = dataVariation.filter((item) =>
+      variation.some((inside) => inside.variation_id === item._id.toString())
+    );
+    dataVariation.forEach((item) => {
+      item.properties.forEach((data) => {
+        if (
+          variation.some((inside) => inside.property_id === data._id.toString())
+        )
+          result.push(data);
+      });
+    });
+    return result;
+  }
 }
 module.exports = ProductService;

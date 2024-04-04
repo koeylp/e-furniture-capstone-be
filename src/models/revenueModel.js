@@ -6,12 +6,15 @@ const DOCUMENT_NAME = "Revenue";
 
 const schema = new Schema(
   {
-    //order : [
-    //    {order: actualProfit, expectedProfit}
-    //                 ]
-    //đã trả
+    order: [
+      {
+        order: { type: Schema.Types.ObjectId, required: true, ref: "Order" },
+        actualProfit: { type: Number, default: 0 },
+        expectedProfit: { type: Number, default: 0 },
+      },
+    ],
     actualProfit: { type: Number, default: 0 },
-    profit: { type: Number, default: 0 },
+    expectedrofit: { type: Number, default: 0 },
     date: { type: Date, default: () => new Date().setUTCHours(0, 0, 0, 0) },
     status: { type: Number, default: 1 },
   },

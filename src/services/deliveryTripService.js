@@ -5,17 +5,34 @@ const SocketIOService = require("../services/socketIOService");
 const NotificationRepository = require("../models/repositories/notificationRepository");
 const { default: mongoose } = require("mongoose");
 const NotificationEfurnitureService = require("./NotificationEfurnitureService");
+const { BadRequestError } = require("../utils/errorHanlder");
 class DeliveryTripService {
   static async create(payload) {
     await AccountRepository.findAccountById(payload.account_id);
     await this.verifyOrders(payload.orders);
     await this.modifyDirectTrip();
+    payload.orders = await this.moddifyOrderInsideDelivertTrip(payload.orders);
     const result = await DeliveryTripRepository.createTrip(payload);
-    await AccountRepository.updateStateAccount(payload.account_id, 2);
     await NotificationEfurnitureService.notiRequestDeliveryTrip();
     return result;
   }
+
   static async modifyDirectTrip() {}
+
+  static async moddifyOrderInsideDelivertTrip(orders) {
+    const orderPromise = orders.map(async (order) => {
+      const dataOrder = await OrderRepository.findOrderById({
+        order_id: order.order,
+      });
+      order.payment = dataOrder.payment_method;
+      order.amount =
+        dataOrder.order_checkout.final_total -
+        dataOrder.order_checkout.paid.must_paid;
+    });
+    await Promise.all(orderPromise);
+    return orders;
+  }
+
   static async verifyOrders(orders) {
     await Promise.all(
       orders.map(async (order) => {
@@ -23,30 +40,53 @@ class DeliveryTripService {
       })
     );
   }
+
   static async findTrip(trip_id) {
     return await DeliveryTripRepository.findTripById(trip_id);
   }
+
   static async getDeliveryTripPending() {
     let payload = {
       status: 0,
     };
     return await DeliveryTripRepository.getTrips(payload);
   }
+
+  static async getAccountInDeliveryTrip(trip_id) {
+    const trip = await this.findTrip(trip_id);
+    const checkAccount = await AccountRepository.findAccountById(
+      trip.account_id
+    );
+    return checkAccount;
+  }
+
   static async getAllDeliveryTrip() {
     return await DeliveryTripRepository.getTrips();
   }
+
   static async findTripByAccount(account_id) {
     return await DeliveryTripRepository.findTripByAccount(account_id);
   }
+
   static async updateTrip(trip_id, order_id, state) {
     const order = await this.findTrip(trip_id);
     await this.updateOrderInsideOrders(order.orders, order_id, state);
     return await this.updateOrders(order);
   }
+
   static async DoneDeliveryTrip(trip_id) {
-    await this.findTrip(trip_id);
+    const account = await this.getAccountInDeliveryTrip(trip_id);
+    await AccountRepository.updateStateAccount(account._id, 1);
+    const payload = {
+      account_id: account._id,
+      title: "Done Delivery Trip",
+      message: "Your Delivery Trip Has Been Done",
+      status: 1,
+    };
+    await this.SendNotification(payload);
     return await this.updateOrdersWithMainStatus(trip_id);
   }
+
   static async updateOrderInsideOrders(orders, order_id, state) {
     await Promise.all(
       orders.map(async (order) => {
@@ -69,9 +109,11 @@ class DeliveryTripService {
     };
     return await DeliveryTripRepository.updateTrip(payload, update);
   }
+
   static async checkAllOrderStatus(orders) {
     return orders.every((order) => order.status == 1);
   }
+
   static async updateDeliveryTripStatus(trip_id, state) {
     const payload = {
       _id: new mongoose.Types.ObjectId(trip_id),
@@ -83,19 +125,28 @@ class DeliveryTripService {
     };
     return await DeliveryTripRepository.updateTrip(payload, update);
   }
+
   static async confirmDeliveryTrip(trip_id) {
+    const account = await this.getAccountInDeliveryTrip(trip_id);
+    if (account.status === 2)
+      throw new BadRequestError("Delivery Is On Another Trip!");
     const result = await this.updateDeliveryTripStatus(trip_id, 1);
-    SocketIOService.sendNotifiToDelivery(result.account_id);
+    await AccountRepository.updateStateAccount(account._id, 2);
     const payload = {
       account_id: result.account_id,
       title: "Confirm Delivery Trip",
       message: "Your Delivery Trip Has Been Confirm By Staff",
       status: 1,
     };
-    const noti = await NotificationRepository.create(payload);
-    console.log(noti);
+    await this.SendNotification(payload);
     return result;
   }
+
+  static async SendNotification(payload) {
+    SocketIOService.sendNotifiToDelivery(payload.account_id);
+    await NotificationRepository.create(payload);
+  }
+
   static async updateOrdersWithMainStatus(trip_id) {
     return await this.updateDeliveryTripStatus(trip_id, 2);
   }

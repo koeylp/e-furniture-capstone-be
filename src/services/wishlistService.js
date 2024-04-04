@@ -2,6 +2,8 @@ const { NotFoundError } = require("../utils/errorHanlder");
 const WishlistRepositoy = require("../models/repositories/wishlistRepository");
 
 const { getCode } = require("../utils/codeUtils");
+const ProductService = require("./productService");
+const { accessSync } = require("fs");
 
 class VoucherService {
   static async handleWishlist(account_id) {
@@ -26,7 +28,14 @@ class VoucherService {
   static async getByAccountId(account_id) {
     await this.handleWishlist(account_id);
     const QUERY = { account: account_id };
-    const wishlist = await WishlistRepositoy.findByQueryPopulate(QUERY);
+    let wishlist = await WishlistRepositoy.findByQueryPopulate(QUERY);
+    const productPromises = wishlist.products.map(async (item) => {
+      item.variation = await ProductService.findVariationValues(
+        item._id._id.toString(),
+        item.variation
+      );
+    });
+    await Promise.all(productPromises);
     return wishlist.products;
   }
   static async getProductIndex(account_id, code) {

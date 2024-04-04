@@ -4,7 +4,7 @@ async function getCode(id, variation) {
   const values = [];
   await verifyProductExistence(id);
   variation.forEach((obj) => {
-    values.push(obj._id);
+    values.push(obj.property_id);
   });
   let varationValue = values.join("");
   const code = crypto

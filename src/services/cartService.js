@@ -5,6 +5,7 @@ const { getBySpecified } = require("../utils/voucherUtil");
 const { calculateOrderTotal } = require("../utils/calculator");
 const CartUtils = require("../utils/cartUtils");
 const { getCode } = require("../utils/codeUtils");
+const ProductService = require("./productService");
 
 class CartService {
   static async addToCart(account_id, product) {
@@ -59,6 +60,10 @@ class CartService {
       const foundProduct = await verifyProductExistence(product._id);
       if (!foundProduct) throw new BadRequestError();
       cart.products[index]._id = foundProduct;
+      cart.products[index].variation = await ProductService.findVariationValues(
+        foundProduct._id.toString(),
+        cart.products[index].variation
+      );
     });
     await Promise.all(productPromises);
     return cart;

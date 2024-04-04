@@ -8,6 +8,7 @@ const {
 const { removeUndefineObject } = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
 const { getCode } = require("../utils/codeUtils");
+const ProductService = require("./productService");
 class WareHouseService {
   static async createWareHouse(payload) {
     return await WareHouseRepository.createWareHouse(payload);
@@ -22,7 +23,15 @@ class WareHouseService {
     return await WareHouseRepository.findWareHouseByProduct(product_id);
   }
   static async findWareHouseById(warehouse_id) {
-    return await WareHouseRepository.findWareHouseById(warehouse_id);
+    const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
+    const productPromises = warehouse.products.map(async (item) => {
+      item.variation = await ProductService.findVariationValues(
+        item.product._id.toString(),
+        item.variation
+      );
+    });
+    await Promise.all(productPromises);
+    return warehouse;
   }
   static async updateWareHouse(warehouse_id, payload) {
     await WareHouseRepository.findWareHouseById(warehouse_id);

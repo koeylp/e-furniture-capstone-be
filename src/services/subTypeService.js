@@ -141,7 +141,9 @@ class SubTypeService {
     if (arrayOfModel.length === 0) return [];
     await Promise.all(
       arrayOfModel.map(async (model) => {
+        console.log(model);
         let subtypeList = await SubTypeRepository.getDraftSubType(model[1]);
+        subtypeList.forEach((subType) => (subType.typeSlug = model[0]));
         subTypes.push(...subtypeList);
       })
     );

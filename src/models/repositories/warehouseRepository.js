@@ -75,6 +75,17 @@ class WareHouseRepository {
     };
     return await _WareHouse.find(query).exec();
   }
+  static async findManyByProductCode(code, quantity) {
+    const query = {
+      products: {
+        $elemMatch: {
+          code: code,
+          stock: { $gte: quantity },
+        },
+      },
+    };
+    return await _WareHouse.find(query).exec();
+  }
   static async draftProductInsideWareHouse(product_id) {
     _WareHouse
       .find({
