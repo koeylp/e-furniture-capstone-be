@@ -4,29 +4,34 @@ const { verifyProductExistence } = require("../utils/verifyExistence");
 const { getBySpecified } = require("../utils/voucherUtil");
 const { calculateOrderTotal } = require("../utils/calculator");
 const CartUtils = require("../utils/cartUtils");
+const { getCode } = require("../utils/codeUtils");
+const ProductService = require("./productService");
 
 class CartService {
   static async addToCart(account_id, product) {
+    const code = await getCode(product._id, product.variation);
     let cart = await CartUtils.handleCart(account_id);
-    await verifyProductExistence(product._id);
-    const foundIndex = cart.products.findIndex((el) => el._id === product._id);
+    const foundIndex = cart.products.findIndex((el) => el.code === code);
     if (foundIndex === -1) {
       cart.count_product++;
+      product.code = code;
       cart.products.push(product);
     } else {
       cart.products[foundIndex].quantity++;
     }
     return await CartRepository.save(cart);
   }
-
-  static async removeItem(account_id, product) {
+  static async getProductIndex(account_id, code) {
     let cart = await CartUtils.handleCart(account_id);
-    const foundProduct = await verifyProductExistence(product._id);
-    const foundIndex = cart.products.findIndex((el) => el._id === product._id);
-    if (foundIndex === -1)
-      throw new NotFoundError(
-        "Product with id: " + product._id + " not found in cart"
-      );
+    const foundIndex = cart.products.findIndex((el) => el.code === code);
+    if (foundIndex === -1) throw new NotFoundError("Product not found in cart");
+    return { cart, foundIndex };
+  }
+  static async removeItem(account_id, product) {
+    const { cart, foundIndex } = await this.getProductIndex(
+      account_id,
+      product.code
+    );
     cart = await CartUtils.remove(cart, foundProduct, foundIndex);
     return await CartRepository.save(cart);
   }
@@ -35,18 +40,14 @@ class CartService {
     let cart = await CartUtils.handleCart(account_id);
     cart.products = [];
     cart.count_product = 0;
-    cart.total = 0;
     return await CartRepository.save(cart);
   }
 
   static async updateItemQuantity(account_id, product, newQuantity) {
-    let cart = await CartUtils.handleCart(account_id);
-    await verifyProductExistence(product._id);
-    const foundIndex = cart.products.findIndex((el) => el._id === product._id);
-    if (foundIndex === -1)
-      throw new NotFoundError(
-        "Product with id: " + product._id + " not found in cart"
-      );
+    const { cart, foundIndex } = await this.getProductIndex(
+      account_id,
+      product.code
+    );
     if (newQuantity <= 0)
       throw new BadRequestError("new quantity must be greater than 0");
     cart.products[foundIndex].quantity = newQuantity;
@@ -57,39 +58,34 @@ class CartService {
     let cart = await CartUtils.handleCart(account_id);
     const productPromises = cart.products.map(async (product, index) => {
       const foundProduct = await verifyProductExistence(product._id);
-      if (foundProduct) {
-        foundProduct.quantity_in_cart = cart.products[index].quantity;
-        cart.products[index] = foundProduct;
-      }
+      if (!foundProduct) throw new BadRequestError();
+      cart.products[index]._id = foundProduct;
+      cart.products[index].variation = await ProductService.findVariationValues(
+        foundProduct._id.toString(),
+        cart.products[index].variation
+      );
     });
     await Promise.all(productPromises);
     return cart;
   }
 
   static async decreaseItemQuantity(account_id, product) {
-    let cart = await CartUtils.handleCart(account_id);
-    const foundProduct = await verifyProductExistence(product._id);
-    const foundIndex = cart.products.findIndex((el) => el._id === product._id);
-    if (foundIndex === -1)
-      throw new NotFoundError(
-        "Product with id: " + product._id + " not found in cart"
-      );
+    const { cart, foundIndex } = await this.getProductIndex(
+      account_id,
+      product.code
+    );
     const updatedQuantity = --cart.products[foundIndex].quantity;
     if (updatedQuantity === 0) {
-      cart.products[foundIndex].quantity++;
-      cart = await CartUtils.remove(cart, foundProduct, foundIndex);
+      cart = await CartUtils.remove(cart, foundIndex);
     }
     return await CartRepository.save(cart);
   }
 
   static async increaseItemQuantity(account_id, product) {
-    let cart = await CartUtils.handleCart(account_id);
-    await verifyProductExistence(product._id);
-    const foundIndex = cart.products.findIndex((el) => el._id === product._id);
-    if (foundIndex === -1)
-      throw new NotFoundError(
-        "Product with id: " + product._id + " not found in cart"
-      );
+    const { cart, foundIndex } = await this.getProductIndex(
+      account_id,
+      product.code
+    );
     cart.products[foundIndex].quantity++;
     return await CartRepository.save(cart);
   }
@@ -109,16 +105,7 @@ class CartService {
   static async addArrayToCart(account_id, products) {
     let cart = await CartUtils.handleCart(account_id);
     for (let i = 0; i < products.length; i++) {
-      await verifyProductExistence(products[i]._id);
-      const foundIndex = cart.products.findIndex(
-        (el) => el._id === products[i]._id
-      );
-      if (foundIndex === -1) {
-        cart.count_product++;
-        cart.products.push(products[i]);
-      } else {
-        cart.products[foundIndex].quantity += products[i].quantity;
-      }
+      await this.addToCart(account_id, products[i]);
     }
     return await CartRepository.save(cart);
   }

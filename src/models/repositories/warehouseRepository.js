@@ -75,6 +75,17 @@ class WareHouseRepository {
     };
     return await _WareHouse.find(query).exec();
   }
+  static async findManyByProductCode(code, quantity) {
+    const query = {
+      products: {
+        $elemMatch: {
+          code: code,
+          stock: { $gte: quantity },
+        },
+      },
+    };
+    return await _WareHouse.find(query).exec();
+  }
   static async draftProductInsideWareHouse(product_id) {
     _WareHouse
       .find({
@@ -115,6 +126,28 @@ class WareHouseRepository {
               warehouse.products[productIndex].is_draft = false;
               warehouse.products[productIndex].is_published = true;
             }
+          });
+          Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
+            (error) => console.error(error)
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+  static async deleteProductInsideWareHouse(product_id) {
+    _WareHouse
+      .find({
+        "products.product": { $eq: new mongoose.Types.ObjectId(product_id) },
+      })
+      .then((warehouses) => {
+        if (warehouses.length > 0) {
+          warehouses.forEach((warehouse) => {
+            const productIndex = warehouse.products.findIndex((product) =>
+              product.product.equals(new mongoose.Types.ObjectId(product_id))
+            );
+            warehouse.products.splice(productIndex, 1);
           });
           Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
             (error) => console.error(error)

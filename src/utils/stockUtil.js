@@ -10,6 +10,8 @@ const { getMapData } = require("./mapDataUtils");
 const ProductInventory = require("../models/repositories/productRepository");
 const NotificationEfurnitureRepository = require("../models/repositories/notificationEfurnitureRepository");
 const NotificationEfurnitureService = require("../services/NotificationEfurnitureService");
+const ProductService = require("../services/productService");
+const ProductRepository = require("../models/repositories/productRepository");
 const LOW_QUANTITY = 10;
 
 class StockUtil {
@@ -29,12 +31,25 @@ class StockUtil {
       );
     }
   }
-
+  static async updateStock(order) {
+    const products = order.order_products;
+    for (const product of products) {
+      await this.updateWarehouseStock(product, order.order_shipping);
+    }
+    for (const product of products) {
+      await this.updateInventoryStock(product);
+    }
+  }
   static async updateWarehouseStock(product, order_shipping) {
     const { longitude, latitude } = order_shipping;
-    const { product_id, quantity } = product;
-    const foundWarehouses = await WarehouseRepository.findManyByQuery(
-      product_id,
+    const { product_id, quantity, code } = product;
+
+    // const foundWarehouses = await WarehouseRepository.findManyByQuery(
+    //   product_id,
+    //   product.quantity
+    // );
+    const foundWarehouses = await WarehouseRepository.findManyByProductCode(
+      code,
       product.quantity
     );
     const nearestWarehouse = await StockUtil.findNearestWarehouse(
@@ -46,11 +61,59 @@ class StockUtil {
     const product_index = nearestWarehouse.products.findIndex(
       (el) => el.product.toHexString() === product_id
     );
-
     nearestWarehouse.products[product_index].stock -= quantity;
-    await this.checkLowStockQuantity(nearestWarehouse.products[product_index]);
 
+    await this.checkLowStockQuantity(nearestWarehouse.products[product_index]);
+    if (nearestWarehouse.products[product_index].stock < 0) {
+      nearestWarehouse.products[product_index].is_draft = true;
+      nearestWarehouse.products[product_index].is_published = false;
+    }
     return await WarehouseRepository.save(nearestWarehouse);
+  }
+
+  static async updateInventoryStock(product) {
+    const { product_id, quantity, code } = product;
+    const query = { code: code };
+    const foundInventory = await InventoryRepository.findByQuery(query);
+    const updatedStock = foundInventory.stock - quantity;
+    const updatedSold = foundInventory.sold + quantity;
+
+    if (updatedStock === 0) {
+      const productToDraft = await ProductRepository.findProductById(
+        product_id
+      );
+      await ProductService.draftProduct(
+        productToDraft.type,
+        productToDraft.slug
+      );
+    }
+    const savedInventory = await InventoryRepository.save(
+      foundInventory._id,
+      updatedSold,
+      updatedStock
+    );
+    if (!savedInventory) throw new InternalServerError();
+  }
+
+  static async restoreStock(order) {
+    const products = order.order_products;
+    for (const product of products) {
+      await this.restoreInventoryStock(product);
+    }
+  }
+
+  static async restoreInventoryStock(product) {
+    const { product_id, quantity } = product;
+    const query = { product: product_id };
+    const foundInventory = await InventoryRepository.findByQuery(query);
+    const updatedStock = foundInventory.stock + quantity;
+    const updatedSold = foundInventory.sold - quantity;
+    const savedInventory = await InventoryRepository.save(
+      foundInventory._id,
+      updatedSold,
+      updatedStock
+    );
+    if (!savedInventory) throw new InternalServerError();
   }
   static async checkLowStockQuantity(product) {
     let lowStock = product.lowStock;
@@ -76,52 +139,6 @@ class StockUtil {
       }
     }
     return nearestWarehouse;
-  }
-
-  static async updateInventoryStock(product) {
-    const { product_id, quantity } = product;
-    const query = { product: product_id };
-    const foundInventory = await InventoryRepository.findByQuery(query);
-    const updatedStock = foundInventory.stock - quantity;
-    const updatedSold = foundInventory.sold + quantity;
-    if (updatedStock === 0) await draftProduct(product_id);
-    const savedInventory = await InventoryRepository.save(
-      foundInventory._id,
-      updatedSold,
-      updatedStock
-    );
-    if (!savedInventory) throw new InternalServerError();
-  }
-
-  static async updateStock(order) {
-    const products = order.order_products;
-    for (const product of products) {
-      await this.updateInventoryStock(product);
-    }
-    for (const product of products) {
-      await this.updateWarehouseStock(product, order.order_shipping);
-    }
-  }
-
-  static async restoreStock(order) {
-    const products = order.order_products;
-    for (const product of products) {
-      await this.restoreInventoryStock(product);
-    }
-  }
-
-  static async restoreInventoryStock(product) {
-    const { product_id, quantity } = product;
-    const query = { product: product_id };
-    const foundInventory = await InventoryRepository.findByQuery(query);
-    const updatedStock = foundInventory.stock + quantity;
-    const updatedSold = foundInventory.sold - quantity;
-    const savedInventory = await InventoryRepository.save(
-      foundInventory._id,
-      updatedSold,
-      updatedStock
-    );
-    if (!savedInventory) throw new InternalServerError();
   }
 }
 

@@ -1,6 +1,9 @@
-const { BadRequestError } = require("../utils/errorHanlder");
+const { NotFoundError } = require("../utils/errorHanlder");
 const WishlistRepositoy = require("../models/repositories/wishlistRepository");
-const { verifyProductExistence } = require("../utils/verifyExistence");
+
+const { getCode } = require("../utils/codeUtils");
+const ProductService = require("./productService");
+const { accessSync } = require("fs");
 
 class VoucherService {
   static async handleWishlist(account_id) {
@@ -12,18 +15,12 @@ class VoucherService {
     return wishlist;
   }
 
-  static async addToWishlist(account_id, product_id) {
-    await verifyProductExistence(product_id);
+  static async addToWishlist(account_id, product) {
+    const code = await getCode(product._id, product.variation);
     let wishlist = await this.handleWishlist(account_id);
-    if (
-      wishlist.products.some((productId) => productId.toString() === product_id)
-    ) {
-      throw new BadRequestError(
-        `Product with id ${product_id} already exists in wishlist`
-      );
-    }
-
-    wishlist.products.push(product_id);
+    if (wishlist.products.some((el) => el.code === code)) return wishlist;
+    product.code = code;
+    wishlist.products.push(product);
     await WishlistRepositoy.save(wishlist);
     return wishlist;
   }
@@ -31,23 +28,29 @@ class VoucherService {
   static async getByAccountId(account_id) {
     await this.handleWishlist(account_id);
     const QUERY = { account: account_id };
-    const wishlist = await WishlistRepositoy.findByQueryPopulate(QUERY);
+    let wishlist = await WishlistRepositoy.findByQueryPopulate(QUERY);
+    const productPromises = wishlist.products.map(async (item) => {
+      item.variation = await ProductService.findVariationValues(
+        item._id._id.toString(),
+        item.variation
+      );
+    });
+    await Promise.all(productPromises);
     return wishlist.products;
   }
-
-  static async removeProduct(account_id, product_id) {
-    await verifyProductExistence(product_id);
+  static async getProductIndex(account_id, code) {
     let wishlist = await this.handleWishlist(account_id);
-    if (
-      !wishlist.products.some(
-        (productId) => productId.toString() === product_id
-      )
-    ) {
-      throw new BadRequestError(
-        `Product with id ${product_id} is not exists in wishlist`
-      );
-    }
-    wishlist.products.pop(product_id);
+    const foundIndex = wishlist.products.findIndex((el) => el.code === code);
+    if (foundIndex === -1)
+      throw new NotFoundError("Product not found in Wishlist");
+    return { wishlist, foundIndex };
+  }
+  static async removeProduct(account_id, code) {
+    const { wishlist, foundIndex } = await this.getProductIndex(
+      account_id,
+      code
+    );
+    wishlist.products.splice(foundIndex, 1);
     await WishlistRepositoy.save(wishlist);
     return wishlist;
   }
@@ -56,15 +59,7 @@ class VoucherService {
     let wishlist = await this.handleWishlist(account_id);
     await Promise.all(
       products.map(async (el) => {
-        await verifyProductExistence(el);
-        if (
-          wishlist.products.some((productId) => productId.toString() === el)
-        ) {
-          throw new BadRequestError(
-            `Product with id ${el} already exists in wishlist`
-          );
-        }
-        wishlist.products.push(el);
+        await this.addToWishlist(account_id, el);
       })
     );
     await WishlistRepositoy.save(wishlist);

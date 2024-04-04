@@ -26,5 +26,15 @@ class NotificationEfurnitureService {
     console.log(notification);
     _io.emit("requestDeliveryTrip", true);
   }
+  static async notiRequestDeliveryTrip() {
+    const payload = {
+      title: "Request Delivery Trip!",
+      message: "New Delivery Trip Has Been Request",
+      status: 1,
+    };
+    const notification = await this.createNotification(payload);
+    console.log(notification);
+    _io.emit("requestDeliveryTrip", true);
+  }
 }
 module.exports = NotificationEfurnitureService;

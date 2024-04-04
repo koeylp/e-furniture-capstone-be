@@ -7,6 +7,8 @@ const {
 } = require("../utils/errorHanlder");
 const { removeUndefineObject } = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
+const { getCode } = require("../utils/codeUtils");
+const ProductService = require("./productService");
 class WareHouseService {
   static async createWareHouse(payload) {
     return await WareHouseRepository.createWareHouse(payload);
@@ -21,25 +23,34 @@ class WareHouseService {
     return await WareHouseRepository.findWareHouseByProduct(product_id);
   }
   static async findWareHouseById(warehouse_id) {
-    return await WareHouseRepository.findWareHouseById(warehouse_id);
+    const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
+    const productPromises = warehouse.products.map(async (item) => {
+      item.variation = await ProductService.findVariationValues(
+        item.product._id.toString(),
+        item.variation
+      );
+    });
+    await Promise.all(productPromises);
+    return warehouse;
   }
   static async updateWareHouse(warehouse_id, payload) {
     await WareHouseRepository.findWareHouseById(warehouse_id);
-    if (payload.stock && payload.stock < 0)
-      throw new BadRequestError("Quantity must be greater than 0");
     const update = removeUndefineObject(payload);
     return await WareHouseRepository.updateWareHouse(warehouse_id, update);
   }
   static async removewWareHouse(warehouse_id) {
     return await WareHouseRepository.removeWareHouse(warehouse_id);
   }
+
   static async addProductToWareHouse(warehouse_id, products) {
     const warehouse = await WareHouseRepository.findByQuery({
       _id: warehouse_id,
     });
     if (!warehouse)
       throw new NotFoundError(`Warehouse not found with id ${warehouse_id}`);
+
     for (let product of products) {
+      const code = await getCode(product.product, product.variation);
       let foundProduct = await ProductRepository.findProductById(
         product.product
       );
@@ -53,30 +64,32 @@ class WareHouseService {
         );
       if (product.stock <= 0)
         throw new BadRequestError("Quantity must be greater than 0");
-      const index = warehouse.products.findIndex(
-        (el) => el.product.toHexString() === product.product
-      );
-      if (index === -1) warehouse.products.push(product);
-      else warehouse.products[index].stock += product.stock;
+      const index = warehouse.products.findIndex((el) => el.code === code);
+      if (index === -1) {
+        product.code = code;
+        warehouse.products.push(product);
+      } else warehouse.products[index].stock += product.stock;
+
       const inventory = await InventoryRepository.findByQuery({
-        product: product.product,
+        code: code,
       });
-      if (!inventory)
-        throw new NotFoundError(
-          `Inventory not found with product ${product.product}`
+      if (!inventory) {
+        product.code = code;
+        await InventoryRepository.createInventory(product);
+      } else {
+        inventory.stock += product.stock;
+        await InventoryRepository.save(
+          inventory._id,
+          inventory.sold,
+          inventory.stock
         );
-      inventory.stock += product.stock;
-      await InventoryRepository.save(
-        inventory._id,
-        inventory.sold,
-        inventory.stock
-      );
+      }
     }
     return await WareHouseRepository.save(warehouse);
   }
   static async updateProductStockInWarehouse(warehouse_id, product) {
     const foundInventory = await InventoryRepository.findByQuery({
-      product: product.product,
+      code: product.code,
     });
     if (!foundInventory)
       throw new NotFoundError("Inventory not found with specific product");
@@ -86,7 +99,7 @@ class WareHouseService {
     if (!foundWarehouse)
       throw new NotFoundError("Warehouse not found with id " + warehouse_id);
     const product_index = foundWarehouse.products.findIndex(
-      (el) => el.product.toHexString() === product.product
+      (el) => el.code === product.code
     );
     foundInventory.stock -= foundWarehouse.products[product_index].stock;
     foundWarehouse.products[product_index].stock = product.stock;
@@ -99,6 +112,7 @@ class WareHouseService {
     if (!updatedInventory) throw new InternalServerError();
     return await WareHouseRepository.save(foundWarehouse);
   }
+
   static async UpdateIsLowStockNotification(warehouse_id, product) {
     const { foundWarehouse, product_index } = await this.findProductInWareHouse(
       warehouse_id,

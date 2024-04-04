@@ -44,14 +44,7 @@ class ProductService {
         type
       );
     });
-    const foundInventory = await InventoryRepository.findByQuery({
-      product: product._id,
-    });
-    if (!foundInventory) {
-      await InventoryRepository.createInventory({ product: product._id });
-    } else if (foundInventory && foundInventory.is_draft) {
-      await InventoryRepository.publishInventory(foundInventory._id);
-    }
+    await InventoryRepository.publishInventoryByProduct(product._id);
     await WareHouseRepository.publishProductInsideWareHouse(product._id);
 
     return product;
@@ -85,6 +78,8 @@ class ProductService {
     const product = await ProductRepository.findProductBySlug(product_slug);
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Remove!");
+    // if (product.is_draft)
+    //   throw new BadRequestError("Product is already Draft!");
     const subTypeArrayOfProduct = product.attributes.type;
     const listSubType = await SubTypeService.getAll();
     listSubType.map(async (subtype) => {
@@ -98,12 +93,18 @@ class ProductService {
         );
       }
     });
+    await InventoryRepository.deleteInventoryByProduct(product._id);
+    await WareHouseRepository.deleteProductInsideWareHouse(product._id);
+    await CartRepository.deleteProductInCart(product._id);
+    await WishlistRepositoy.deleteProductInWishList(product._id);
     return await ProductRepository.removeProduct(product._id);
   }
   static async draftProduct(type_slug, product_slug) {
     const product = await ProductRepository.findProductBySlug(product_slug);
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Draft!");
+    // if (product.is_draft)
+    //   throw new BadRequestError("Product is already Draft!");
     const subTypeArrayOfProduct = product.attributes.type;
     const listSubType = await SubTypeService.getAll();
     listSubType.map(async (subtype) => {
@@ -117,11 +118,7 @@ class ProductService {
         );
       }
     });
-    const foundInventory = await InventoryRepository.findByQuery({
-      product: product._id,
-    });
-    if (foundInventory && foundInventory.is_published)
-      await InventoryRepository.draftInventory(foundInventory._id);
+    await InventoryRepository.draftInventoryByProduct(product._id);
     await WareHouseRepository.draftProductInsideWareHouse(product._id);
     await CartRepository.deleteProductInCart(product._id);
     await WishlistRepositoy.deleteProductInWishList(product._id);
@@ -163,6 +160,23 @@ class ProductService {
   }
   static async getAllProducts(page, limit) {
     return await InventoryRepository.findAllByQueryPopulate(page, limit);
+  }
+  static async findVariationValues(product_id, variation) {
+    let result = [];
+    const product = await ProductRepository.findProductById(product_id);
+    let dataVariation = product.variation;
+    dataVariation = dataVariation.filter((item) =>
+      variation.some((inside) => inside.variation_id === item._id.toString())
+    );
+    dataVariation.forEach((item) => {
+      item.properties.forEach((data) => {
+        if (
+          variation.some((inside) => inside.property_id === data._id.toString())
+        )
+          result.push(data);
+      });
+    });
+    return result;
   }
 }
 module.exports = ProductService;
