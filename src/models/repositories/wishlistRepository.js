@@ -15,7 +15,7 @@ class WishlistRepositoy {
     return await _Wishlist
       .findOne(query)
       .select(getUnSelectData(["__v"]))
-      .populate("products._id")
+      .populate("products")
       .lean();
   }
 

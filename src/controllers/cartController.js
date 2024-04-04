@@ -94,5 +94,19 @@ class CartController {
       metaData: await CartService.addArrayToCart(account_id, products),
     }).send(res);
   }
+
+  static async updateItemInCart(req, res) {
+    const { account_id } = req.payload;
+    const { code } = req.params;
+    if (!account_id) throw new BadRequestError();
+    return new OK({
+      message: "Update Cart Successfully!",
+      metaData: await CartService.updateVariationCart(
+        account_id,
+        req.body,
+        code
+      ),
+    }).send(res);
+  }
 }
 module.exports = CartController;

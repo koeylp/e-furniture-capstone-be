@@ -12,7 +12,7 @@ router.use(verifyToken);
 router.use(hasAccess(2));
 
 router.post(
-  "/",
+  "/:product",
   hasPermission(global.PermissionConstants.USER_POST),
   asyncHandler(WishlistController.addToWishlist)
 );

@@ -27,6 +27,11 @@ class CartService {
     if (foundIndex === -1) throw new NotFoundError("Product not found in cart");
     return { cart, foundIndex };
   }
+  static async checkProductIndex(account_id, code) {
+    let cart = await CartUtils.handleCart(account_id);
+    const foundIndex = cart.products.findIndex((el) => el.code === code);
+    return { cart, foundIndex };
+  }
   static async removeItem(account_id, product) {
     const { cart, foundIndex } = await this.getProductIndex(
       account_id,
@@ -107,6 +112,17 @@ class CartService {
     for (let i = 0; i < products.length; i++) {
       await this.addToCart(account_id, products[i]);
     }
+    return await CartRepository.save(cart);
+  }
+
+  static async updateVariationCart(account_id, cartItem, oldItemcode) {
+    const code = await getCode(cartItem._id, cartItem.variation);
+    let { cart, foundIndex } = await this.checkProductIndex(account_id, code);
+    if (foundIndex !== -1)
+      throw new BadRequestError("Product is already in cart!");
+    foundIndex = cart.products.findIndex((el) => el.code === oldItemcode);
+    cart.products[foundIndex].variation = cartItem.variation;
+    cart.products[foundIndex].code = code;
     return await CartRepository.save(cart);
   }
 }

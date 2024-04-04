@@ -37,6 +37,11 @@ router.put(
   asyncHandler(CartController.updateItemQuantity)
 );
 router.put(
+  "/item/:code",
+  hasPermission(global.PermissionConstants.USER_PUT),
+  asyncHandler(CartController.updateItemInCart)
+);
+router.put(
   "/increase",
   hasPermission(global.PermissionConstants.USER_PUT),
   asyncHandler(CartController.increaseItemQuantity)

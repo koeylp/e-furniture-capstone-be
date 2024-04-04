@@ -4,7 +4,7 @@ const { OK } = require("../utils/successHandler");
 class WishlistController {
   static async addToWishlist(req, res) {
     const { account_id } = req.payload;
-    const product = req.body;
+    const { product } = req.params;
     return new OK({
       message: "Add to wishlist successfully!",
       metaData: await WishlistService.addToWishlist(account_id, product),
