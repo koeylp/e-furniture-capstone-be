@@ -172,8 +172,16 @@ class ProductService {
       item.properties.forEach((data) => {
         if (
           variation.some((inside) => inside.property_id === data._id.toString())
-        )
-          result.push(data);
+        ) {
+          const index = variation.findIndex(
+            (inside) => inside.property_id === data._id.toString()
+          );
+          result.push({
+            property_id: variation[index].property_id,
+            variation_id: variation[index].variation_id,
+            sub_price: data.sub_price,
+          });
+        }
       });
     });
     return result;
