@@ -154,9 +154,9 @@ class OrderService {
       order_id,
     });
     if (!foundOrder) throw new NotFoundError("Order not found for this user");
-    if (foundOrder.order_checkout.paid.must_paid > transaction.amount)
+    if (foundOrder.order_checkout.paid.must_paid != transaction.amount)
       throw new BadRequestError(
-        "Not enough amount of money, must be equal to " +
+        "The amount of money must be equal to " +
           foundOrder.order_checkout.paid.must_paid
       );
     if (foundOrder.order_checkout.is_paid)

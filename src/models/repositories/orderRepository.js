@@ -117,45 +117,47 @@ class OrderRepository {
     return newOrder;
   }
   static async paid(account_id, order_id, paid_amount) {
-    const order = await _Order
+    let order = await _Order
       .findOne({
         _id: new mongoose.Types.ObjectId(order_id),
         account_id: account_id,
         guest: false,
-        "order_tracking.name": "Processing",
+        "order_tracking.name": { $ne: "Processing" },
       })
-      .lean({ virtuals: true });
+      .lean();
 
-    // if (order.order_checkout.final_total < 1000000)
-    //   throw new InternalServerError(
-    //     "This order has price enough to do not make deposit"
-    //   );
     if (!order) {
-      return await _Order
-        .findOneAndUpdate(
-          {
-            _id: new mongoose.Types.ObjectId(order_id),
-            account_id: account_id,
-            guest: false,
-            "order_tracking.name": { $ne: "Processing" }, // Check if "Processing" doesn't already exist
-          },
-          {
-            $set: {
-              "order_checkout.is_paid": true,
-              "order_checkout.paid.paid_amount": paid_amount,
-            },
-            $push: {
-              order_tracking: { name: "Processing" },
-            },
-          },
-          { new: true }
-        )
-        .populate("order_products.product_id")
-        .lean({ virtuals: true });
-    } else {
-      return order;
+      throw new InternalServerError("This order is already in processing.");
     }
+    let finalTotalUpdate;
+    if (order.order_checkout.paid.type === "Deposit") {
+      finalTotalUpdate = order.order_checkout.final_total - paid_amount;
+    } else {
+      finalTotalUpdate = order.order_checkout.final_total;
+    }
+    order = await _Order.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(order_id),
+        account_id: account_id,
+        guest: false,
+        "order_tracking.name": { $ne: "Processing" },
+      },
+      {
+        $set: {
+          "order_checkout.is_paid": true,
+          "order_checkout.paid.paid_amount": paid_amount,
+          "order_checkout.final_total": finalTotalUpdate,
+        },
+        $push: { order_tracking: { name: "Processing" } },
+      },
+      { new: true, lean: true }
+    );
+    if (!order) {
+      throw new InternalServerError("This order is already in processing.");
+    }
+    return order;
   }
+
   static async acceptCancel(order_id) {
     const query = {
       _id: new mongoose.Types.ObjectId(order_id),
