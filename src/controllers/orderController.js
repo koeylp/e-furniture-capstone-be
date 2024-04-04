@@ -136,12 +136,11 @@ class OrderController {
     }).send(res);
   }
   static async updateSubstateShipping(req, res) {
-    const { name } = req.body;
+    const substate = req.body;
     const { order_id } = req.params;
-    if (!name) throw new BadRequestError("Name is required");
     return new OK({
       message: "Update substate successfully",
-      metaData: await OrderService.updateSubstateShipping(order_id, name),
+      metaData: await OrderService.updateSubstateShipping(order_id, substate),
     }).send(res);
   }
   static async requestRefund(req, res) {
@@ -149,6 +148,22 @@ class OrderController {
     return new OK({
       message: "Request refund successfully",
       metaData: await OrderService.requestRefund(order_id),
+    }).send(res);
+  }
+  static async processingToShiping(req, res) {
+    const { order_id } = req.params;
+    const { note } = req.body;
+    return new OK({
+      message: "Accept processing to shipping successfully",
+      metaData: await OrderService.processingToShiping(order_id, note),
+    }).send(res);
+  }
+  static async doneShipping(req, res) {
+    const { order_id } = req.params;
+    const { note } = req.body;
+    return new OK({
+      message: "Done shipping!",
+      metaData: await OrderService.doneShipping(order_id, note),
     }).send(res);
   }
 }

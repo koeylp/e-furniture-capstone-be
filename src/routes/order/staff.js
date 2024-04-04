@@ -17,4 +17,10 @@ router.get(
   asyncHandler(OrderController.findOrderByType)
 );
 
+router.put(
+  "/order-tracking/processing/:order_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(OrderController.processingToShiping)
+);
+
 module.exports = router;
