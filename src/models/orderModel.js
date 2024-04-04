@@ -29,17 +29,7 @@ const schema = new Schema(
         must_paid: { type: Number, required: true },
       },
     },
-    order_products: [
-      {
-        _id: false,
-        product_id: { type: Schema.Types.ObjectId, ref: "Product" },
-        quantity: { type: Number, required: true },
-        variation: { type: Array, required: true },
-        code: { type: String },
-        price: { type: Number, required: true },
-        status: { type: Number, default: 0 },
-      },
-    ],
+    order_products: { type: Array },
     payment_method: {
       type: String,
       enum: ["Online Payment", "COD"],
