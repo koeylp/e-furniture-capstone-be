@@ -58,9 +58,8 @@ class TypeProduct extends Product {
   }
   async updateProduct(product_slug) {
     if (this.type) {
-      let subTypeModel = global.subTypeSchemasMap.get(this.type);
-      console.log(subTypeModel);
-      const typeSlug = await TypeRepository.findTypeBySlug(this.type);
+      const typeSlug = await TypeRepository.findTypeByName(this.type);
+      let subTypeModel = global.subTypeSchemasMap.get(typeSlug.slug);
       this.type = typeSlug._id;
       if (!this.attributes.type)
         throw new BadRequestError("SubType cannot be null!");
