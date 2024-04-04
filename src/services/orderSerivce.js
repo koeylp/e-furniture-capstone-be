@@ -159,6 +159,13 @@ class OrderService {
         "The amount of money must be equal to " +
           foundOrder.order_checkout.paid.must_paid
       );
+    const key_of_type = getKeyByValue(
+      orderTrackingMap,
+      capitalizeFirstLetter(
+        foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
+      )
+    );
+    await OrderTrackingUtil.validatePendingTrackUpdate(key_of_type);
     if (foundOrder.order_checkout.is_paid)
       throw new BadRequestError("Order was paid");
     transaction.account_id = account_id;
@@ -209,14 +216,20 @@ class OrderService {
     if (foundOrder.current_order_tracking.name != TRACKING[2])
       throw new BadRequestError("Order is not in shipping state");
     const updatedOrder = await OrderRepository.update(order_id, newSubstate);
-    await OrderService.checkAndPushFailedState(updatedOrder);
-    return updatedOrder;
+    const substateChecking = await OrderService.checkAndPushFailedState(
+      updatedOrder
+    );
+    if (!substateChecking) {
+      return updatedOrder;
+    } else {
+      return substateChecking;
+    }
   }
 
   static async categorizePaymentMethod(order) {
     if (
       order.payment_method === "COD" &&
-      order.order_checkout.final_total > 1000000
+      order.order_checkout.final_total >= 1000000
     ) {
       order.order_checkout.paid = {
         type: PAY_TYPE[1],
@@ -234,11 +247,9 @@ class OrderService {
     const shippingPhaseName = "Shipping";
     const failedSubstateType = "Failed";
     const maxFailureCount = 3;
-
     const shippingPhase = order.order_tracking.find(
       (phase) => phase.name === shippingPhaseName
     );
-
     if (!shippingPhase) {
       return;
     }
@@ -249,15 +260,42 @@ class OrderService {
       }
     }
     if (failedCount >= maxFailureCount) {
-      console.log(failedCount++);
-      console.log(failedCount >= maxFailureCount);
       order.order_tracking.push({
         name: "Failed",
         status: 1,
       });
-
-      await OrderRepository.updateOrder(order);
     }
+    return await OrderRepository.updateOrder(order);
+  }
+  static async doneShipping(order_id, note) {
+    const order = await verifyOrderExistence(order_id);
+    const key_of_type = getKeyByValue(
+      orderTrackingMap,
+      capitalizeFirstLetter(
+        order.order_tracking[order.order_tracking.length - 1].name
+      )
+    );
+    await OrderTrackingUtil.validateDoneTrackUpdate(key_of_type);
+    const update = {
+      name: orderTrackingMap.get(3),
+      note: note,
+    };
+    return await OrderRepository.updateOrderTracking(order_id, update, {});
+  }
+  static async processingToShiping(order_id, note) {
+    const order = await verifyOrderExistence(order_id);
+    const key_of_type = getKeyByValue(
+      orderTrackingMap,
+      capitalizeFirstLetter(
+        order.order_tracking[order.order_tracking.length - 1].name
+      )
+    );
+    await OrderTrackingUtil.validateProcessingTrackUpdate(key_of_type);
+    const update = {
+      name: orderTrackingMap.get(2),
+      note: note,
+    };
+    return await OrderRepository.updateOrderTracking(order_id, update, {});
   }
 }
 module.exports = OrderService;

@@ -5,6 +5,7 @@ const orderTrackingMap = new Map([
   [3, "Done"],
   [4, "Cancelled"],
   [5, "Refunded"],
+  [6, "Failed"],
 ]);
 
 module.exports = { orderTrackingMap };
