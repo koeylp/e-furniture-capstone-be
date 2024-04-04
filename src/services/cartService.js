@@ -65,12 +65,19 @@ class CartService {
       const foundProduct = await verifyProductExistence(product._id);
       if (!foundProduct) throw new BadRequestError();
       cart.products[index]._id = foundProduct;
-      cart.products[index].variation = await ProductService.findVariationValues(
-        foundProduct._id.toString(),
-        cart.products[index].variation
-      );
+      cart.products[index]._id.select_variation =
+        await ProductService.findVariationValues(
+          foundProduct._id.toString(),
+          cart.products[index].variation
+        );
+      cart.products[index]._id.quantity_in_cart = cart.products[index].quantity;
     });
     await Promise.all(productPromises);
+    const productIds = [];
+    for (const product of cart.products) {
+      productIds.push(product._id);
+    }
+    cart.products = productIds;
     return cart;
   }
 
