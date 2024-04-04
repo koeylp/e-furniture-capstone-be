@@ -42,6 +42,10 @@ class VoucherService {
   static async getBySpecified(products) {
     return await VoucherUtil.getBySpecified(products);
   }
+
+  static async removeVoucher(voucher_id) {
+    return await VoucherRepository.removeVoucher(voucher_id);
+  }
 }
 
 module.exports = VoucherService;

@@ -31,15 +31,5 @@ router.put(
   hasPermission(global.PermissionConstants.ADMIN_PUT),
   asyncHandler(DistrictController.updateDistrict)
 );
-router.put(
-  "/increase/:district_id",
-  hasPermission(global.PermissionConstants.ADMIN_PUT),
-  asyncHandler(DistrictController.increaseDistrict)
-);
-router.put(
-  "/decrease/:district_id",
-  hasPermission(global.PermissionConstants.ADMIN_PUT),
-  asyncHandler(DistrictController.decreaseDistrict)
-);
 
 module.exports = router;

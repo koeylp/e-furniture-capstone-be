@@ -27,5 +27,12 @@ class VoucherRepository {
       .lean();
   }
 
+  static async removeVoucher(voucher_id) {
+    checkValidId(voucher_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(voucher_id),
+    };
+    return await _Voucher.deleteOne(query);
+  }
 }
 module.exports = VoucherRepository;

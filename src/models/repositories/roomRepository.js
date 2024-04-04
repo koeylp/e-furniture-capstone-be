@@ -4,6 +4,7 @@ const {
   checkValidId,
   getSelectData,
   removeUndefineObject,
+  defaultVariation,
 } = require("../../utils");
 const {
   BadRequestError,
@@ -46,10 +47,7 @@ class RoomRepository {
     if (!room) throw new NotFoundError("Cannot Find Any Room Result!");
     room.products.forEach((item) => {
       item.product.select_variation = item.product.variation.map((item) => {
-        return {
-          variation_id: item._id,
-          property_id: item.properties[0]._id,
-        };
+        return defaultVariation(item);
       });
     });
     return room;
@@ -79,10 +77,7 @@ class RoomRepository {
       result.products = result.products.map((data) => {
         console.log(data);
         data.product.select_variation = data.product.variation.map((item) => {
-          return {
-            variation_id: item._id,
-            property_id: item.properties[0]._id,
-          };
+          return defaultVariation(item);
         });
         return { ...data };
       });

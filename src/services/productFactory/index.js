@@ -57,6 +57,22 @@ class TypeProduct extends Product {
     return await super.createProduct();
   }
   async updateProduct(product_slug) {
+    if (this.type) {
+      let subTypeModel = global.subTypeSchemasMap.get(this.type);
+      console.log(subTypeModel);
+      const typeSlug = await TypeRepository.findTypeBySlug(this.type);
+      this.type = typeSlug._id;
+      if (!this.attributes.type)
+        throw new BadRequestError("SubType cannot be null!");
+      this.attributes.type.forEach(async (type) => {
+        let check = await SubTypeRepository.findSubTypeBySlug(
+          type,
+          subTypeModel
+        );
+        if (!check) throw new BadRequestError("SubType is not valid!");
+      });
+    }
+
     let objectParams = removeUndefineObject(this);
     const updateProduct = await super.updateProduct(product_slug, objectParams);
     return updateProduct;

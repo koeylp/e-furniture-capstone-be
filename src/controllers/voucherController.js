@@ -42,5 +42,14 @@ class VoucherController {
       metaData: await VoucherSerivce.getBySpecified(products),
     }).send(res);
   }
+
+  static async removeVoucher(req, res) {
+    const { voucher_id } = req.params;
+    if (!voucher_id) throw new BadRequestError();
+    return new OK({
+      message: "Remove Voucher",
+      metaData: await VoucherSerivce.removeVoucher(voucher_id),
+    }).send(res);
+  }
 }
 module.exports = VoucherController;

@@ -1,5 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const { checkValidId, getUnSelectData, getSelectData } = require("../../utils");
+const {
+  checkValidId,
+  getUnSelectData,
+  getSelectData,
+  defaultVariation,
+} = require("../../utils");
 
 class SubTypeRepository {
   static async createSubTypeValue(subTypeModel, payload) {
@@ -92,10 +97,7 @@ class SubTypeRepository {
       .lean();
     result.products = result.products.map((data) => {
       data.productId.select_variation = data.productId.variation.map((item) => {
-        return {
-          variation_id: item._id,
-          property_id: item.properties[0]._id,
-        };
+        return defaultVariation(item);
       });
       return { ...data };
     });

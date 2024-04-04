@@ -20,6 +20,7 @@ const StockUtil = require("../utils/stockUtil");
 const TransactionRepository = require("../models/repositories/transactionRepository");
 const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
+const DistrictService = require("./districtService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -73,8 +74,8 @@ class OrderService {
     const newOrder = await OrderRepository.createOrder(account_id, order);
     if (newOrder) {
       const day = new Date().setUTCHours(0, 0, 0, 0);
-      const profit = order.order_checkout.final_total;
-      await RevenueRepository.updateOrInsert(profit, day);
+      // const profit = order.order_checkout.final_total;
+      // await RevenueRepository.updateOrInsert(profit, day);
       await StockUtil.updateStock(order);
     }
     return newOrder;
@@ -96,6 +97,11 @@ class OrderService {
         "order_checkout.paid.paid_amount": order.order_checkout.final_total,
       };
     }
+    // await this.increaseOrderInDistrict(
+    //   orderTrackingMap.get(key_of_type + 1),
+    //   order.order_shipping.district
+    // );
+
     const updatePush = {
       name: orderTrackingMap.get(key_of_type + 1),
       note: note,
@@ -111,9 +117,9 @@ class OrderService {
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
     else {
-      const day = new Date().setUTCHours(0, 0, 0, 0);
-      const profit = order.order_checkout.final_total;
-      await RevenueRepository.updateOrInsert(profit, day);
+      // const day = new Date().setUTCHours(0, 0, 0, 0);
+      // const profit = order.order_checkout.final_total;
+      // await RevenueRepository.updateOrInsert(profit, day);
       await StockUtil.updateStock(order);
     }
     await MailtrapService.send(newOrder);
@@ -280,8 +286,14 @@ class OrderService {
       name: orderTrackingMap.get(3),
       note: note,
     };
+    await this.increaseOrderInDistrict(order.order_shipping.district);
     return await OrderRepository.updateOrderTracking(order_id, update, {});
   }
+
+  static async increaseOrderInDistrict(district) {
+    await DistrictService.increaseOrderOfDistrictByName(district);
+  }
+
   static async processingToShiping(order_id, note) {
     const order = await verifyOrderExistence(order_id);
     const key_of_type = getKeyByValue(
