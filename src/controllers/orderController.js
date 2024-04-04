@@ -136,12 +136,11 @@ class OrderController {
     }).send(res);
   }
   static async updateSubstateShipping(req, res) {
-    const { name } = req.body;
+    const substate = req.body;
     const { order_id } = req.params;
-    if (!name) throw new BadRequestError("Name is required");
     return new OK({
       message: "Update substate successfully",
-      metaData: await OrderService.updateSubstateShipping(order_id, name),
+      metaData: await OrderService.updateSubstateShipping(order_id, substate),
     }).send(res);
   }
   static async requestRefund(req, res) {

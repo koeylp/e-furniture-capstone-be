@@ -57,7 +57,6 @@ class StockUtil {
       longitude,
       latitude
     );
-
     const product_index = nearestWarehouse.products.findIndex(
       (el) => el.product.toHexString() === product_id
     );
