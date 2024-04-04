@@ -62,6 +62,7 @@ class OrderRepository {
     return await _Order.deleteOne(query);
   }
   static async createOrder(account_id, order) {
+    console.log(order);
     const order_code = generateOrderCode();
     const newOrder = await _Order.create({
       account_id: account_id,

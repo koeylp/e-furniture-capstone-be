@@ -66,5 +66,13 @@ class RoomController {
       metaData: await RoomService.disableRoom(room_id),
     }).send(res);
   }
+  static async removeRoom(req, res) {
+    const { room_id } = req.params;
+    if (!room_id) throw new BadRequestError();
+    return new OK({
+      message: "Delete Room Successfully!",
+      metaData: await RoomService.removeRoom(room_id),
+    }).send(res);
+  }
 }
 module.exports = RoomController;

@@ -1,5 +1,5 @@
 const _Inventory = require("../inventoryModel");
-const { getUnSelectData } = require("../../utils");
+const { getUnSelectData, defaultVariation } = require("../../utils");
 const { default: mongoose } = require("mongoose");
 class InventoryRepository {
   static async createInventory(inventory) {
@@ -23,10 +23,7 @@ class InventoryRepository {
       .lean();
     inventories = inventories.map((data) => {
       data.product.select_variation = data.product.variation.map((item) => {
-        return {
-          variation_id: item._id,
-          property_id: item.properties[0]._id,
-        };
+        return defaultVariation(item);
       });
       return { ...data };
     });

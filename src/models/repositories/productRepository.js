@@ -3,6 +3,7 @@ const {
   getSelectData,
   getUnSelectData,
   checkValidId,
+  defaultVariation,
 } = require("../../utils/index");
 const { InternalServerError } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
@@ -53,10 +54,7 @@ class ProductRepository {
       .lean()
       .exec();
     result.select_variation = result.variation.map((item) => {
-      return {
-        variation_id: item._id,
-        property_id: item.properties[0]._id,
-      };
+      return defaultVariation(item);
     });
     return result;
   }
@@ -112,10 +110,7 @@ class ProductRepository {
       .lean();
     result = result.map((data) => {
       data.select_variation = data.variation.map((item) => {
-        return {
-          variation_id: item._id,
-          property_id: item.properties[0]._id,
-        };
+        return defaultVariation(item);
       });
       return { ...data };
     });

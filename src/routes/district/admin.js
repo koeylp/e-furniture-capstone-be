@@ -32,10 +32,4 @@ router.put(
   asyncHandler(DistrictController.updateDistrict)
 );
 
-router.put(
-  "/test/:name",
-  hasPermission(global.PermissionConstants.ADMIN_PUT),
-  asyncHandler(DistrictController.increaseOrderOfDistrict)
-);
-
 module.exports = router;

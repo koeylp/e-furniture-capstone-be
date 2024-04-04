@@ -74,8 +74,8 @@ class OrderService {
     const newOrder = await OrderRepository.createOrder(account_id, order);
     if (newOrder) {
       const day = new Date().setUTCHours(0, 0, 0, 0);
-      const profit = order.order_checkout.final_total;
-      await RevenueRepository.updateOrInsert(profit, day);
+      // const profit = order.order_checkout.final_total;
+      // await RevenueRepository.updateOrInsert(profit, day);
       await StockUtil.updateStock(order);
     }
     return newOrder;
@@ -112,18 +112,14 @@ class OrderService {
       updateSet
     );
   }
-  static async increaseOrderInDistrict(state, district) {
-    if (state === TRACKING[4])
-      await DistrictService.increaseOrderOfDistrictByName(district);
-  }
   static async createOrderGuest(order) {
     await verifyProductStockExistence(order);
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
     else {
-      const day = new Date().setUTCHours(0, 0, 0, 0);
-      const profit = order.order_checkout.final_total;
-      await RevenueRepository.updateOrInsert(profit, day);
+      // const day = new Date().setUTCHours(0, 0, 0, 0);
+      // const profit = order.order_checkout.final_total;
+      // await RevenueRepository.updateOrInsert(profit, day);
       await StockUtil.updateStock(order);
     }
     await MailtrapService.send(newOrder);
@@ -290,8 +286,14 @@ class OrderService {
       name: orderTrackingMap.get(3),
       note: note,
     };
+    await this.increaseOrderInDistrict(order.order_shipping.district);
     return await OrderRepository.updateOrderTracking(order_id, update, {});
   }
+
+  static async increaseOrderInDistrict(district) {
+    await DistrictService.increaseOrderOfDistrictByName(district);
+  }
+
   static async processingToShiping(order_id, note) {
     const order = await verifyOrderExistence(order_id);
     const key_of_type = getKeyByValue(

@@ -34,6 +34,8 @@ const schema = new Schema(
         _id: false,
         product_id: { type: Schema.Types.ObjectId, ref: "Product" },
         quantity: { type: Number, required: true },
+        variation: { type: Array, required: true },
+        code: { type: String },
         price: { type: Number, required: true },
         status: { type: Number, default: 0 },
       },

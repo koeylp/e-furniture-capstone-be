@@ -16,8 +16,8 @@ const LOW_QUANTITY = 10;
 
 class StockUtil {
   static async checkProductStock(product) {
-    const { product_id, quantity } = product;
-    const query = { product: product_id };
+    const { product_id, quantity, code } = product;
+    const query = { code: code };
     const foundProductStock = await InventoryRepository.findByQuery(query);
     if (!foundProductStock)
       throw new NotFoundError(`Stock not found with id + ${product_id}`);

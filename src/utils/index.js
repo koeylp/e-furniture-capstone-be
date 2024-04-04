@@ -65,6 +65,13 @@ const handleProducts = (products) => {
   }
   return Object.values(productMap);
 };
+const defaultVariation = (item) => {
+  return {
+    variation_id: item._id,
+    property_id: item.properties[0]._id,
+    sub_price: item.properties[0].sub_price,
+  };
+};
 function removeDuplicates(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
     return [];
@@ -91,4 +98,5 @@ module.exports = {
   handleProducts,
   removeDuplicates,
   convertAttributes,
+  defaultVariation,
 };
