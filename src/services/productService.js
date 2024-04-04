@@ -162,28 +162,25 @@ class ProductService {
     return await InventoryRepository.findAllByQueryPopulate(page, limit);
   }
   static async findVariationValues(product_id, variation) {
-    let result = [];
     const product = await ProductRepository.findProductById(product_id);
-    let dataVariation = product.variation;
-    dataVariation = dataVariation.filter((item) =>
+    const matchingVariations = product.variation.filter((item) =>
       variation.some((inside) => inside.variation_id === item._id.toString())
     );
-    dataVariation.forEach((item) => {
-      item.properties.forEach((data) => {
-        if (
+
+    const result = matchingVariations.flatMap((item) =>
+      item.properties
+        .filter((data) =>
           variation.some((inside) => inside.property_id === data._id.toString())
-        ) {
-          const index = variation.findIndex(
+        )
+        .map((data) => ({
+          property_id: variation.find(
             (inside) => inside.property_id === data._id.toString()
-          );
-          result.push({
-            property_id: variation[index].property_id,
-            variation_id: variation[index].variation_id,
-            sub_price: data.sub_price,
-          });
-        }
-      });
-    });
+          ).property_id,
+          variation_id: item._id,
+          sub_price: data.sub_price,
+        }))
+    );
+
     return result;
   }
 }
