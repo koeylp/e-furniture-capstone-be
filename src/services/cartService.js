@@ -71,6 +71,7 @@ class CartService {
           cart.products[index].variation
         );
       cart.products[index]._id.quantity_in_cart = cart.products[index].quantity;
+      cart.products[index]._id.code = cart.products[index].code;
     });
     await Promise.all(productPromises);
     const productIds = [];
