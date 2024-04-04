@@ -11,13 +11,7 @@ const schema = new Schema(
       required: true,
       ref: "Account",
     },
-    products: [
-      {
-        _id: { type: String, required: true, ref: "Product" },
-        variation: { type: Array },
-        code: { type: String, required: true },
-      },
-    ],
+    products: [{ type: String, required: true, ref: "Product" }],
   },
   {
     collection: COLLECTION_NAME,
