@@ -97,15 +97,10 @@ class CartController {
 
   static async updateItemInCart(req, res) {
     const { account_id } = req.payload;
-    const { code } = req.params;
     if (!account_id) throw new BadRequestError();
     return new OK({
       message: "Update Cart Successfully!",
-      metaData: await CartService.updateVariationCart(
-        account_id,
-        req.body,
-        code
-      ),
+      metaData: await CartService.updateVariationCart(account_id, req.body),
     }).send(res);
   }
 }

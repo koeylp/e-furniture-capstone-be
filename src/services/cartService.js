@@ -123,12 +123,12 @@ class CartService {
     return await CartRepository.save(cart);
   }
 
-  static async updateVariationCart(account_id, cartItem, oldItemcode) {
+  static async updateVariationCart(account_id, cartItem) {
     const code = await getCode(cartItem._id, cartItem.variation);
     let { cart, foundIndex } = await this.checkProductIndex(account_id, code);
     if (foundIndex !== -1)
       throw new BadRequestError("Product is already in cart!");
-    foundIndex = cart.products.findIndex((el) => el.code === oldItemcode);
+    foundIndex = cart.products.findIndex((el) => el.code === cartItem.code);
     cart.products[foundIndex].variation = cartItem.variation;
     cart.products[foundIndex].code = code;
     return await CartRepository.save(cart);
