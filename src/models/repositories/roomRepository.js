@@ -37,10 +37,21 @@ class RoomRepository {
       is_draft: false,
       is_published: true,
     };
-    const room = await _Room.findOne(query).populate({
-      path: "products.product",
-    });
+    let room = await _Room
+      .findOne(query)
+      .populate({
+        path: "products.product",
+      })
+      .lean();
     if (!room) throw new NotFoundError("Cannot Find Any Room Result!");
+    room.products.forEach((item) => {
+      item.product.select_variation = item.product.variation.map((item) => {
+        return {
+          variation_id: item._id,
+          property_id: item.properties[0]._id,
+        };
+      });
+    });
     return room;
   }
   static async findRoom(query) {
@@ -56,7 +67,7 @@ class RoomRepository {
   }) {
     const skip = (page - 1) * limit;
     const sortBy = sort === "ctime" ? { _id: 1 } : sort;
-    return await _Room
+    let results = await _Room
       .find(query)
       .sort(sortBy)
       .skip(skip)
@@ -64,6 +75,19 @@ class RoomRepository {
       .populate("products.product")
       .select(getSelectData(filter))
       .lean();
+    results.forEach((result) => {
+      result.products = result.products.map((data) => {
+        console.log(data);
+        data.product.select_variation = data.product.variation.map((item) => {
+          return {
+            variation_id: item._id,
+            property_id: item.properties[0]._id,
+          };
+        });
+        return { ...data };
+      });
+    });
+    return results;
   }
   static async update(query, update) {
     update = removeUndefineObject(update);
