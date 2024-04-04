@@ -8,15 +8,24 @@ class DistrictRepository {
     if (!district) throw new InternalServerError();
     return district;
   }
+  static async findDistrict(query) {
+    const district = await _District.findOne(query).lean();
+    return district;
+  }
   static async findDistrictById(district_id) {
     checkValidId(district_id);
     const query = {
       _id: new mongoose.Types.ObjectId(district_id),
       status: 1,
     };
-    const district = await _District.findOne(query).lean();
-    if (!district) throw new InternalServerError();
-    return district;
+    return await this.findDistrict(query);
+  }
+  static async findDistrictByName(name) {
+    const query = {
+      name: name,
+      status: 1,
+    };
+    return await this.findDistrict(query);
   }
   static async getDistricts() {
     return await _District.find().lean();

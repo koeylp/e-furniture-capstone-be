@@ -22,37 +22,5 @@ class DistrictController {
       metaData: await DistrictService.getAllDistricts(),
     }).send(res);
   }
-  static async increaseDistrict(req, res) {
-    const { district_id } = req.params;
-    if (!district_id) throw new BadRequestError();
-    const { number } = req.body;
-    return new OK({
-      message: "Increase Districts Total Successfully!",
-      metaData: await DistrictService.increaseOrderOfDistrict(
-        district_id,
-        number
-      ),
-    }).send(res);
-  }
-  static async decreaseDistrict(req, res) {
-    const { district_id } = req.params;
-    if (!district_id) throw new BadRequestError();
-    const { number } = req.body;
-    return new OK({
-      message: "Decrease Districts Total Successfully!",
-      metaData: await DistrictService.decreaseOrderOfDistrict(
-        district_id,
-        number
-      ),
-    }).send(res);
-  }
-  static async updateDistrict(req, res) {
-    const { district_id } = req.params;
-    if (!district_id) throw new BadRequestError();
-    return new OK({
-      message: "Update Districts Successfully!",
-      metaData: await DistrictService.updateDistrict(district_id, req.body),
-    }).send(res);
-  }
 }
 module.exports = DistrictController;

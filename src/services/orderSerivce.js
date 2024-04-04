@@ -20,6 +20,7 @@ const StockUtil = require("../utils/stockUtil");
 const TransactionRepository = require("../models/repositories/transactionRepository");
 const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
+const DistrictService = require("./districtService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -96,6 +97,11 @@ class OrderService {
         "order_checkout.paid.paid_amount": order.order_checkout.final_total,
       };
     }
+    // await this.increaseOrderInDistrict(
+    //   orderTrackingMap.get(key_of_type + 1),
+    //   order.order_shipping.district
+    // );
+
     const updatePush = {
       name: orderTrackingMap.get(key_of_type + 1),
       note: note,
@@ -105,6 +111,10 @@ class OrderService {
       updatePush,
       updateSet
     );
+  }
+  static async increaseOrderInDistrict(state, district) {
+    if (state === TRACKING[4])
+      await DistrictService.increaseOrderOfDistrictByName(district);
   }
   static async createOrderGuest(order) {
     await verifyProductStockExistence(order);

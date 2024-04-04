@@ -31,5 +31,10 @@ class DistrictService {
       throw new BadRequestError("Total Order cannot less than 0!");
     return await DistrictRepository.update(district_id, payload);
   }
+  static async increaseOrderOfDistrictByName(district_name) {
+    const district = await DistrictRepository.findDistrictByName(district_name);
+    district.totalOrder += 1;
+    return await DistrictRepository.save(district);
+  }
 }
 module.exports = DistrictService;
