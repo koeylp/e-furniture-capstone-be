@@ -42,7 +42,7 @@ class DeliveryTripService {
   }
 
   static async findTrip(trip_id) {
-    return await DeliveryTripRepository.findTripById(trip_id);
+    return await DeliveryTripRepository.findTripByIdWithoutPopulate(trip_id);
   }
 
   static async getDeliveryTripPending() {
@@ -128,10 +128,10 @@ class DeliveryTripService {
 
   static async confirmDeliveryTrip(trip_id) {
     const account = await this.getAccountInDeliveryTrip(trip_id);
-    if (account.status === 2)
+    if (account.status === 3)
       throw new BadRequestError("Delivery Is On Another Trip!");
     const result = await this.updateDeliveryTripStatus(trip_id, 1);
-    await AccountRepository.updateStateAccount(account._id, 2);
+    await AccountRepository.updateStateAccount(account._id, 3);
     const payload = {
       account_id: result.account_id,
       title: "Confirm Delivery Trip",

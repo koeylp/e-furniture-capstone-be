@@ -10,6 +10,9 @@ class DeliveryRepository {
     if (!result) throw new InternalServerError();
     return result;
   }
+  static async findTripWithoutPopulate(payload) {
+    return await _DeliveryTrip.findOne(payload).lean();
+  }
   static async findTrip(payload) {
     let result = await _DeliveryTrip
       .findOne(payload)
@@ -36,7 +39,7 @@ class DeliveryRepository {
       })
     );
 
-    return data;
+    return data[0];
   }
   static async getTrips(payload = {}) {
     return await _DeliveryTrip
@@ -53,6 +56,13 @@ class DeliveryRepository {
       _id: new mongoose.Types.ObjectId(trip_id),
     };
     return this.findTrip(payload);
+  }
+  static async findTripByIdWithoutPopulate(trip_id) {
+    checkValidId(trip_id);
+    const payload = {
+      _id: new mongoose.Types.ObjectId(trip_id),
+    };
+    return this.findTripWithoutPopulate(payload);
   }
   static async findTripByAccount(account_id) {
     checkValidId(account_id);

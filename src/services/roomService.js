@@ -59,8 +59,8 @@ class RoomService {
   static async enableRoom(room_id) {
     return await RoomRepository.publishRoom(room_id);
   }
-  static async removeRoom(room_id) {
-    return await RoomRepository.removeRoom(room_id);
+  static async removeRoom(room_slug) {
+    return await RoomRepository.removeRoom(room_slug);
   }
 }
 module.exports = RoomService;

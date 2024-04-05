@@ -120,9 +120,9 @@ class RoomRepository {
     };
     return await this.update(query, update);
   }
-  static async removeRoom(room_id) {
+  static async removeRoom(room_slug) {
     const query = {
-      _id: new mongoose.Types.ObjectId(room_id),
+      slug: room_slug,
     };
     return await _Room.deleteOne(query);
   }

@@ -97,6 +97,10 @@ class ProductRepository {
     };
     return await this.updateProduct(query, update);
   }
+  static async getAllsWithoutPagination(query = {}) {
+    let result = await _Product.find(query);
+    return { total: result.length, data: result };
+  }
   static async getAlls(query, page, limit, sortType) {
     const skip = (page - 1) * limit;
     const products = await _Product.find(query);

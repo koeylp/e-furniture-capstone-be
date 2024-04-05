@@ -22,7 +22,7 @@ router.put(
   asyncHandler(RoomController.enableRoom)
 );
 router.delete(
-  "/:room_id",
+  "/:room_slug",
   hasPermission(global.PermissionConstants.ADMIN_DELETE),
   asyncHandler(RoomController.removeRoom)
 );

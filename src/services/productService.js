@@ -177,6 +177,7 @@ class ProductService {
             (inside) => inside.property_id === data._id.toString()
           ).property_id,
           variation_id: item._id,
+          color: data.value,
           sub_price: data.sub_price,
         }))
     );

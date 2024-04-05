@@ -30,6 +30,7 @@ const routes = [
   { path: "/deliveryTrip", route: require("../routes/deliveryTrip") },
   { path: "/notiEfurniture", route: require("../routes/notiEfurniture") },
   { path: "/noti", route: require("../routes/notification") },
+  { path: "/statistic", route: require("../routes/statistic") },
 ];
 
 const configureRoutes = (app) => {
