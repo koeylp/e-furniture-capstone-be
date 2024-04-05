@@ -56,6 +56,12 @@ class OrderService {
   static async removeOrder(order_id) {
     return await OrderRepository.removeOrder(order_id);
   }
+  static async startCreateOrder() {
+    const checkInven = await verifyProductStockExistence(order);
+    if (checkInven) {
+    }
+    return await this.createOrder(account_id, order);
+  }
   static async createOrder(account_id, order) {
     await verifyProductStockExistence(order);
     order = await this.categorizePaymentMethod(order);
@@ -71,12 +77,13 @@ class OrderService {
     for (let product of order.order_products) {
       await CartUtils.removeItem(account_id, product);
     }
+    const warehouses = await StockUtil.updateStock(order);
+    order.warehouses = warehouses;
     const newOrder = await OrderRepository.createOrder(account_id, order);
     if (newOrder) {
       const day = new Date().setUTCHours(0, 0, 0, 0);
       // const profit = order.order_checkout.final_total;
       // await RevenueRepository.updateOrInsert(profit, day);
-      await StockUtil.updateStock(order);
     }
     return newOrder;
   }
@@ -114,13 +121,16 @@ class OrderService {
   }
   static async createOrderGuest(order) {
     await verifyProductStockExistence(order);
+    order = await this.categorizePaymentMethod(order);
+    const warehouses = await StockUtil.updateStock(order);
+    order.warehouses = warehouses;
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
     else {
       // const day = new Date().setUTCHours(0, 0, 0, 0);
       // const profit = order.order_checkout.final_total;
       // await RevenueRepository.updateOrInsert(profit, day);
-      await StockUtil.updateStock(order);
+      // await StockUtil.updateStock(order);
     }
     await MailtrapService.send(newOrder);
     return newOrder;

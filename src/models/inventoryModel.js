@@ -9,7 +9,6 @@ const schema = new Schema(
     product: {
       type: Schema.Types.ObjectId,
       required: true,
-      unique: true,
       ref: "Product",
     },
     variation: { type: Array },

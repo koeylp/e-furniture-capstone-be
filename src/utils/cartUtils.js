@@ -21,7 +21,6 @@ class CartUtils {
   static async removeItem(account_id, product) {
     let cart = await CartUtils.handleCart(account_id);
     const foundProduct = await verifyProductExistence(product.product_id);
-    console.log(cart.products);
     const foundIndex = cart.products.findIndex(
       (el) => el.code === product.code
     );

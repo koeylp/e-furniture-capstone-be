@@ -2,6 +2,7 @@ const _DeliveryTrip = require("../deliveryTripModel");
 const { InternalServerError } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
 const { checkValidId } = require("../../utils");
+const WareHouseRepository = require("./warehouseRepository");
 
 class DeliveryRepository {
   static async createTrip(payload) {
@@ -10,20 +11,39 @@ class DeliveryRepository {
     return result;
   }
   static async findTrip(payload) {
-    return await _DeliveryTrip
+    let result = await _DeliveryTrip
       .findOne(payload)
       .populate({
-        path: "orders.order",
-        select: "order_shipping",
+        path: "orders.order orders.order.warehouses",
+        select: "order_shipping warehouses",
       })
       .lean();
+
+    const data = await Promise.all(
+      result.orders.map(async (item) => {
+        const updatedWarehouses = await Promise.all(
+          item.order.warehouses.map(async (inside) => {
+            const data = await WareHouseRepository.getWareHouseByIDWithOptions(
+              inside.warehouse_id
+            );
+            return { ...inside, warehouse_id: data[0] };
+          })
+        );
+        return {
+          ...item,
+          order: { ...item.order, warehouses: updatedWarehouses },
+        };
+      })
+    );
+
+    return data;
   }
   static async getTrips(payload = {}) {
     return await _DeliveryTrip
       .find(payload)
       .populate({
         path: "orders.order",
-        select: "order_shipping",
+        select: "order_shipping warehouses",
       })
       .lean();
   }
