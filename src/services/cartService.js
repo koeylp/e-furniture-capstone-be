@@ -33,11 +33,11 @@ class CartService {
     return { cart, foundIndex };
   }
   static async removeItem(account_id, product) {
-    const { cart, foundIndex } = await this.getProductIndex(
+    let { cart, foundIndex } = await this.getProductIndex(
       account_id,
       product.code
     );
-    cart = await CartUtils.remove(cart, foundProduct, foundIndex);
+    cart = await CartUtils.remove(cart, foundIndex);
     return await CartRepository.save(cart);
   }
 
@@ -49,7 +49,7 @@ class CartService {
   }
 
   static async updateItemQuantity(account_id, product, newQuantity) {
-    const { cart, foundIndex } = await this.getProductIndex(
+    let { cart, foundIndex } = await this.getProductIndex(
       account_id,
       product.code
     );
@@ -83,7 +83,7 @@ class CartService {
   }
 
   static async decreaseItemQuantity(account_id, product) {
-    const { cart, foundIndex } = await this.getProductIndex(
+    let { cart, foundIndex } = await this.getProductIndex(
       account_id,
       product.code
     );
@@ -95,7 +95,7 @@ class CartService {
   }
 
   static async increaseItemQuantity(account_id, product) {
-    const { cart, foundIndex } = await this.getProductIndex(
+    let { cart, foundIndex } = await this.getProductIndex(
       account_id,
       product.code
     );
@@ -116,11 +116,10 @@ class CartService {
   }
 
   static async addArrayToCart(account_id, products) {
-    let cart = await CartUtils.handleCart(account_id);
     for (let i = 0; i < products.length; i++) {
       await this.addToCart(account_id, products[i]);
     }
-    return await CartRepository.save(cart);
+    return true;
   }
 
   static async updateVariationCart(account_id, cartItem) {

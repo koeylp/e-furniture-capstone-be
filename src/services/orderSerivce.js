@@ -34,9 +34,14 @@ class OrderService {
   static async findOrderByUser(account_id, page, limit) {
     return await OrderRepository.getOrdersByUser(account_id, page, limit);
   }
-  static async findOrderByType(type, page, limit) {
+  static async findOrderByType(type, page, limit, status) {
     if (type === "All") return await OrderRepository.getOrders({ page, limit });
-    return await OrderRepository.getOrdersByType({ type, page, limit });
+    return await OrderRepository.getOrdersByType({
+      type,
+      page,
+      limit,
+      status,
+    });
   }
   static async findOrderByTypeU(account_id, type, page, limit) {
     if (type === "All") {

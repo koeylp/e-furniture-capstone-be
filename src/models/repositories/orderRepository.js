@@ -17,6 +17,14 @@ class OrderRepository {
       .exec();
     return { total: result.length, data: result };
   }
+  static async getOrderWithoutPagination(query = {}) {
+    const result = await _Order.find(query).lean({ virtuals: true }).exec();
+    return { total: result.length, data: result };
+  }
+  static async Aggregate({ query = {} }) {
+    const result = await _Order.aggregate(query);
+    return result;
+  }
   static async getOrdersByUser(account_id, page, limit) {
     checkValidId(account_id);
     const query = {
@@ -25,7 +33,7 @@ class OrderRepository {
     };
     return await this.getOrders(query, page, limit);
   }
-  static async getOrdersByType({ account_id, type, page, limit }) {
+  static async getOrdersByType({ account_id, type, page, limit, status = 1 }) {
     const query = {
       ...(account_id && { account_id }),
       guest: false,
@@ -33,7 +41,15 @@ class OrderRepository {
     };
     if (type) {
       query.$expr = {
-        $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type],
+        $and: [
+          { $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type] },
+          {
+            $eq: [
+              { $arrayElemAt: ["$order_tracking.status", -1] },
+              parseInt(status),
+            ],
+          },
+        ],
       };
     }
     return await this.getOrders({ query, page, limit });
@@ -171,6 +187,17 @@ class OrderRepository {
       { arrayFilters: [{ "element.name": "Cancelled" }] }
     );
   }
+  // static async updateSubStateInsideOrderTracking(order_id) {
+  //   const query = {
+  //     _id: new mongoose.Types.ObjectId(order_id),
+  //     status: 1,
+  //   };
+  //   return await _Order.updateOne(
+  //     query,
+  //     { $set: { "order_tracking.$[element].status": parseInt(status) } },
+  //     { arrayFilters: [{ "element.name": "Cancelled" }] }
+  //   );
+  // }
   static async update(order_id, newSubstate) {
     return await _Order
       .findByIdAndUpdate(

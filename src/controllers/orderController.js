@@ -33,13 +33,14 @@ class OrderController {
   }
 
   static async findOrderByType(req, res) {
-    const { page, limit, type } = req.query;
+    const { page, limit, type, status } = req.query;
     return new OK({
       message: "List Of Order By Type",
       metaData: await OrderService.findOrderByType(
         capitalizeFirstLetter(type),
         page,
-        limit
+        limit,
+        status
       ),
     }).send(res);
   }

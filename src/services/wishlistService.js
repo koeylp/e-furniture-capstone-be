@@ -13,7 +13,7 @@ class VoucherService {
 
   static async addToWishlist(account_id, product) {
     let wishlist = await this.handleWishlist(account_id);
-    if (wishlist.products.some((el) => el._id === product)) return wishlist;
+    if (wishlist.products.some((el) => el === product)) return wishlist;
     wishlist.products.push(product);
     await WishlistRepositoy.save(wishlist);
     console.log(wishlist);
@@ -44,12 +44,10 @@ class VoucherService {
   }
 
   static async addArrayToWishlist(account_id, products) {
-    let wishlist = await this.handleWishlist(account_id);
     for (let index = 0; index < products.length; index++) {
       await this.addToWishlist(account_id, products[index]);
     }
-    await WishlistRepositoy.save(wishlist);
-    return wishlist;
+    return true;
   }
 }
 

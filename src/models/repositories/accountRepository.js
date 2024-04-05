@@ -49,6 +49,10 @@ class AccountRepository {
       .lean();
     return { total: accounts.length, data: result };
   }
+  static async getAccountsWithoutPagination(query = {}) {
+    const result = await _Account.find(query).lean();
+    return { total: result.length, data: result };
+  }
   static async findAccount(query) {
     return await _Account
       .findOne(query)
