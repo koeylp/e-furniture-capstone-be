@@ -1,5 +1,5 @@
 const _WareHouse = require("../warehouseModel");
-const { checkValidId } = require("../../utils/index");
+const { checkValidId, getUnSelectData } = require("../../utils/index");
 const { default: mongoose } = require("mongoose");
 const { InternalServerError } = require("../../utils/errorHanlder");
 class WareHouseRepository {
@@ -21,6 +21,44 @@ class WareHouseRepository {
     const skip = (page - 1) * limit;
     return await _WareHouse.find().skip(skip).limit(limit).lean().exec();
   }
+  static async getWareHouseByQuery(query, option = []) {
+    return await _WareHouse
+      .find(query)
+      .select(getUnSelectData(option))
+      .lean()
+      .exec();
+  }
+  static async getWareHouseByArrayId(array) {
+    const query = {
+      _id: {
+        $in: array.map((id) => new mongoose.Types.ObjectId(id.warehouse_id)),
+      },
+    };
+    const option = [
+      "products",
+      "is_draft",
+      "is_published",
+      "createdAt",
+      "updatedAt",
+      "__v",
+    ];
+    return await this.getWareHouseByQuery(query, option);
+  }
+  static async getWareHouseByIDWithOptions(warehouse_id) {
+    const query = {
+      _id: new mongoose.Types.ObjectId(warehouse_id),
+    };
+    const option = [
+      "products",
+      "is_draft",
+      "is_published",
+      "createdAt",
+      "updatedAt",
+      "__v",
+    ];
+    return await this.getWareHouseByQuery(query, option);
+  }
+
   static async findWareHouseByProduct(product_id) {
     checkValidId(product_id);
     const query = {

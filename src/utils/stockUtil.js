@@ -26,50 +26,114 @@ class StockUtil {
         `The product with id ${product_id} is out of stock`
       );
     if (foundProductStock.stock < quantity) {
-      throw new BadRequestError(
-        `The product with id ${product_id} must be less than or equal to ${foundProductStock.stock}`
-      );
+      throw new BadRequestError(`Product is out of stock`);
     }
+    if (foundProductStock.stock > 100) return false;
+    return true;
   }
   static async updateStock(order) {
+    const result = {};
     const products = order.order_products;
-    for (const product of products) {
-      await this.updateWarehouseStock(product, order.order_shipping);
-    }
     for (const product of products) {
       await this.updateInventoryStock(product);
     }
+    for (const product of products) {
+      let warehouses = await this.updateWarehouseStock(
+        product,
+        order.order_shipping
+      );
+      warehouses.map((warehouse) => {
+        if (!result[warehouse.warehouse_id]) {
+          result[warehouse.warehouse_id] = [warehouse.products];
+        } else {
+          result[warehouse.warehouse_id] = [
+            ...result[warehouse.warehouse_id],
+            warehouse.products,
+          ];
+        }
+      });
+    }
+    const array = [];
+
+    for (const warehouseId in result) {
+      array.push({
+        warehouse_id: warehouseId,
+        products: result[warehouseId],
+      });
+    }
+    return array;
   }
   static async updateWarehouseStock(product, order_shipping) {
     const { longitude, latitude } = order_shipping;
-    const { product_id, quantity, code } = product;
+    let { product_id, quantity, code, variation } = product;
+    let warehouse = [];
+    let productForOrder = await ProductRepository.findProductById(product_id);
+    while (quantity != 0) {
+      let foundWarehouses = await WarehouseRepository.findManyByProductCode(
+        code,
+        quantity
+      );
+      if (foundWarehouses.length == 0)
+        foundWarehouses = await WarehouseRepository.findManyByProductCode(
+          code,
+          1
+        );
+      if (!foundWarehouses)
+        throw new BadRequestError("WareHouse Code Was Not Found");
+      const nearestWarehouse = await StockUtil.findNearestWarehouse(
+        foundWarehouses,
+        longitude,
+        latitude
+      );
+      if (!nearestWarehouse)
+        throw NotFoundError("Cannot find neareast warehouse");
+      const product_index = nearestWarehouse.products.findIndex(
+        (el) => el.code === code
+      );
+      if (nearestWarehouse.products[product_index].stock >= quantity) {
+        nearestWarehouse.products[product_index].stock -= quantity;
+        await this.checkLowStockQuantity(
+          nearestWarehouse.products[product_index]
+        );
+        if (nearestWarehouse.products[product_index].stock < 0) {
+          nearestWarehouse.products[product_index].is_draft = true;
+          nearestWarehouse.products[product_index].is_published = false;
+        }
+        warehouse.push({
+          warehouse_id: nearestWarehouse._id,
+          products: {
+            name: productForOrder.name,
+            variation: variation,
+            quantity: quantity,
+          },
+        });
+        quantity = 0;
+      } else {
+        let quantityUpdate =
+          quantity - nearestWarehouse.products[product_index].stock;
 
-    // const foundWarehouses = await WarehouseRepository.findManyByQuery(
-    //   product_id,
-    //   product.quantity
-    // );
-    const foundWarehouses = await WarehouseRepository.findManyByProductCode(
-      code,
-      product.quantity
-    );
-    const nearestWarehouse = await StockUtil.findNearestWarehouse(
-      foundWarehouses,
-      longitude,
-      latitude
-    );
-    if (!nearestWarehouse)
-      throw NotFoundError("Cannot find neareast warehouse");
-    const product_index = nearestWarehouse.products.findIndex(
-      (el) => el.product.toHexString() === product_id
-    );
-    nearestWarehouse.products[product_index].stock -= quantity;
+        await this.checkLowStockQuantity(
+          nearestWarehouse.products[product_index]
+        );
+        if (nearestWarehouse.products[product_index].stock < 0) {
+          nearestWarehouse.products[product_index].is_draft = true;
+          nearestWarehouse.products[product_index].is_published = false;
+        }
+        quantity = quantityUpdate;
+        warehouse.push({
+          warehouse_id: nearestWarehouse._id,
+          products: {
+            name: productForOrder.name,
+            variation: variation,
+            quantity: nearestWarehouse.products[product_index].stock,
+          },
+        });
+        nearestWarehouse.products[product_index].stock = 0;
+      }
 
-    await this.checkLowStockQuantity(nearestWarehouse.products[product_index]);
-    if (nearestWarehouse.products[product_index].stock < 0) {
-      nearestWarehouse.products[product_index].is_draft = true;
-      nearestWarehouse.products[product_index].is_published = false;
+      await WarehouseRepository.save(nearestWarehouse);
     }
-    return await WarehouseRepository.save(nearestWarehouse);
+    return warehouse;
   }
 
   static async updateInventoryStock(product) {
@@ -79,14 +143,15 @@ class StockUtil {
     const updatedStock = foundInventory.stock - quantity;
     const updatedSold = foundInventory.sold + quantity;
 
-    if (updatedStock === 0) {
-      const productToDraft = await ProductRepository.findProductById(
-        product_id
-      );
-      await ProductService.draftProduct(
-        productToDraft.type,
-        productToDraft.slug
-      );
+    if (updatedStock <= 0) {
+      console.log("Draft");
+      // const productToDraft = await ProductRepository.findProductById(
+      //   product_id
+      // );
+      // await ProductService.draftProduct(
+      //   productToDraft.type,
+      //   productToDraft.slug
+      // );
     }
     const savedInventory = await InventoryRepository.save(
       foundInventory._id,

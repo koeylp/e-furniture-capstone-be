@@ -62,7 +62,6 @@ class OrderRepository {
     return await _Order.deleteOne(query);
   }
   static async createOrder(account_id, order) {
-    console.log(order);
     const order_code = generateOrderCode();
     const newOrder = await _Order.create({
       account_id: account_id,
@@ -70,6 +69,7 @@ class OrderRepository {
       order_products: order.order_products,
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
+      warehouses: order.warehouses,
       order_code: order_code,
     });
     if (!newOrder) throw new InternalServerError();
@@ -110,6 +110,7 @@ class OrderRepository {
       order_products: order.order_products,
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
+      warehouses: order.warehouses,
       order_code: order_code,
     });
     if (!order) throw new InternalServerError();
