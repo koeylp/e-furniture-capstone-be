@@ -12,6 +12,11 @@ const { verifyToken } = require("../../jwt/verifyToken");
 router.use(verifyToken);
 router.use(hasAccess(32));
 
+router.get(
+  "/draft",
+  hasPermission(global.PermissionConstants.STAFF_GET),
+  asyncHandler(ProductController.getDraftProduct)
+);
 router.post(
   "/",
   hasPermission(global.PermissionConstants.STAFF_POST),

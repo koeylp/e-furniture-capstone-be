@@ -9,11 +9,17 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const OrderService = require("./orderSerivce");
 class DeliveryTripService {
   static async create(payload) {
-    await Promise.all([
-      AccountRepository.findAccountById(payload.account_id),
-      this.verifyOrders(payload.orders),
-      this.modifyDirectTrip(),
-    ]);
+    const [accountData, verifiedOrders, modifiedDirectTrip] = await Promise.all(
+      [
+        AccountRepository.findAccountById(payload.account_id),
+        this.verifyOrders(payload.orders),
+        this.modifyDirectTrip(),
+      ]
+    );
+    if (accountData.status === 2)
+      throw new BadRequestError(
+        "Cannot Create Another Request! Waiting For Staff"
+      );
 
     payload.orders = await this.moddifyOrderInsideDelivertTrip(payload.orders);
 

@@ -85,7 +85,9 @@ class WareHouseService {
         );
       }
     }
-    return await WareHouseRepository.save(warehouse);
+    const result = await WareHouseRepository.save(warehouse);
+
+    return result;
   }
   static async updateProductStockInWarehouse(warehouse_id, product) {
     const foundInventory = await InventoryRepository.findByQuery({
