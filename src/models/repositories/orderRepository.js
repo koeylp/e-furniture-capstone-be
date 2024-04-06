@@ -142,6 +142,7 @@ class OrderRepository {
         guest: false,
         "order_tracking.name": { $ne: "Processing" },
       })
+      .populate("order_products.product_id")
       .lean();
 
     if (!order) {
