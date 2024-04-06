@@ -46,7 +46,7 @@ class DeliveryRepository {
       .find(payload)
       .populate({
         path: "orders.order",
-        select: "order_shipping warehouses",
+        select: "order_products order_shipping warehouses",
       })
       .lean();
   }

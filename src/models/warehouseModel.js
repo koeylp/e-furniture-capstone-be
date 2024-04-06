@@ -14,7 +14,7 @@ const schema = new Schema(
           required: true,
           ref: "Product",
         },
-        variation: { type: Array },
+        variation: { type: Array, required: true },
         code: { type: String, required: true },
         stock: { type: Number, required: true },
         lowStock: { type: Number, default: 0 },

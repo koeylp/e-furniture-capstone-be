@@ -156,7 +156,7 @@ class OrderController {
     const { note } = req.body;
     return new OK({
       message: "Accept processing to shipping successfully",
-      metaData: await OrderService.processingToShiping(order_id, note),
+      metaData: await OrderService.processingToShiping(order_id),
     }).send(res);
   }
   static async doneShipping(req, res) {
