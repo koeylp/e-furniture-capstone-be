@@ -82,9 +82,12 @@ class OrderService {
     for (let product of order.order_products) {
       await CartUtils.removeItem(account_id, product);
     }
+
     const warehouses = await StockUtil.updateStock(order);
     order.warehouses = warehouses;
+
     const newOrder = await OrderRepository.createOrder(account_id, order);
+
     if (newOrder) {
       const day = new Date().setUTCHours(0, 0, 0, 0);
       // const profit = order.order_checkout.final_total;

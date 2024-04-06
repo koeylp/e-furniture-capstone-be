@@ -154,23 +154,25 @@ class OrderRepository {
     } else {
       finalTotalUpdate = order.order_checkout.final_total;
     }
-    order = await _Order.findOneAndUpdate(
-      {
-        _id: new mongoose.Types.ObjectId(order_id),
-        account_id: account_id,
-        guest: false,
-        "order_tracking.name": { $ne: "Processing" },
-      },
-      {
-        $set: {
-          "order_checkout.is_paid": true,
-          "order_checkout.paid.paid_amount": paid_amount,
-          "order_checkout.final_total": finalTotalUpdate,
+    order = await _Order
+      .findOneAndUpdate(
+        {
+          _id: new mongoose.Types.ObjectId(order_id),
+          account_id: account_id,
+          guest: false,
+          "order_tracking.name": { $ne: "Processing" },
         },
-        $push: { order_tracking: { name: "Processing" } },
-      },
-      { new: true, lean: true }
-    );
+        {
+          $set: {
+            "order_checkout.is_paid": true,
+            "order_checkout.paid.paid_amount": paid_amount,
+            "order_checkout.final_total": finalTotalUpdate,
+          },
+          $push: { order_tracking: { name: "Processing" } },
+        },
+        { new: true }
+      )
+      .populate("order_products.product_id");
     if (!order) {
       throw new InternalServerError("This order is already in processing.");
     }
@@ -213,7 +215,7 @@ class OrderRepository {
       {
         $match: {
           _id: new mongoose.Types.ObjectId(orderId),
-          status: 1, // Only consider orders with status 1
+          status: 1,
         },
       },
       {
@@ -233,12 +235,10 @@ class OrderRepository {
       },
       {
         $match: {
-          failedCount: { $gte: 3 }, // Check if failedCount is 3 or more
+          failedCount: { $gte: 3 },
         },
       },
     ]);
-
-    // Update the status of failed order
     if (failedOrder.length > 0) {
       const updatedOrder = await _Order.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId(orderId) },
