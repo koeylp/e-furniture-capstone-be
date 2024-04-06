@@ -9,7 +9,7 @@ const {
 const { verifyToken } = require("../../jwt/verifyToken");
 
 router.use(verifyToken);
-router.use(hasAccess(30));
+router.use(hasAccess(32));
 
 router.get(
   "/detail/:trip_id",

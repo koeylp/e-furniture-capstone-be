@@ -5,6 +5,7 @@ const {
   getSelectData,
   defaultVariation,
 } = require("../../utils");
+const InventoryRepository = require("./inventoryRepository");
 
 class SubTypeRepository {
   static async createSubTypeValue(subTypeModel, payload) {
@@ -95,12 +96,29 @@ class SubTypeRepository {
           "-is_draft -is_published -createdAt -updatedAt -__v -attributes ",
       })
       .lean();
-    result.products = result.products.map((data) => {
-      data.productId.select_variation = data.productId.variation.map((item) => {
-        return defaultVariation(item);
-      });
-      return { ...data };
-    });
+    // result.products = result.products.map((data) => {
+    //   data.productId.select_variation = data.productId.variation.map((item) => {
+    //     return defaultVariation(item);
+    //   });
+    //   return { ...data };
+    // });
+    // return result;
+
+    result.products = await Promise.all(
+      result.products.map(async (data) => {
+        console.log(data);
+        data.productId.variation = await InventoryRepository.getStockForProduct(
+          data._id,
+          data.productId.variation
+        );
+        data.productId.select_variation = data.productId.variation.map(
+          (item) => {
+            return defaultVariation(item);
+          }
+        );
+        return { ...data };
+      })
+    );
     return result;
   }
   static async findSubTypeByName(name, subTypeModel) {

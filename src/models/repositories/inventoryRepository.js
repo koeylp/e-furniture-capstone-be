@@ -1,5 +1,9 @@
 const _Inventory = require("../inventoryModel");
-const { getUnSelectData, defaultVariation } = require("../../utils");
+const {
+  getUnSelectData,
+  defaultVariation,
+  createCode,
+} = require("../../utils");
 const { default: mongoose } = require("mongoose");
 class InventoryRepository {
   static async createInventory(inventory) {
@@ -21,13 +25,35 @@ class InventoryRepository {
       .select(getUnSelectData(["__v"]))
       .limit(limit)
       .lean();
-    inventories = inventories.map((data) => {
-      data.product.select_variation = data.product.variation.map((item) => {
-        return defaultVariation(item);
-      });
-      return { ...data };
-    });
+    inventories = await Promise.all(
+      inventories.map(async (data) => {
+        data.product.variation = await this.getStockForProduct(
+          data.product._id,
+          data.product.variation
+        );
+        data.product.select_variation = data.product.variation.map((item) =>
+          defaultVariation(item)
+        );
+        return data;
+      })
+    );
+
     return inventories;
+  }
+  static async getStockForProduct(product_id, variation) {
+    return await Promise.all(
+      variation.flatMap(async (item) => {
+        await Promise.all(
+          item.properties.map(async (property) => {
+            const check = await this.findByQuery({
+              code: createCode(product_id.toString(), property._id.toString()),
+            });
+            property.stock = check ? check.stock : 0;
+          })
+        );
+        return item;
+      })
+    );
   }
   static async findByQuery(query) {
     return await _Inventory
