@@ -22,7 +22,7 @@ class DeliveryRepository {
       })
       .lean();
 
-    const data = await Promise.all(
+    result.orders = await Promise.all(
       result.orders.map(async (item) => {
         const updatedWarehouses = await Promise.all(
           item.order.warehouses.map(async (inside) => {
@@ -39,7 +39,7 @@ class DeliveryRepository {
       })
     );
 
-    return data[0];
+    return result;
   }
   static async getTrips(payload = {}) {
     return await _DeliveryTrip

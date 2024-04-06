@@ -57,19 +57,9 @@ class ProductRepository {
       .lean()
       .exec();
 
-    result.variation = await Promise.all(
-      result.variation.flatMap(async (item) => {
-        await Promise.all(
-          item.properties.map(async (property) => {
-            const check = await InventoryRepository.findByQuery({
-              code: createCode(result._id.toString(), property._id.toString()),
-            });
-            property.stock = check.stock;
-          })
-        );
-        console.log(item.properties);
-        return item;
-      })
+    result.variation = await InventoryRepository.getStockForProduct(
+      result._id,
+      result.variation
     );
     result.select_variation = result.variation.map((item) => {
       return defaultVariation(item);
@@ -130,12 +120,18 @@ class ProductRepository {
       .populate("type")
       .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
       .lean();
-    result = result.map((data) => {
-      data.select_variation = data.variation.map((item) => {
-        return defaultVariation(item);
-      });
-      return { ...data };
-    });
+    result = await Promise.all(
+      result.map(async (data) => {
+        data.variation = await InventoryRepository.getStockForProduct(
+          data._id,
+          data.variation
+        );
+        data.select_variation = data.variation.map((item) => {
+          return defaultVariation(item);
+        });
+        return { ...data };
+      })
+    );
     return { total: products.length, data: result };
   }
   static async getAllDraft(page, limit, sortType) {
