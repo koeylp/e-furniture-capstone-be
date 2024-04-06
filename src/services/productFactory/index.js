@@ -51,6 +51,8 @@ class TypeProduct extends Product {
       this.attributes.type,
       typeModel
     );
+    if (!this.variation || this.variation.length == 0)
+      throw new BadRequestError();
     if (!subType)
       throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
     this.type = type._id;

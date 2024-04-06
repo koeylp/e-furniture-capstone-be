@@ -16,7 +16,7 @@ class DeliveryTripController {
     if (!trip_id) throw new BadRequestError();
     return new OK({
       message: "Trip Detail!",
-      metaData: await DeliveryTripService.findTrip(trip_id),
+      metaData: await DeliveryTripService.findTripById(trip_id),
     }).send(res);
   }
   static async findTripByAccount(req, res) {

@@ -20,7 +20,7 @@ class NotificationEfurnitureService {
     const payload = {
       title: "Request Delivery Trip!",
       message: "New Delivery Trip Has Been Request",
-      status: 1,
+      status: 2,
     };
     const notification = await this.createNotification(payload);
     console.log(notification);

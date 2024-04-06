@@ -187,17 +187,17 @@ class OrderRepository {
       { arrayFilters: [{ "element.name": "Cancelled" }] }
     );
   }
-  // static async updateSubStateInsideOrderTracking(order_id) {
-  //   const query = {
-  //     _id: new mongoose.Types.ObjectId(order_id),
-  //     status: 1,
-  //   };
-  //   return await _Order.updateOne(
-  //     query,
-  //     { $set: { "order_tracking.$[element].status": parseInt(status) } },
-  //     { arrayFilters: [{ "element.name": "Cancelled" }] }
-  //   );
-  // }
+  static async updateSubStateInsideOrderTracking(order_id, state, status) {
+    const query = {
+      _id: new mongoose.Types.ObjectId(order_id),
+      status: 1,
+    };
+    return await _Order.updateOne(
+      query,
+      { $set: { "order_tracking.$[element].status": parseInt(status) } },
+      { arrayFilters: [{ "element.name": state }] }
+    );
+  }
   static async update(order_id, newSubstate) {
     return await _Order
       .findByIdAndUpdate(

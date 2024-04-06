@@ -6,14 +6,31 @@ const NotificationRepository = require("../models/repositories/notificationRepos
 const { default: mongoose } = require("mongoose");
 const NotificationEfurnitureService = require("./NotificationEfurnitureService");
 const { BadRequestError } = require("../utils/errorHanlder");
+const OrderService = require("./orderSerivce");
 class DeliveryTripService {
   static async create(payload) {
-    await AccountRepository.findAccountById(payload.account_id);
-    await this.verifyOrders(payload.orders);
-    await this.modifyDirectTrip();
+    await Promise.all([
+      AccountRepository.findAccountById(payload.account_id),
+      this.verifyOrders(payload.orders),
+      this.modifyDirectTrip(),
+    ]);
+
     payload.orders = await this.moddifyOrderInsideDelivertTrip(payload.orders);
+
     const result = await DeliveryTripRepository.createTrip(payload);
-    await NotificationEfurnitureService.notiRequestDeliveryTrip();
+    payload.orders.forEach(
+      async (order) =>
+        await OrderRepository.updateSubStateInsideOrderTracking(
+          order.order,
+          "Processing",
+          2
+        )
+    );
+
+    await Promise.all([
+      AccountRepository.updateStateAccount(payload.account_id, 2),
+      NotificationEfurnitureService.notiRequestDeliveryTrip(),
+    ]);
     return result;
   }
 
@@ -45,6 +62,10 @@ class DeliveryTripService {
     return await DeliveryTripRepository.findTripByIdWithoutPopulate(trip_id);
   }
 
+  static async findTripById(trip_id) {
+    return await DeliveryTripRepository.findTripById(trip_id);
+  }
+
   static async getDeliveryTripPending() {
     let payload = {
       status: 0,
@@ -57,7 +78,7 @@ class DeliveryTripService {
     const checkAccount = await AccountRepository.findAccountById(
       trip.account_id
     );
-    return checkAccount;
+    return { account: checkAccount, deliveryTrip: trip };
   }
 
   static async getAllDeliveryTrip() {
@@ -75,7 +96,9 @@ class DeliveryTripService {
   }
 
   static async DoneDeliveryTrip(trip_id) {
-    const account = await this.getAccountInDeliveryTrip(trip_id);
+    const { account, deliveryTrip } = await this.getAccountInDeliveryTrip(
+      trip_id
+    );
     await AccountRepository.updateStateAccount(account._id, 1);
     const payload = {
       account_id: account._id,
@@ -127,16 +150,21 @@ class DeliveryTripService {
   }
 
   static async confirmDeliveryTrip(trip_id) {
-    const account = await this.getAccountInDeliveryTrip(trip_id);
+    const { account, deliveryTrip } = await this.getAccountInDeliveryTrip(
+      trip_id
+    );
     if (account.status === 3)
       throw new BadRequestError("Delivery Is On Another Trip!");
     const result = await this.updateDeliveryTripStatus(trip_id, 1);
+    deliveryTrip.orders.forEach(
+      async (order) => await OrderService.processingToShiping(order.order)
+    );
     await AccountRepository.updateStateAccount(account._id, 3);
     const payload = {
       account_id: result.account_id,
       title: "Confirm Delivery Trip",
       message: "Your Delivery Trip Has Been Confirm By Staff",
-      status: 1,
+      status: 2,
     };
     await this.SendNotification(payload);
     return result;

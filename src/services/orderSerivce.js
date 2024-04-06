@@ -309,7 +309,7 @@ class OrderService {
     await DistrictService.increaseOrderOfDistrictByName(district);
   }
 
-  static async processingToShiping(order_id, note) {
+  static async processingToShiping(order_id) {
     const order = await verifyOrderExistence(order_id);
     const key_of_type = getKeyByValue(
       orderTrackingMap,
@@ -320,7 +320,7 @@ class OrderService {
     await OrderTrackingUtil.validateProcessingTrackUpdate(key_of_type);
     const update = {
       name: orderTrackingMap.get(2),
-      note: note,
+      note: "Your Order Is On Its Way",
     };
     return await OrderRepository.updateOrderTracking(order_id, update, {});
   }
