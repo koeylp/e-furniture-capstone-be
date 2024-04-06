@@ -3,6 +3,7 @@ class SocketIOService {
     socket.on("notification", () => {});
     socket.on("add-user", (account_id) => {
       onlineUsers.set(account_id, socket.id);
+      _io.to(socket.id).emit("checkRegister", "Toàn Was Here");
     });
 
     socket.emit("hello", "world");
