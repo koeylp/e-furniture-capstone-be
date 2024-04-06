@@ -231,5 +231,28 @@ class ProductRepository {
     });
     return { total: products.length, data: result };
   }
+  static async findVariationValues(product_id, variation) {
+    const product = await this.findProductById(product_id);
+    const matchingVariations = product.variation.filter((item) =>
+      variation.some((inside) => inside.variation_id === item._id.toString())
+    );
+
+    const result = matchingVariations.flatMap((item) =>
+      item.properties
+        .filter((data) =>
+          variation.some((inside) => inside.property_id === data._id.toString())
+        )
+        .map((data) => ({
+          property_id: variation.find(
+            (inside) => inside.property_id === data._id.toString()
+          ).property_id,
+          variation_id: item._id,
+          color: data.value,
+          sub_price: data.sub_price,
+        }))
+    );
+
+    return result;
+  }
 }
 module.exports = ProductRepository;

@@ -66,6 +66,10 @@ class StockUtil {
   static async updateWarehouseStock(product, order_shipping) {
     const { longitude, latitude } = order_shipping;
     let { product_id, quantity, code, variation } = product;
+    variation = await ProductRepository.findVariationValues(
+      product_id,
+      variation
+    );
     let warehouse = [];
     let productForOrder = await ProductRepository.findProductById(product_id);
     while (quantity != 0) {
@@ -103,6 +107,7 @@ class StockUtil {
           warehouse_id: nearestWarehouse._id,
           products: {
             name: productForOrder.name,
+            thumbs: productForOrder.thumbs,
             variation: variation,
             quantity: quantity,
           },
@@ -125,6 +130,7 @@ class StockUtil {
           products: {
             name: productForOrder.name,
             variation: variation,
+            thumbs: productForOrder.thumbs,
             quantity: nearestWarehouse.products[product_index].stock,
           },
         });
@@ -135,7 +141,6 @@ class StockUtil {
     }
     return warehouse;
   }
-
   static async updateInventoryStock(product) {
     const { product_id, quantity, code } = product;
     const query = { code: code };
