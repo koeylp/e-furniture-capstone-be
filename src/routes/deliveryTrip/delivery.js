@@ -21,11 +21,6 @@ router.get(
   hasPermission(global.PermissionConstants.DELIVERY_GET),
   asyncHandler(DeliveryController.findTripByAccount)
 );
-router.get(
-  "/detail/:trip_id",
-  hasPermission(global.PermissionConstants.DELIVERY_GET),
-  asyncHandler(DeliveryController.findTrip)
-);
 router.put(
   "/:trip_id",
   hasPermission(global.PermissionConstants.DELIVERY_PUT),

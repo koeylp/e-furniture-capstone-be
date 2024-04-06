@@ -1,6 +1,7 @@
 "use strict";
 const mongoose = require("mongoose");
 const { NotFoundError, BadRequestError } = require("./errorHanlder");
+const crypto = require("crypto");
 
 const getSelectData = (select = []) => {
   return Object.fromEntries(select.map((el) => [el, 1]));
@@ -70,6 +71,7 @@ const defaultVariation = (item) => {
     variation_id: item._id,
     property_id: item.properties[0]._id,
     sub_price: item.properties[0].sub_price,
+    stock: item.properties[0].stock,
   };
 };
 function removeDuplicates(arr) {
@@ -83,6 +85,14 @@ function convertAttributes(attributes) {
     const { _id, ...rest } = attribute._id;
     return { _id, ...rest };
   });
+}
+function createCode(product_id, propertyId) {
+  const code = crypto
+    .createHash("sha256")
+    .update(product_id + propertyId)
+    .digest("hex")
+    .slice(0, 20);
+  return code;
 }
 
 module.exports = {
@@ -99,4 +109,5 @@ module.exports = {
   removeDuplicates,
   convertAttributes,
   defaultVariation,
+  createCode,
 };
