@@ -118,7 +118,6 @@ class VoucherUtil {
 
   static async getBySpecified(products) {
     const currentTimestamp = new Date().toISOString();
-    console.log(currentTimestamp);
     const activeVouchers = await VoucherRepository.findAllByQuery(
       {
         is_active: 1,
@@ -127,6 +126,31 @@ class VoucherUtil {
       },
       [["createdAt", -1]]
     );
+
+    const sortByUserCanUse = (voucher1, voucher2) => {
+      const canUseVoucher1 =
+        voucher1.products.length === 0 ||
+        products.some(
+          (product) =>
+            voucher1.products.includes(product.product_id) &&
+            voucher1.minimum_order_value <= product.price
+        );
+      const canUseVoucher2 =
+        voucher2.products.length === 0 ||
+        products.some(
+          (product) =>
+            voucher2.products.includes(product.product_id) &&
+            voucher2.minimum_order_value <= product.price
+        );
+
+      if (canUseVoucher1 && !canUseVoucher2) {
+        return -1;
+      } else if (!canUseVoucher1 && canUseVoucher2) {
+        return 1;
+      } else {
+        return 0;
+      }
+    };
 
     const filteredVouchers = activeVouchers.filter(
       (voucher) =>
@@ -138,6 +162,7 @@ class VoucherUtil {
         )
     );
 
+    filteredVouchers.sort(sortByUserCanUse);
     return filteredVouchers;
   }
 }
