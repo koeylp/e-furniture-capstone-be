@@ -17,6 +17,7 @@ const schema = new Schema(
         variation: { type: Array, required: true },
         code: { type: String, required: true },
         stock: { type: Number, required: true },
+        sold: { type: Number, default: 0 },
         lowStock: { type: Number, default: 0 },
         isNoti: { type: Boolean, default: false },
         is_draft: { type: Boolean, default: false },

@@ -5,6 +5,7 @@ const {
   createCode,
 } = require("../../utils");
 const { default: mongoose } = require("mongoose");
+const ProductUtils = require("../../utils/productUtils");
 class InventoryRepository {
   static async createInventory(inventory) {
     const newInventory = await _Inventory.create(inventory);
@@ -27,10 +28,12 @@ class InventoryRepository {
       .lean();
     inventories = await Promise.all(
       inventories.map(async (data) => {
-        data.product.variation = await this.getStockForProduct(
+        let { total, variation } = await this.getStockForProduct(
           data.product._id,
           data.product.variation
         );
+        data.product.variation = variation;
+        data.product.stock = total;
         data.product.select_variation = data.product.variation.map((item) =>
           defaultVariation(item)
         );
@@ -41,7 +44,8 @@ class InventoryRepository {
     return inventories;
   }
   static async getStockForProduct(product_id, variation) {
-    return await Promise.all(
+    let totalStock = 0;
+    variation = await Promise.all(
       variation.flatMap(async (item) => {
         await Promise.all(
           item.properties.map(async (property) => {
@@ -49,11 +53,13 @@ class InventoryRepository {
               code: createCode(product_id.toString(), property._id.toString()),
             });
             property.stock = check ? check.stock : 0;
+            totalStock += property.stock;
           })
         );
         return item;
       })
     );
+    return { total: totalStock, variation: variation };
   }
   static async findByQuery(query) {
     return await _Inventory

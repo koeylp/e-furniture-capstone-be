@@ -105,14 +105,17 @@ class DeliveryTripService {
     const { account, deliveryTrip } = await this.getAccountInDeliveryTrip(
       trip_id
     );
-    await AccountRepository.updateStateAccount(account._id, 1);
+    const accountResult = await AccountRepository.updateStateAccount(
+      account._id,
+      1
+    );
     const payload = {
       account_id: account._id,
       title: "Done Delivery Trip",
       message: "Your Delivery Trip Has Been Done",
       status: 1,
     };
-    await this.SendNotification(payload);
+    await this.SendNotification(payload, accountResult.status);
     return await this.updateOrdersWithMainStatus(trip_id);
   }
 
@@ -165,19 +168,22 @@ class DeliveryTripService {
     deliveryTrip.orders.forEach(
       async (order) => await OrderService.processingToShiping(order.order)
     );
-    await AccountRepository.updateStateAccount(account._id, 3);
+    const accountResult = await AccountRepository.updateStateAccount(
+      account._id,
+      3
+    );
     const payload = {
       account_id: result.account_id,
       title: "Confirm Delivery Trip",
       message: "Your Delivery Trip Has Been Confirm By Staff",
       status: 2,
     };
-    await this.SendNotification(payload);
+    await this.SendNotification(payload, accountResult.status);
     return result;
   }
 
-  static async SendNotification(payload) {
-    SocketIOService.sendNotifiToDelivery(payload.account_id);
+  static async SendNotification(payload, state) {
+    SocketIOService.sendNotifiToDelivery(payload.account_id, state);
     await NotificationRepository.create(payload);
   }
 

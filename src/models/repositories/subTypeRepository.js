@@ -106,11 +106,12 @@ class SubTypeRepository {
 
     result.products = await Promise.all(
       result.products.map(async (data) => {
-        console.log(data);
-        data.productId.variation = await InventoryRepository.getStockForProduct(
+        let { total, variation } = await InventoryRepository.getStockForProduct(
           data._id,
           data.productId.variation
         );
+        data.productId.variation = variation;
+        data.productId.stock = total;
         data.productId.select_variation = data.productId.variation.map(
           (item) => {
             return defaultVariation(item);

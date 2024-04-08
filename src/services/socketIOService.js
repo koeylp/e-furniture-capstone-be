@@ -8,11 +8,10 @@ class SocketIOService {
 
     socket.emit("hello", "world");
   }
-  sendNotifiToDelivery(account_id) {
+  sendNotifiToDelivery(account_id, state) {
     const user = onlineUsers.get(account_id);
-    console.log(user);
     if (user) {
-      _io.to(user).emit("send-noti-to-delivery", true);
+      _io.to(user).emit("send-noti-to-delivery", state);
     }
   }
 }
