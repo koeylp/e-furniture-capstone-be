@@ -150,10 +150,19 @@ class OrderRepository {
       warehouses: order.warehouses,
       order_code: order_code,
     });
-    if (!order) throw new InternalServerError();
-    newOrder.order_tracking.push({ name: "Processing", note: order.note });
+    if (!newOrder) throw new InternalServerError();
+    if (
+      order.payment_method === "COD" &&
+      order.order_checkout.final_total < 1000000
+    )
+      newOrder.order_tracking.push({ name: "Processing", note: order.note });
+    else newOrder.order_tracking.push({ note: order.note });
     await newOrder.save();
-    return newOrder;
+    const populatedOrder = await _Order
+      .findById(newOrder._id)
+      .populate("order_products.product_id")
+      .lean({ virtuals: true });
+    return populatedOrder;
   }
   static async paid(account_id, order_id, paid_amount) {
     let order = await _Order
