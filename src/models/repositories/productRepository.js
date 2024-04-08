@@ -9,6 +9,7 @@ const { InternalServerError } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
 const { createCode } = require("../../utils/index");
 const InventoryRepository = require("./inventoryRepository");
+const ProductUtils = require("../../utils/productUtils");
 
 class ProductRepository {
   static async createProduct(payload) {
@@ -56,11 +57,12 @@ class ProductRepository {
       })
       .lean()
       .exec();
-
-    result.variation = await InventoryRepository.getStockForProduct(
+    let { total, variation } = await InventoryRepository.getStockForProduct(
       result._id,
       result.variation
     );
+    result.variation = variation;
+    result.stock = total;
     result.select_variation = result.variation.map((item) => {
       return defaultVariation(item);
     });
@@ -122,10 +124,12 @@ class ProductRepository {
       .lean();
     result = await Promise.all(
       result.map(async (data) => {
-        data.variation = await InventoryRepository.getStockForProduct(
+        let { total, variation } = await InventoryRepository.getStockForProduct(
           data._id,
           data.variation
         );
+        data.variation = variation;
+        data.stock = total;
         data.select_variation = data.variation.map((item) => {
           return defaultVariation(item);
         });

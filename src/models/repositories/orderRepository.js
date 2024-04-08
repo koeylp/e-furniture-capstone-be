@@ -3,19 +3,40 @@ const { getUnSelectData, checkValidId } = require("../../utils");
 const { default: mongoose } = require("mongoose");
 const { generateOrderCode } = require("../../utils/generateOrderCode");
 const { InternalServerError } = require("../../utils/errorHanlder");
+const ProductRepository = require("./productRepository");
 class OrderRepository {
   static async getOrders({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
-    const result = await _Order
-      .find(query)
-      .populate("order_products.product_id")
-      .sort([["createdAt", -1]])
-      .select(getUnSelectData(["__v"]))
-      .skip(skip)
-      .limit(limit)
-      .lean({ virtuals: true })
-      .exec();
-    return { total: result.length, data: result };
+    const [result, total] = await Promise.all([
+      _Order
+        .find(query)
+        .populate({
+          path: "order_products.product_id",
+        })
+        .sort([["createdAt", -1]])
+        .select(getUnSelectData(["__v"]))
+        .skip(skip)
+        .limit(limit)
+        .lean({ virtuals: true })
+        .exec(),
+      _Order.find({ status: 1 }),
+    ]);
+    const updatedProducts = await Promise.all(
+      result.map(async (item) => {
+        const updatedOrderProducts = await Promise.all(
+          item.order_products.map(async (product) => {
+            const variation = await ProductRepository.findVariationValues(
+              product.product_id._id.toString(),
+              product.variation
+            );
+            return { ...product, variation };
+          })
+        );
+        return { ...item, order_products: updatedOrderProducts };
+      })
+    );
+
+    return { total: total.length, data: updatedProducts };
   }
   static async getOrderWithoutPagination(query = {}) {
     const result = await _Order.find(query).lean({ virtuals: true }).exec();

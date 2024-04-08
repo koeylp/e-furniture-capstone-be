@@ -110,6 +110,8 @@ class WareHouseRepository {
           stock: { $gte: quantity },
         },
       },
+      is_draft: false,
+      is_published: true,
     };
     return await _WareHouse.find(query).exec();
   }
@@ -121,6 +123,8 @@ class WareHouseRepository {
           stock: { $gte: quantity },
         },
       },
+      is_draft: false,
+      is_published: true,
     };
     return await _WareHouse.find(query).exec();
   }
