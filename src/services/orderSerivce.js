@@ -23,7 +23,7 @@ const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 const DistrictService = require("./districtService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
-const PAY_TYPE = ["Not Paid", "Deposit"];
+const PAY_TYPE = ["No Deposit", "Deposit"];
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
