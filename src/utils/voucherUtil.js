@@ -44,27 +44,45 @@ class VoucherUtil {
         ? await VoucherUtil.applySpecificDiscount(
             product.price,
             found_voucher.value,
-            found_voucher.type
+            found_voucher.type,
+            found_voucher.max_discount
           )
         : product.price;
 
       order_total_after_voucher += product.new_price * product.quantity;
     };
 
+    // const applyDiscountToAllProducts = () => {
+    //   const discountFactor =
+    //     found_voucher.type === TYPE.FIXED_AMOUNT
+    //       ? found_voucher.value
+    //       : (order_total * found_voucher.value) / 100;
+
+    //   if (order_total < found_voucher.minimum_order_value)
+    //     throw new ForbiddenError(
+    //       `The total of the total is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
+    //     );
+
+    //   order_total_after_voucher = order_total - discountFactor;
+    // };
     const applyDiscountToAllProducts = () => {
-      const discountFactor =
-        found_voucher.type === TYPE.FIXED_AMOUNT
-          ? found_voucher.value
-          : (order_total * found_voucher.value) / 100;
-
-      if (order_total < found_voucher.minimum_order_value)
-        throw new ForbiddenError(
-          `The total of the total is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
+      let discountFactor;
+      if (found_voucher.type === TYPE.FIXED_AMOUNT) {
+        discountFactor = found_voucher.value;
+      } else {
+        const percentageDiscount = (order_total * found_voucher.value) / 100;
+        discountFactor = Math.min(
+          percentageDiscount,
+          found_voucher.max_discount
         );
-
+      }
+      if (order_total < found_voucher.minimum_order_value) {
+        throw new ForbiddenError(
+          `The total of the order is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
+        );
+      }
       order_total_after_voucher = order_total - discountFactor;
     };
-
     if (found_voucher.products.length > 0) {
       await Promise.all(products.map(applyDiscountToProduct));
     } else {
@@ -79,12 +97,14 @@ class VoucherUtil {
     };
   }
 
-  static async applySpecificDiscount(price, value, type) {
+  static async applySpecificDiscount(price, value, type, max_discount) {
+    console.log(max_discount);
     switch (type) {
       case TYPE.FIXED_AMOUNT:
         return price - value;
       case TYPE.PERCENTAGE:
-        return price * (1 - value / 100);
+        const discount = Math.min(price * (value / 100), max_discount);
+        return price - discount;
       default:
         return price;
     }

@@ -6,7 +6,7 @@ const DOCUMENT_NAME = "Voucher";
 
 const schema = new Schema(
   {
-    name: { type: String, required: true, unique: true},
+    name: { type: String, required: true, unique: true },
     description: { type: String, required: true },
     type: {
       type: String,
@@ -14,6 +14,7 @@ const schema = new Schema(
       enum: ["fixed_amount", "percentage"],
     },
     value: { type: Number, required: true },
+    max_discount: { type: Number, required: true },
     code: { type: String, required: true, unique: true },
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },
