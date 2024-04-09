@@ -67,22 +67,22 @@ class VoucherUtil {
     // };
     const applyDiscountToAllProducts = () => {
       let discountFactor;
-  
       if (found_voucher.type === TYPE.FIXED_AMOUNT) {
-          discountFactor = found_voucher.value;
+        discountFactor = found_voucher.value;
       } else {
-          const percentageDiscount = (order_total * found_voucher.value) / 100;
-          const maxDiscount = Math.min(order_total * 0.15, found_voucher.max_discount);
-          discountFactor = Math.min(percentageDiscount, maxDiscount);
+        const percentageDiscount = (order_total * found_voucher.value) / 100;
+        discountFactor = Math.min(
+          percentageDiscount,
+          found_voucher.max_discount
+        );
       }
-  
       if (order_total < found_voucher.minimum_order_value) {
-          throw new ForbiddenError(`The total of the order is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`);
+        throw new ForbiddenError(
+          `The total of the order is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
+        );
       }
-  
       order_total_after_voucher = order_total - discountFactor;
-  };
-
+    };
     if (found_voucher.products.length > 0) {
       await Promise.all(products.map(applyDiscountToProduct));
     } else {
