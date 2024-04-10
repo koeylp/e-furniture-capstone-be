@@ -7,9 +7,7 @@ const {
 } = require("../../utils/index");
 const { InternalServerError } = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
-const { createCode } = require("../../utils/index");
 const InventoryRepository = require("./inventoryRepository");
-const ProductUtils = require("../../utils/productUtils");
 
 class ProductRepository {
   static async createProduct(payload) {
@@ -110,6 +108,12 @@ class ProductRepository {
   static async getAllsWithoutPagination(query = {}) {
     let result = await _Product.find(query);
     return { total: result.length, data: result };
+  }
+  static async getAllsWithoutPopulateAndStock(query) {
+    return await _Product
+      .find(query)
+      .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
+      .lean();
   }
   static async getAlls(query, page, limit, sortType) {
     const skip = (page - 1) * limit;
@@ -226,14 +230,16 @@ class ProductRepository {
     page,
     limit,
   }) {
-    const searchValue =
+    let searchValue =
       typeof keySearch === "object" ? keySearch.text : keySearch;
-    const query = { name: { $regex: searchValue, $options: "i" } };
-    const result = await this.getAlls(query, page, limit, {});
-    const products = await _Product.find({
+    searchValue = searchValue.trim();
+    const query = {
       name: { $regex: searchValue, $options: "i" },
-    });
-    return { total: products.length, data: result };
+      is_draft: false,
+      is_published: true,
+    };
+    const result = await this.getAlls(query, page, limit, {});
+    return result;
   }
   static async findVariationValues(product_id, variation) {
     const product = await this.findProductById(product_id);

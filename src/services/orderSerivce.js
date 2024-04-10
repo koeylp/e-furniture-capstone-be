@@ -23,6 +23,8 @@ const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 const DistrictService = require("./districtService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
+const PAY_TYPE = ["Not Paid", "Deposit"];
+const SUB_STATE = [0, 1, 2];
 const PAY_TYPE = ["No Deposit", "Deposit"];
 class OrderService {
   static async getOrders(page, limit) {
@@ -239,7 +241,11 @@ class OrderService {
     const foundOrder = await verifyOrderExistence(order_id);
     if (foundOrder.current_order_tracking.name != TRACKING[2])
       throw new BadRequestError("Order is not in shipping state");
-    const updatedOrder = await OrderRepository.update(order_id, newSubstate);
+    const updatedOrder = await OrderRepository.update(
+      order_id,
+      newSubstate,
+      SUB_STATE[2]
+    );
     const substateChecking = await OrderService.checkAndPushFailedState(
       updatedOrder
     );

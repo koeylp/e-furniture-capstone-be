@@ -7,6 +7,8 @@ const { default: mongoose } = require("mongoose");
 const NotificationEfurnitureService = require("./NotificationEfurnitureService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const OrderService = require("./orderSerivce");
+const DeliveryTripUtils = require("../utils/deliveryTripUtils");
+const StateUtils = require("../utils/stateUtils");
 class DeliveryTripService {
   static async create(payload) {
     const [accountData, verifiedOrders, modifiedDirectTrip] = await Promise.all(
@@ -28,8 +30,8 @@ class DeliveryTripService {
       async (order) =>
         await OrderRepository.updateSubStateInsideOrderTracking(
           order.order,
-          "Processing",
-          2
+          StateUtils.OrderState("Processing"),
+          StateUtils.ProcessingState("Processing")
         )
     );
 
@@ -69,7 +71,11 @@ class DeliveryTripService {
   }
 
   static async findTripById(trip_id) {
-    return await DeliveryTripRepository.findTripById(trip_id);
+    let result = await DeliveryTripRepository.findTripById(trip_id);
+    let current = await DeliveryTripUtils.getCurrentTrip(result);
+    if (current !== -1) return { ...result, current_delivery: current };
+    result.status = 1;
+    return result;
   }
 
   static async getDeliveryTripPending() {
@@ -189,6 +195,35 @@ class DeliveryTripService {
 
   static async updateOrdersWithMainStatus(trip_id) {
     return await this.updateDeliveryTripStatus(trip_id, 2);
+  }
+
+  static async rejectDeliveryTrip(trip_id, note) {
+    const { account, deliveryTrip } = await this.getAccountInDeliveryTrip(
+      trip_id
+    );
+    if (account.status === 3)
+      throw new BadRequestError("Delivery Is On The Trip!");
+
+    deliveryTrip.orders.forEach(
+      async (order) =>
+        await OrderRepository.updateSubStateInsideOrderTracking(
+          order.order,
+          StateUtils.OrderState("Processing"),
+          StateUtils.ProcessingState("Waiting")
+        )
+    );
+    const accountResult = await AccountRepository.updateStateAccount(
+      account._id,
+      1
+    );
+    const payload = {
+      account_id: result.account_id,
+      title: "Reject Delivery Trip",
+      message: note,
+      status: 2,
+    };
+    await this.SendNotification(payload, accountResult.status);
+    return result;
   }
 }
 module.exports = DeliveryTripService;

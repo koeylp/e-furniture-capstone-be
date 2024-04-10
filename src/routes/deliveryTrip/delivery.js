@@ -31,5 +31,10 @@ router.put(
   hasPermission(global.PermissionConstants.DELIVERY_PUT),
   asyncHandler(DeliveryController.DoneTripStatus)
 );
+router.put(
+  "/reject/:trip_id",
+  hasPermission(global.PermissionConstants.DELIVERY_PUT),
+  asyncHandler(DeliveryController.rejectDeliveryTrip)
+);
 
 module.exports = router;

@@ -64,5 +64,14 @@ class DeliveryTripController {
       metaData: await DeliveryTripService.confirmDeliveryTrip(trip_id),
     }).send(res);
   }
+  static async rejectDeliveryTrip(req, res) {
+    const { trip_id } = req.params;
+    const { note } = req.body;
+    if (!trip_id) throw new BadRequestError();
+    return new OK({
+      message: "Reject Delivery Trip!",
+      metaData: await DeliveryTripService.rejectDeliveryTrip(trip_id, note),
+    }).send(res);
+  }
 }
 module.exports = DeliveryTripController;

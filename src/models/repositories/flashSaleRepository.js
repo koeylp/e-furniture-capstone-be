@@ -16,30 +16,46 @@ class FlashSaleRepository {
     if (!flashSale) throw new InternalServerError();
     return flashSale;
   }
+
   static async getFlashSales(query = {}, option = []) {
+    return await _FlashSale
+      .find(query)
+      .populate("products.productId")
+      .select(getUnSelectData(option))
+      .lean();
+  }
+  static async getFlashSalesWithoutPopulate(query = {}, option = []) {
     return await _FlashSale.find(query).select(getUnSelectData(option)).lean();
   }
+
+  static async findFlashSale(query = {}) {
+    return await _FlashSale.findOne(query).lean();
+  }
+
   static async findFlashSaleById(flashSale_id) {
     checkValidId(flashSale_id);
     const query = {
       _id: new mongoose.Types.ObjectId(flashSale_id),
     };
-    const flashSale = await _FlashSale.findOne(query).lean();
+    const flashSale = await this.findFlashSale(query);
     if (!flashSale) throw new NotFoundError();
     return flashSale;
   }
+
   static async update(query, update) {
     update = removeUndefineObject(update);
     const result = await _FlashSale.updateOne(query, update, { new: true });
     if (!result) throw new BadRequestError("Cannot Update FlashSale!");
     return result;
   }
+
   static async updateById(flashSale_id, payload) {
     const query = {
       _id: new mongoose.Types.ObjectId(flashSale_id),
     };
     return await this.update(query, payload);
   }
+
   static async publishFlashSale(flashSale_id) {
     const query = {
       _id: new mongoose.Types.ObjectId(flashSale_id),
@@ -50,6 +66,7 @@ class FlashSaleRepository {
     };
     return await this.update(query, update);
   }
+
   static async draftFlashSale(flashSale_id) {
     const query = {
       _id: new mongoose.Types.ObjectId(flashSale_id),
@@ -60,6 +77,7 @@ class FlashSaleRepository {
     };
     return await this.update(query, update);
   }
+
   static async remove(flashSale_id) {
     checkValidId(flashSale_id);
     const query = {

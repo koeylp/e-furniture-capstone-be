@@ -14,12 +14,14 @@ class FlashSaleController {
       metaData: await FlashSaleService.create(req.body),
     }).send(res);
   }
+
   static async getFlashSales(req, res) {
     return new OK({
       message: "List Of FlashSale!",
       metaData: await FlashSaleService.getFlashSales(),
     }).send(res);
   }
+
   static async findFlashSale(req, res) {
     const { flashSale_id } = req.params;
     if (!flashSale_id) throw new BadRequestError();
@@ -28,6 +30,7 @@ class FlashSaleController {
       metaData: await FlashSaleService.findFlashSaleById(flashSale_id),
     }).send(res);
   }
+
   static async updateFlashSale(req, res) {
     const { flashSale_id } = req.params;
     if (!flashSale_id) throw new BadRequestError();
@@ -38,6 +41,7 @@ class FlashSaleController {
       metaData: await FlashSaleService.update(flashSale_id, req.body),
     }).send(res);
   }
+
   static async publishFlashSale(req, res) {
     const { flashSale_id } = req.params;
     if (!flashSale_id) throw new BadRequestError();
@@ -46,6 +50,7 @@ class FlashSaleController {
       metaData: await FlashSaleService.publish(flashSale_id),
     }).send(res);
   }
+
   static async draftFlashSale(req, res) {
     const { flashSale_id } = req.params;
     if (!flashSale_id) throw new BadRequestError();
@@ -54,12 +59,27 @@ class FlashSaleController {
       metaData: await FlashSaleService.draft(flashSale_id),
     }).send(res);
   }
+
   static async removeFlashSale(req, res) {
     const { flashSale_id } = req.params;
     if (!flashSale_id) throw new BadRequestError();
     return new OK({
       message: "Remove FlashSale Successfully!",
       metaData: await FlashSaleService.remove(flashSale_id),
+    }).send(res);
+  }
+
+  static async getFlashSalesToday(req, res) {
+    return new OK({
+      message: "FlashSale Today!",
+      metaData: await FlashSaleService.getTodayFlashSales(),
+    }).send(res);
+  }
+
+  static async getFlashSaleFutute(req, res) {
+    return new OK({
+      message: "FlashSale Tomorow!",
+      metaData: await FlashSaleService.getFlashSaleFuture(),
     }).send(res);
   }
 }

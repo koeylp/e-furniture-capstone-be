@@ -20,12 +20,15 @@ class InventoryRepository {
     const skip = (page - 1) * limit;
     let inventories = await _Inventory
       .find(query)
-      .populate("product")
-      .skip(skip)
-      .sort(sortType)
-      .select(getUnSelectData(["__v"]))
-      .limit(limit)
-      .lean();
+      // .populate("product")
+      .distinct("product")
+      .populate("product");
+    // .skip(skip)
+    // .sort(sortType)
+    // .select(getUnSelectData(["__v"]))
+    // .limit(limit)
+    // .lean();
+    console.log(inventories);
     inventories = await Promise.all(
       inventories.map(async (data) => {
         let { total, variation } = await this.getStockForProduct(
@@ -42,6 +45,34 @@ class InventoryRepository {
     );
 
     return inventories;
+  }
+  static async getInventoryWithDistinctProduct({
+    query = {},
+    page = 1,
+    limit = 12,
+    sortType,
+  }) {
+    const skip = (page - 1) * limit;
+    let result = await _Inventory.aggregate([
+      {
+        $match: query,
+      },
+      // { $group: { _id: "$product", count: { $sum: 1 } } },
+      { $skip: skip },
+      { $limit: limit },
+      { $sort: sortType },
+      // {
+      //   $lookup: {
+      //     from: "Product",
+      //     localField: "_id",
+      //     foreignField: "_id",
+      //     as: "product",
+      //   },
+      // },
+      { $unwind: "$product" },
+      { $project: { _id: 0, product: 1 } },
+    ]);
+    return result;
   }
   static async getStockForProduct(product_id, variation) {
     let totalStock = 0;
@@ -103,7 +134,7 @@ class InventoryRepository {
       is_draft: false,
       is_published: true,
     };
-    const sortType = [["sold", -1]];
+    const sortType = { ["sold"]: -1 };
     let inventories = await this.getInventory({
       query: query,
       sortType: sortType,

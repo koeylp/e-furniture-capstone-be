@@ -211,6 +211,8 @@ const validateCreateFlashSale = (data) => {
     name: Joi.string().required(),
     startDay: Joi.string().required(),
     endDay: Joi.string().required(),
+    thumb: Joi.string().required(),
+    background: Joi.string().required(),
     products: Joi.array().required(),
     is_draft: Joi.boolean(),
     is_published: Joi.boolean(),

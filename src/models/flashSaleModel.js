@@ -7,8 +7,10 @@ const DOCUMENT_NAME = "FlashSale";
 const schema = new Schema(
   {
     name: { type: String },
-    startDay: { type: String, required: true },
-    endDay: { type: String, required: true },
+    startDay: { type: Date, required: true },
+    endDay: { type: Date, required: true },
+    thumb: { type: String, required: true },
+    background: { type: String, required: true },
     products: [
       {
         productId: { type: String, ref: "Product" },
