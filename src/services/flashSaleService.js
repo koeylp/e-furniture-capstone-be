@@ -23,11 +23,10 @@ class FlashSaleService {
 
   static async getTodayFlashSales() {
     const { today, now, tomorrow } = FlashSaleUtils.getTodayAndTomorowDay();
-    console.log(today, now, tomorrow);
     const query = {
       $and: [
         { startDay: { $gte: today } },
-        { startDay: { $gte: now } },
+        // { startDay: { $gte: now } },
         { startDay: { $lte: tomorrow } },
       ],
     };
