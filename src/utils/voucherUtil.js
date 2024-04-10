@@ -44,27 +44,45 @@ class VoucherUtil {
         ? await VoucherUtil.applySpecificDiscount(
             product.price,
             found_voucher.value,
-            found_voucher.type
+            found_voucher.type,
+            found_voucher.max_discount
           )
         : product.price;
 
       order_total_after_voucher += product.new_price * product.quantity;
     };
 
+    // const applyDiscountToAllProducts = () => {
+    //   const discountFactor =
+    //     found_voucher.type === TYPE.FIXED_AMOUNT
+    //       ? found_voucher.value
+    //       : (order_total * found_voucher.value) / 100;
+
+    //   if (order_total < found_voucher.minimum_order_value)
+    //     throw new ForbiddenError(
+    //       `The total of the total is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
+    //     );
+
+    //   order_total_after_voucher = order_total - discountFactor;
+    // };
     const applyDiscountToAllProducts = () => {
-      const discountFactor =
-        found_voucher.type === TYPE.FIXED_AMOUNT
-          ? found_voucher.value
-          : (order_total * found_voucher.value) / 100;
-
-      if (order_total < found_voucher.minimum_order_value)
-        throw new ForbiddenError(
-          `The total of the total is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
+      let discountFactor;
+      if (found_voucher.type === TYPE.FIXED_AMOUNT) {
+        discountFactor = found_voucher.value;
+      } else {
+        const percentageDiscount = (order_total * found_voucher.value) / 100;
+        discountFactor = Math.min(
+          percentageDiscount,
+          found_voucher.max_discount
         );
-
+      }
+      if (order_total < found_voucher.minimum_order_value) {
+        throw new ForbiddenError(
+          `The total of the order is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
+        );
+      }
       order_total_after_voucher = order_total - discountFactor;
     };
-
     if (found_voucher.products.length > 0) {
       await Promise.all(products.map(applyDiscountToProduct));
     } else {
@@ -79,12 +97,14 @@ class VoucherUtil {
     };
   }
 
-  static async applySpecificDiscount(price, value, type) {
+  static async applySpecificDiscount(price, value, type, max_discount) {
+    console.log(max_discount);
     switch (type) {
       case TYPE.FIXED_AMOUNT:
         return price - value;
       case TYPE.PERCENTAGE:
-        return price * (1 - value / 100);
+        const discount = Math.min(price * (value / 100), max_discount);
+        return price - discount;
       default:
         return price;
     }
@@ -118,7 +138,6 @@ class VoucherUtil {
 
   static async getBySpecified(products) {
     const currentTimestamp = new Date().toISOString();
-    console.log(currentTimestamp);
     const activeVouchers = await VoucherRepository.findAllByQuery(
       {
         is_active: 1,
@@ -127,6 +146,31 @@ class VoucherUtil {
       },
       [["createdAt", -1]]
     );
+
+    const sortByUserCanUse = (voucher1, voucher2) => {
+      const canUseVoucher1 =
+        voucher1.products.length === 0 ||
+        products.some(
+          (product) =>
+            voucher1.products.includes(product.product_id) &&
+            voucher1.minimum_order_value <= product.price
+        );
+      const canUseVoucher2 =
+        voucher2.products.length === 0 ||
+        products.some(
+          (product) =>
+            voucher2.products.includes(product.product_id) &&
+            voucher2.minimum_order_value <= product.price
+        );
+
+      if (canUseVoucher1 && !canUseVoucher2) {
+        return -1;
+      } else if (!canUseVoucher1 && canUseVoucher2) {
+        return 1;
+      } else {
+        return 0;
+      }
+    };
 
     const filteredVouchers = activeVouchers.filter(
       (voucher) =>
@@ -138,6 +182,7 @@ class VoucherUtil {
         )
     );
 
+    filteredVouchers.sort(sortByUserCanUse);
     return filteredVouchers;
   }
 }

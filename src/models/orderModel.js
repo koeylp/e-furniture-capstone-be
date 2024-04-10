@@ -23,8 +23,8 @@ const schema = new Schema(
         paid_amount: { type: Number, required: true, default: 0 },
         type: {
           type: String,
-          enum: ["Not Paid", "Deposit"],
-          default: "Not Paid",
+          enum: ["No Deposit", "Deposit"],
+          default: "No Deposit",
         },
         must_paid: { type: Number, required: true },
       },

@@ -150,10 +150,19 @@ class OrderRepository {
       warehouses: order.warehouses,
       order_code: order_code,
     });
-    if (!order) throw new InternalServerError();
-    newOrder.order_tracking.push({ name: "Processing", note: order.note });
+    if (!newOrder) throw new InternalServerError();
+    if (
+      order.payment_method === "COD" &&
+      order.order_checkout.final_total < 1000000
+    )
+      newOrder.order_tracking.push({ name: "Processing", note: order.note });
+    else newOrder.order_tracking.push({ note: order.note });
     await newOrder.save();
-    return newOrder;
+    const populatedOrder = await _Order
+      .findById(newOrder._id)
+      .populate("order_products.product_id")
+      .lean({ virtuals: true });
+    return populatedOrder;
   }
   static async paid(account_id, order_id, paid_amount) {
     let order = await _Order
@@ -163,6 +172,7 @@ class OrderRepository {
         guest: false,
         "order_tracking.name": { $ne: "Processing" },
       })
+      .populate("order_products.product_id")
       .lean();
 
     if (!order) {
@@ -174,23 +184,25 @@ class OrderRepository {
     } else {
       finalTotalUpdate = order.order_checkout.final_total;
     }
-    order = await _Order.findOneAndUpdate(
-      {
-        _id: new mongoose.Types.ObjectId(order_id),
-        account_id: account_id,
-        guest: false,
-        "order_tracking.name": { $ne: "Processing" },
-      },
-      {
-        $set: {
-          "order_checkout.is_paid": true,
-          "order_checkout.paid.paid_amount": paid_amount,
-          "order_checkout.final_total": finalTotalUpdate,
+    order = await _Order
+      .findOneAndUpdate(
+        {
+          _id: new mongoose.Types.ObjectId(order_id),
+          account_id: account_id,
+          guest: false,
+          "order_tracking.name": { $ne: "Processing" },
         },
-        $push: { order_tracking: { name: "Processing" } },
-      },
-      { new: true, lean: true }
-    );
+        {
+          $set: {
+            "order_checkout.is_paid": true,
+            "order_checkout.paid.paid_amount": paid_amount,
+            "order_checkout.final_total": finalTotalUpdate,
+          },
+          $push: { order_tracking: { name: "Processing" } },
+        },
+        { new: true }
+      )
+      .populate("order_products.product_id");
     if (!order) {
       throw new InternalServerError("This order is already in processing.");
     }
@@ -236,7 +248,7 @@ class OrderRepository {
       {
         $match: {
           _id: new mongoose.Types.ObjectId(orderId),
-          status: 1, // Only consider orders with status 1
+          status: 1,
         },
       },
       {
@@ -256,12 +268,10 @@ class OrderRepository {
       },
       {
         $match: {
-          failedCount: { $gte: 3 }, // Check if failedCount is 3 or more
+          failedCount: { $gte: 3 },
         },
       },
     ]);
-
-    // Update the status of failed order
     if (failedOrder.length > 0) {
       const updatedOrder = await _Order.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId(orderId) },

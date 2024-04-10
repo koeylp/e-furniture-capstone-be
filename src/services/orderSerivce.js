@@ -25,6 +25,7 @@ const DistrictService = require("./districtService");
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
 const SUB_STATE = [0, 1, 2];
+const PAY_TYPE = ["No Deposit", "Deposit"];
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -83,9 +84,12 @@ class OrderService {
     for (let product of order.order_products) {
       await CartUtils.removeItem(account_id, product);
     }
+
     const warehouses = await StockUtil.updateStock(order);
     order.warehouses = warehouses;
+
     const newOrder = await OrderRepository.createOrder(account_id, order);
+
     if (newOrder) {
       const day = new Date().setUTCHours(0, 0, 0, 0);
       // const profit = order.order_checkout.final_total;
