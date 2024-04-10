@@ -19,7 +19,7 @@ class OrderRepository {
         .limit(limit)
         .lean({ virtuals: true })
         .exec(),
-      _Order.find({ status: 1 }),
+      _Order.find(query),
     ]);
     const updatedProducts = await Promise.all(
       result.map(async (item) => {
@@ -219,11 +219,14 @@ class OrderRepository {
       { arrayFilters: [{ "element.name": state }] }
     );
   }
-  static async update(order_id, newSubstate) {
+  static async update(order_id, newSubstate, state) {
     return await _Order
       .findByIdAndUpdate(
         order_id,
-        { $push: { "order_tracking.$[element].substate": newSubstate } },
+        {
+          $push: { "order_tracking.$[element].substate": newSubstate },
+          $set: { "order_tracking.$[element].status": parseInt(state) },
+        },
         { arrayFilters: [{ "element.name": "Shipping" }], new: true }
       )
       .lean({ virtuals: true });

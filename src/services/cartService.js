@@ -6,6 +6,8 @@ const { calculateOrderTotal } = require("../utils/calculator");
 const CartUtils = require("../utils/cartUtils");
 const { getCode } = require("../utils/codeUtils");
 const ProductService = require("./productService");
+const InventoryRepository = require("../models/repositories/inventoryRepository");
+const { defaultVariation } = require("../utils");
 
 class CartService {
   static async addToCart(account_id, product) {
@@ -74,10 +76,25 @@ class CartService {
       cart.products[index]._id.code = cart.products[index].code;
     });
     await Promise.all(productPromises);
-    const productIds = [];
+    let productIds = [];
     for (const product of cart.products) {
       productIds.push(product._id);
     }
+
+    productIds = await Promise.all(
+      productIds.map(async (data) => {
+        let { total, variation } = await InventoryRepository.getStockForProduct(
+          data._id,
+          data.variation
+        );
+        data.variation = variation;
+        data.stock = total;
+        data.select_variation = data.variation.map((item) => {
+          return defaultVariation(item);
+        });
+        return { ...data };
+      })
+    );
     cart.products = productIds;
     return cart;
   }
