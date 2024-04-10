@@ -20,10 +20,14 @@ class FlashSaleService {
   }
 
   static async getTodayFlashSales() {
-    const { today, tomorrow } = FlashSaleUtils.getTodayAndTomorowDay();
+    const { today, now, tomorrow } = FlashSaleUtils.getTodayAndTomorowDay();
+    console.log(today, now, tomorrow);
     const query = {
-      startDay: { $gte: today },
-      startDay: { $lte: tomorrow },
+      $and: [
+        { startDay: { $gte: today } },
+        { startDay: { $gte: now } },
+        { startDay: { $lte: tomorrow } },
+      ],
     };
     const flashSales = await FlashSaleRepository.getFlashSales(query);
     return Object.entries(
