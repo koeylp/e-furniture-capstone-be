@@ -8,8 +8,7 @@ class FlashSaleService {
     payload.startDay = FlashSaleUtils.convertToDate(payload.startDay);
     payload.endDay = FlashSaleUtils.convertToDate(payload.endDay);
     await FlashSaleUtils.validateProducts(payload.products);
-    // return await FlashSaleRepository.createFlashSale(payload);
-    return true;
+    return await FlashSaleRepository.createFlashSale(payload);
   }
 
   static async getFlashSales() {
