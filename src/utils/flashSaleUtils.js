@@ -1,8 +1,9 @@
 const cron = require("node-cron");
 const moment = require("moment");
-const { BadRequestError, NotFoundError } = require("./errorHanlder");
+const { BadRequestError } = require("./errorHanlder");
 const ProductRepository = require("../models/repositories/productRepository");
-const ProductService = require("../services/productService");
+const FlashSaleRepository = require("../models/repositories/flashSaleRepository");
+const StateUtils = require("./stateUtils");
 require("moment-timezone");
 
 class FlashSaleUtils {
@@ -23,22 +24,7 @@ class FlashSaleUtils {
   }
 
   static convertToDate(day) {
-    // const date = new Date(day);
-    // const [dateString, timeString] = day.split(" ");
-
-    // // Parse the date part
-    // const milliseconds = Date.parse(dateString);
-    // const date = new Date(milliseconds);
-
-    // // Extract hour and minute (assuming format HH:MM)
-    // const [hour, minute] = timeString.split(":");
-
-    // // Set hour and minute on the date object
-    // date.setHours(hour, minute);
-
-    // // date.setHours(date.getHours() + 7);
     const date = new Date(day);
-    // date.setHours(date.getHours() + 7);
     return date;
   }
 
@@ -82,9 +68,9 @@ class FlashSaleUtils {
     );
   }
 
-  static async processDateRange(startDate, endDate, products) {
+  static async processDateRange(startDate, endDate, products, flashSale_id) {
     if (!startDate || !endDate) {
-      throw new BadRequestError("Vui lòng cung cấp cả startDate và endDate");
+      throw new BadRequestError("Invalid startDate and endDate");
     }
     startDate = this.convertDateToString(startDate);
     endDate = this.convertDateToString(endDate);
@@ -101,6 +87,10 @@ class FlashSaleUtils {
           } ngày ${startTime.momentDate.format("YYYY-MM-DD")}`
         );
         // await ProductService.updateRangeProductSalePrice(products);
+        await this.updateFlashSaleState(
+          flashSale_id,
+          StateUtils.FlashSaleState("Ongoing")
+        );
       }
     );
     const endCron = cron.schedule(
@@ -108,7 +98,11 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        // await ProductService.reRangeProductSalePrice(products);
+        // await ProductService.updateRangeProductWithOldSalePrice(products);
+        await this.updateFlashSaleState(
+          flashSale_id,
+          StateUtils.FlashSaleState("End")
+        );
         console.log(
           `Thực hiện công việc tại ${endTime.hour} ${
             endTime.minute
@@ -124,9 +118,7 @@ class FlashSaleUtils {
     const timeArray = dayTimeArray[1].split(":");
     const hour = timeArray[0];
     const minute = timeArray[1];
-
     const momentDate = moment(date);
-
     return { hour, minute, momentDate };
   }
 
@@ -135,18 +127,12 @@ class FlashSaleUtils {
     const { hour, minute, momentDate } = this.convertTimeDate(day);
     return hour;
   }
+
+  static async updateFlashSaleState(flashSale_id, state) {
+    const payload = {
+      status: state,
+    };
+    return await FlashSaleRepository.updateById(flashSale_id, payload);
+  }
 }
 module.exports = FlashSaleUtils;
-
-// const date = new Date(payload.startDay);
-// console.log(date);
-// date.setHours(date.getHours() + 7);
-// console.log(date);
-
-// // Convert timestamp to a Moment object
-// const date2 = moment(date);
-
-// // Format the Moment object to the desired format
-// const formattedTimestamp = date2.format("YYYY-MM-DD:HH:mm:ss");
-
-// console.log(formattedTimestamp);

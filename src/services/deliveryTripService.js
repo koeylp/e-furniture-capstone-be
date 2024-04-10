@@ -217,13 +217,14 @@ class DeliveryTripService {
       1
     );
     const payload = {
-      account_id: result.account_id,
+      account_id: account._id,
       title: "Reject Delivery Trip",
       message: note,
       status: 2,
     };
     await this.SendNotification(payload, accountResult.status);
-    return result;
+
+    return true;
   }
 }
 module.exports = DeliveryTripService;

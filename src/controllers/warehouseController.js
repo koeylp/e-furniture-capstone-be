@@ -95,5 +95,17 @@ class WareHouseController {
       ),
     }).send(res);
   }
+  static async removeProductFromWareHouse(req, res) {
+    const { warehouse_id } = req.params;
+    const { code } = req.body;
+    if (!warehouse_id) throw new BadRequestError();
+    return new OK({
+      message: "Remove product From Warehouse Successfully!",
+      metaData: await WareHouseService.removeProductInWareHouse(
+        warehouse_id,
+        code
+      ),
+    }).send(res);
+  }
 }
 module.exports = WareHouseController;

@@ -16,11 +16,13 @@ const schema = new Schema(
         productId: { type: String, ref: "Product" },
         count: { type: Number, required: true },
         salePrice: { type: Number },
+        oldSalePrice: { type: Number },
       },
     ],
     cron: { type: String, default: "" },
     is_draft: { type: Boolean, default: true },
     is_published: { type: Boolean, default: false },
+    status: { type: Number, default: 0 },
   },
   {
     collection: COLLECTION_NAME,
