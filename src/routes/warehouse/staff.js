@@ -22,6 +22,11 @@ router.put(
   asyncHandler(WareHouseController.addProductToWareHouse)
 );
 router.put(
+  "/removeProduct/:warehouse_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(WareHouseController.removeProductFromWareHouse)
+);
+router.put(
   "/lowstock/:warehouse_id",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(WareHouseController.updateIsLowStock)

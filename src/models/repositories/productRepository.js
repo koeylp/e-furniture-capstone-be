@@ -15,14 +15,6 @@ class ProductRepository {
     if (!product) throw new InternalServerError();
     return product;
   }
-  // static async findProduct(query, filter) {
-  //   return await _Product
-  //     .findOne({
-  //       name: name,
-  //     })
-  //     .lean()
-  //     .exec();
-  // }
   static async findProductById(product_id, filter = []) {
     checkValidId(product_id);
     return await _Product

@@ -8,7 +8,9 @@ class FlashSaleService {
     payload.startDay = FlashSaleUtils.convertToDate(payload.startDay);
     payload.endDay = FlashSaleUtils.convertToDate(payload.endDay);
     await FlashSaleUtils.validateProducts(payload.products);
-    return await FlashSaleRepository.createFlashSale(payload);
+    const result = await FlashSaleRepository.createFlashSale(payload);
+    await this.startFlashSaleCron(result);
+    return result;
   }
 
   static async getFlashSales() {
@@ -21,7 +23,6 @@ class FlashSaleService {
 
   static async getTodayFlashSales() {
     const { today, now, tomorrow } = FlashSaleUtils.getTodayAndTomorowDay();
-    console.log(today, now, tomorrow);
     const query = {
       $and: [
         { startDay: { $gte: today } },
@@ -58,26 +59,40 @@ class FlashSaleService {
     if (result.modifiedCount < 0)
       throw new NotFoundError("Cannot Update FlashSale!");
     const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
+    await this.startFlashSaleCron(flashSale);
+    return result;
+  }
+
+  static async startFlashSaleCron(flashSale) {
     const cronJob = await FlashSaleUtils.processDateRange(
       flashSale.startDay,
       flashSale.endDay,
       flashSale.products
     );
-    CronFactory.registerCronType(`${flashSale_id}_start`, cronJob.start);
-    CronFactory.registerCronType(`${flashSale_id}_end`, cronJob.end);
-    return result;
+    CronFactory.registerCronType(
+      `${flashSale._id.toString()}_start`,
+      cronJob.start
+    );
+    CronFactory.registerCronType(
+      `${flashSale._id.toString()}_end`,
+      cronJob.end
+    );
   }
 
-  static async draft(flashSale_id) {
-    const result = await FlashSaleRepository.draftFlashSale(flashSale_id);
-    if (result.modifiedCount < 1) throw new NotFoundError();
-    const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
+  static async endFlashSaleCron(flashSale_id) {
     const cronStart = CronFactory.cronRegistry[`${flashSale_id}_start`];
     const cronEnd = CronFactory.cronRegistry[`${flashSale_id}_end`];
     cronStart.stop();
     cronEnd.stop();
     CronFactory.unregisterCronType(`${flashSale_id}_start`);
     CronFactory.unregisterCronType(`${flashSale_id}_end`);
+  }
+
+  static async draft(flashSale_id) {
+    const result = await FlashSaleRepository.draftFlashSale(flashSale_id);
+    if (result.modifiedCount < 1) throw new NotFoundError();
+    await FlashSaleRepository.findFlashSaleById(flashSale_id);
+    await this.endFlashSaleCron(flashSale_id);
     return result;
   }
 

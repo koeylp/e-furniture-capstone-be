@@ -137,11 +137,11 @@ class ProductService {
       await ProductRepository.updateProductById(product.productId, update);
     });
   }
-  static async reRangeProductSalePrice(products) {
+  static async updateRangeProductWithOldSalePrice(products) {
     products.forEach(async (product) => {
       let update = {
         $set: {
-          sale_price: 0,
+          sale_price: product.oldSalePrice,
         },
       };
       await ProductRepository.updateProductById(product.productId, update);

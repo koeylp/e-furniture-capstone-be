@@ -20,7 +20,7 @@ class FlashSaleRepository {
   static async getFlashSales(query = {}, option = []) {
     return await _FlashSale
       .find(query)
-      // .populate("products.productId")
+      .populate("products.productId")
       .select(getUnSelectData(option))
       .sort({ startDay: -1 })
       .lean();
@@ -51,6 +51,7 @@ class FlashSaleRepository {
   }
 
   static async updateById(flashSale_id, payload) {
+    checkValidId(flashSale_id);
     const query = {
       _id: new mongoose.Types.ObjectId(flashSale_id),
     };

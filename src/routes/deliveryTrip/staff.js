@@ -22,9 +22,14 @@ router.get(
   asyncHandler(DeliveryController.getTripPending)
 );
 router.put(
-  "/:trip_id",
+  "/confirm/:trip_id",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(DeliveryController.confirmDeliveryTrip)
+);
+router.put(
+  "/reject/:trip_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(DeliveryController.rejectDeliveryTrip)
 );
 
 module.exports = router;
