@@ -27,7 +27,7 @@ router.put(
   asyncHandler(WareHouseController.updateIsLowStock)
 );
 router.put(
-  "/:warehouse_id",
+  "/edit/:warehouse_id",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(WareHouseController.updateWareHouse)
 );
