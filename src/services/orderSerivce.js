@@ -25,7 +25,6 @@ const DistrictService = require("./districtService");
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
 const SUB_STATE = [0, 1, 2];
-const PAY_TYPE = ["No Deposit", "Deposit"];
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
