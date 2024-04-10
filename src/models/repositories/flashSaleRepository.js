@@ -20,8 +20,9 @@ class FlashSaleRepository {
   static async getFlashSales(query = {}, option = []) {
     return await _FlashSale
       .find(query)
-      .populate("products.productId")
+      // .populate("products.productId")
       .select(getUnSelectData(option))
+      .sort({ startDay: -1 })
       .lean();
   }
   static async getFlashSalesWithoutPopulate(query = {}, option = []) {

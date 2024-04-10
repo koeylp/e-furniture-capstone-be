@@ -11,10 +11,15 @@ class FlashSaleUtils {
       .startOf("day")
       .add(7, "hours")
       .format("YYYY-MM-DDTHH:mm:ss");
+    const nowDate = moment().add(7, "hours").format("YYYY-MM-DDTHH:mm:ss");
     const tomorrowVN = moment(midnightVN)
       .add(1, "days")
       .format("YYYY-MM-DDTHH:mm:ss");
-    return { today: new Date(midnightVN), tomorrow: new Date(tomorrowVN) };
+    return {
+      today: new Date(midnightVN),
+      now: new Date(nowDate),
+      tomorrow: new Date(tomorrowVN),
+    };
   }
 
   static convertToDate(day) {
