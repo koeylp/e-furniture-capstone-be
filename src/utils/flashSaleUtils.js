@@ -18,8 +18,22 @@ class FlashSaleUtils {
   }
 
   static convertToDate(day) {
+    // const date = new Date(day);
+    // const [dateString, timeString] = day.split(" ");
+
+    // // Parse the date part
+    // const milliseconds = Date.parse(dateString);
+    // const date = new Date(milliseconds);
+
+    // // Extract hour and minute (assuming format HH:MM)
+    // const [hour, minute] = timeString.split(":");
+
+    // // Set hour and minute on the date object
+    // date.setHours(hour, minute);
+
+    // // date.setHours(date.getHours() + 7);
     const date = new Date(day);
-    date.setHours(date.getHours() + 7);
+    // date.setHours(date.getHours() + 7);
     return date;
   }
 
