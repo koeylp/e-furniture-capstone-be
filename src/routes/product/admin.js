@@ -39,7 +39,7 @@ router.get(
   asyncHandler(ProductController.getAllProducts)
 );
 
-router.get(
+router.post(
   "/validFlashSale",
   hasPermission(global.PermissionConstants.ADMIN_GET),
   asyncHandler(ProductController.getProductValidForFlashSale)
