@@ -88,11 +88,20 @@ class FlashSaleService {
   }
 
   static async checkDate(flashSale_id) {
+    const { today, now, tomorrow } = FlashSaleUtils.getTodayAndTomorowDay();
     const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
-    return FlashSaleUtils.checkDateProgress(
+    const result = FlashSaleUtils.checkDateProgress(
       flashSale.startDay,
       flashSale.endDay
     );
+    return {
+      result,
+      today,
+      now,
+      tomorrow,
+      startDay: FlashSaleUtils.convertToDate(flashSale.startDay),
+      endDay: FlashSaleUtils.convertToDate(flashSale.endDay),
+    };
   }
 
   static async endFlashSaleCron(flashSale_id) {
