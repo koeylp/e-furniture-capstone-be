@@ -19,12 +19,24 @@ class StateUtils {
     ["Waiting", 1],
     ["Processing", 2],
     ["Booked", 3],
-    ["default", "Pending"],
+    ["default", 1],
   ]);
   static ProcessingState = (code) => {
     return (
       this.ProcessingStateMap.get(code) ||
       this.ProcessingStateMap.get("default")
+    );
+  };
+
+  static ShippingStateMap = new Map([
+    ["Waiting", 2],
+    ["Processing", 3],
+    ["Fail", 4],
+    ["default", 2],
+  ]);
+  static ShippingState = (code) => {
+    return (
+      this.ShippingStateMap.get(code) || this.ShippingStateMap.get("default")
     );
   };
 

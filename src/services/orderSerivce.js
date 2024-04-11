@@ -239,18 +239,25 @@ class OrderService {
     return await OrderRepository.getOrders({ query });
   }
 
-  static async updateSubstateShipping(order_id, newSubstate) {
+  static async updateSubstateShipping(order_id, note) {
+    let newSubstate = {
+      name: note,
+    };
     const foundOrder = await verifyOrderExistence(order_id);
     if (foundOrder.current_order_tracking.name != TRACKING[2])
       throw new BadRequestError("Order is not in shipping state");
+
     const updatedOrder = await OrderRepository.update(
       order_id,
       newSubstate,
+      note,
       SUB_STATE[2]
     );
+
     const substateChecking = await OrderService.checkAndPushFailedState(
       updatedOrder
     );
+
     if (!substateChecking) {
       return updatedOrder;
     } else {
@@ -312,7 +319,7 @@ class OrderService {
       name: orderTrackingMap.get(3),
       note: note,
     };
-    await this.increaseOrderInDistrict(order.order_shipping.district);
+    // await this.increaseOrderInDistrict(order.order_shipping.district);
     return await OrderRepository.updateOrderTracking(order_id, update, {});
   }
 
@@ -328,6 +335,7 @@ class OrderService {
         order.order_tracking[order.order_tracking.length - 1].name
       )
     );
+    if (key_of_type == 2) return;
     await OrderTrackingUtil.validateProcessingTrackUpdate(key_of_type);
     const update = {
       name: orderTrackingMap.get(2),

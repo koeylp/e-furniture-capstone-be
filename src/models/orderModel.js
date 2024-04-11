@@ -75,7 +75,7 @@ const schema = new Schema(
             type: {
               type: String,
               enum: ["Failed", "In Progress"],
-              default: "In Progress",
+              default: "Failed",
             },
             date: { type: Date, default: Date.now },
           },

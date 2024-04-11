@@ -29,10 +29,10 @@ class OrderTrackingUtil {
     }
   }
   static async validateProcessingTrackUpdate(key_of_type) {
-    const forbiddenKeys = [0, 2, 3, 4, 5, 6];
+    const forbiddenKeys = [0, 3, 4, 5, 6];
     if (forbiddenKeys.includes(key_of_type)) {
       throw new BadRequestError(
-        "The order must be in processing state, the current state: " +
+        "The order must be in correct state, the current state: " +
           orderTrackingMap.get(key_of_type)
       );
     }

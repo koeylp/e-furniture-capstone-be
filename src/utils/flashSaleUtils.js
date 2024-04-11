@@ -127,7 +127,7 @@ class FlashSaleUtils {
        ${startTime.momentDate.format("D")}
        ${startTime.momentDate.format("M")} *`,
       async () => {
-        await this.updateFlashSaleState(flashSale_id, 1);
+        // await this.updateFlashSaleState(flashSale_id, 1);
         console.log("Run");
       }
     );
@@ -136,7 +136,7 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        await this.updateFlashSaleState(flashSale_id, 2);
+        // await this.updateFlashSaleState(flashSale_id, 2);
         console.log("End");
       }
     );
