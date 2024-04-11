@@ -112,13 +112,14 @@ class FlashSaleUtils {
     return { start: startCron, end: endCron };
   }
 
-  static async processDateRangeChecking(startDate, endDate) {
+  static async processDateRangeChecking(flashSale_id, startDate, endDate) {
     let count = 0;
-    if (!startDate || !endDate) {
-      throw new BadRequestError("Invalid startDate and endDate");
-    }
-    startDate = this.convertDateToString(startDate);
-    endDate = this.convertDateToString(endDate);
+    // if (!startDate || !endDate) {
+    //   throw new BadRequestError("Invalid startDate and endDate");
+    // }
+    // startDate = this.convertDateToString(startDate);
+    // endDate = this.convertDateToString(endDate);
+    // console.log(startDate, endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
     const endTime = FlashSaleUtils.convertTimeDate(endDate);
     const startCron = cron.schedule(
@@ -126,7 +127,8 @@ class FlashSaleUtils {
        ${startTime.momentDate.format("D")}
        ${startTime.momentDate.format("M")} *`,
       async () => {
-        count += 10;
+        await this.updateFlashSaleState(flashSale_id, 1);
+        console.log("Run");
       }
     );
     const endCron = cron.schedule(
@@ -134,7 +136,8 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        count += 10;
+        await this.updateFlashSaleState(flashSale_id, 2);
+        console.log("End");
       }
     );
 

@@ -93,9 +93,14 @@ class FlashSaleController {
 
   static async checkCronJob(req, res) {
     const { flashSale_id } = req.params;
+    const { startDay, endDay } = req.body;
     return new OK({
       message: "FlashSale Check!",
-      metaData: await FlashSaleService.startFlashSaleChecking(flashSale_id),
+      metaData: await FlashSaleService.startFlashSaleChecking(
+        flashSale_id,
+        startDay,
+        endDay
+      ),
     }).send(res);
   }
 }
