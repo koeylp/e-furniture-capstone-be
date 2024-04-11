@@ -119,5 +119,16 @@ class ProductController {
       metaData: await ProductService.getAllProducts(page, limit),
     }).send(res);
   }
+
+  static async getProductValidForFlashSale(req, res) {
+    const { startDay, endDay } = req.body;
+    return new OK({
+      message: "List Of All Products!!",
+      metaData: await ProductService.getProductValidForFlashSale(
+        startDay,
+        endDay
+      ),
+    }).send(res);
+  }
 }
 module.exports = ProductController;

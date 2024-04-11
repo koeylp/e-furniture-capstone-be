@@ -21,9 +21,11 @@ const TransactionRepository = require("../models/repositories/transactionReposit
 const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 const DistrictService = require("./districtService");
+const ProductRepository = require("../models/repositories/productRepository");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
-const PAY_TYPE = ["No Deposit", "Deposit"];
+const PAY_TYPE = ["Not Paid", "Deposit"];
+const SUB_STATE = [0, 1, 2];
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -68,7 +70,9 @@ class OrderService {
     return await this.createOrder(account_id, order);
   }
   static async createOrder(account_id, order) {
-    await verifyProductStockExistence(order);
+    const products = await verifyProductStockExistence(order);
+    const warehouses = await StockUtil.updateStock(order);
+
     order = await this.categorizePaymentMethod(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
@@ -83,8 +87,8 @@ class OrderService {
       await CartUtils.removeItem(account_id, product);
     }
 
-    const warehouses = await StockUtil.updateStock(order);
     order.warehouses = warehouses;
+    order.order_products = products;
 
     const newOrder = await OrderRepository.createOrder(account_id, order);
 
@@ -239,7 +243,11 @@ class OrderService {
     const foundOrder = await verifyOrderExistence(order_id);
     if (foundOrder.current_order_tracking.name != TRACKING[2])
       throw new BadRequestError("Order is not in shipping state");
-    const updatedOrder = await OrderRepository.update(order_id, newSubstate);
+    const updatedOrder = await OrderRepository.update(
+      order_id,
+      newSubstate,
+      SUB_STATE[2]
+    );
     const substateChecking = await OrderService.checkAndPushFailedState(
       updatedOrder
     );

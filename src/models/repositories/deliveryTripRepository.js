@@ -18,9 +18,10 @@ class DeliveryRepository {
       .findOne(payload)
       .populate({
         path: "orders.order orders.order.warehouses",
-        select: "order_shipping warehouses",
+        select:
+          "order_shipping order_code payment_method order_tracking order_checkout order_products warehouses",
       })
-      .lean();
+      .lean({ virtuals: true });
 
     result.orders = await Promise.all(
       result.orders.map(async (item) => {

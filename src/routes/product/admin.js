@@ -39,4 +39,10 @@ router.get(
   asyncHandler(ProductController.getAllProducts)
 );
 
+router.post(
+  "/validFlashSale",
+  hasPermission(global.PermissionConstants.ADMIN_GET),
+  asyncHandler(ProductController.getProductValidForFlashSale)
+);
+
 module.exports = router;

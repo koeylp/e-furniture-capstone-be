@@ -5,7 +5,7 @@ const {
   NotFoundError,
   InternalServerError,
 } = require("../utils/errorHanlder");
-const { removeUndefineObject } = require("../utils");
+const { removeUndefineObject, checkValidId } = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
 const { getCode } = require("../utils/codeUtils");
 const ProductService = require("./productService");
@@ -13,15 +13,18 @@ class WareHouseService {
   static async createWareHouse(payload) {
     return await WareHouseRepository.createWareHouse(payload);
   }
+
   static async getWareHouse(page = 1, limit = 12) {
     return await WareHouseRepository.getWareHouse(page, limit);
   }
+
   static async findWareHouseByProduct(product_id) {
     const product = await ProductRepository.findProductById(product_id);
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Create WareHouse");
     return await WareHouseRepository.findWareHouseByProduct(product_id);
   }
+
   static async findWareHouseById(warehouse_id) {
     const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
     const productPromises = warehouse.products.map(async (item) => {
@@ -33,11 +36,13 @@ class WareHouseService {
     await Promise.all(productPromises);
     return warehouse;
   }
+
   static async updateWareHouse(warehouse_id, payload) {
     await WareHouseRepository.findWareHouseById(warehouse_id);
     const update = removeUndefineObject(payload);
     return await WareHouseRepository.updateWareHouse(warehouse_id, update);
   }
+
   static async removewWareHouse(warehouse_id) {
     return await WareHouseRepository.removeWareHouse(warehouse_id);
   }
@@ -89,6 +94,7 @@ class WareHouseService {
 
     return result;
   }
+
   static async updateProductStockInWarehouse(warehouse_id, product) {
     const foundInventory = await InventoryRepository.findByQuery({
       code: product.code,
@@ -146,6 +152,42 @@ class WareHouseService {
     );
 
     return { foundWarehouse, product_index };
+  }
+
+  static async removeProductInWareHouse(warehouse_id, code) {
+    checkValidId(warehouse_id);
+    let [warehouse, inventory] = await Promise.all([
+      WareHouseRepository.findByQuery({
+        _id: warehouse_id,
+      }),
+      InventoryRepository.findByQuery({
+        code: code,
+      }),
+    ]);
+
+    if (!warehouse)
+      throw new NotFoundError(`Warehouse not found with id ${warehouse_id}`);
+
+    if (!inventory)
+      throw new NotFoundError(`Inventory not found with code ${code}`);
+
+    const product_index = warehouse.products.findIndex(
+      (product) => product.code == code
+    );
+
+    if (product_index == -1)
+      throw new NotFoundError("Product Is Not In WareHouse");
+
+    let number = warehouse.products[product_index].stock;
+
+    warehouse.products.splice(product_index, 1);
+
+    const [warehouseResult, invenResult] = await Promise.all([
+      WareHouseRepository.save(warehouse),
+      InventoryRepository.decreaseStockByCode(code, number),
+    ]);
+
+    return warehouseResult;
   }
 }
 module.exports = WareHouseService;
