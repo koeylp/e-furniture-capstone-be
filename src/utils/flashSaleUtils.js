@@ -112,6 +112,64 @@ class FlashSaleUtils {
     return { start: startCron, end: endCron };
   }
 
+  static async processDateRangeChecking(startDate, endDate) {
+    let count = 0;
+    if (!startDate || !endDate) {
+      throw new BadRequestError("Invalid startDate and endDate");
+    }
+    startDate = this.convertDateToString(startDate);
+    endDate = this.convertDateToString(endDate);
+    const startTime = FlashSaleUtils.convertTimeDate(startDate);
+    const endTime = FlashSaleUtils.convertTimeDate(endDate);
+    const startCron = cron.schedule(
+      `${startTime.minute} ${startTime.hour}
+       ${startTime.momentDate.format("D")}
+       ${startTime.momentDate.format("M")} *`,
+      async () => {
+        count += 10;
+      }
+    );
+    const endCron = cron.schedule(
+      `${endTime.minute} ${endTime.hour}
+       ${endTime.momentDate.format("D")}
+       ${endTime.momentDate.format("M")} *`,
+      async () => {
+        count += 10;
+      }
+    );
+
+    console.log(startCron._scheduler.timeMatcher.pattern);
+    return {
+      start: `${startTime.minute} ${
+        startTime.hour
+      } ${startTime.momentDate.format("D")} ${startTime.momentDate.format(
+        "M"
+      )} *`,
+      starting: `Thực hiện công việc tại ${startTime.hour} ${
+        startTime.minute
+      } ngày ${startTime.momentDate.format("YYYY-MM-DD")}`,
+
+      end: `${endTime.minute} ${endTime.hour} ${endTime.momentDate.format(
+        "D"
+      )} ${endTime.momentDate.format("M")} *`,
+      ending: `Thực hiện công việc tại ${endTime.hour} ${
+        endTime.minute
+      } ngày ${endTime.momentDate.format("YYYY-MM-DD")}`,
+
+      startTime,
+      endTime,
+      startCron: {
+        time: startCron._scheduler.timeMatcher.pattern,
+        timezone: startCron._scheduler.timeMatcher.timezone || "Đố Biết",
+      },
+      endCron: {
+        time: endCron._scheduler.timeMatcher.pattern,
+        timezone: endCron._scheduler.timeMatcher.timezone || "Đố Biết",
+      },
+      count,
+    };
+  }
+
   static checkDateProgress(startDate, endDate) {
     if (!startDate || !endDate) {
       throw new BadRequestError("Invalid startDate and endDate");
