@@ -9,14 +9,15 @@ require("moment-timezone");
 class FlashSaleUtils {
   static getTodayAndTomorowDay() {
     const midnightVN = moment().startOf("day").format("YYYY-MM-DDTHH:mm:ss");
-    const nowDate = moment().add(7, "hours").format("YYYY-MM-DDTHH:mm:ss");
-    console.log(Date.now());
+    // const nowDate = moment().add(7, "hours").format("YYYY-MM-DDTHH:00:00");
+    const nowDateNow = new Date();
+    nowDateNow.setMinutes(0);
     const tomorrowVN = moment(midnightVN)
       .add(1, "days")
       .format("YYYY-MM-DDTHH:mm:ss");
     return {
       today: new Date(midnightVN),
-      now: new Date(nowDate),
+      now: nowDateNow,
       tomorrow: new Date(tomorrowVN),
     };
   }
