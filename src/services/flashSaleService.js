@@ -108,8 +108,8 @@ class FlashSaleService {
     const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
     const cronJob = await FlashSaleUtils.processDateRangeChecking(
       flashSale_id,
-      startDay,
-      endDay
+      flashSale.startDay,
+      flashSale.endDay
     );
     return cronJob;
   }
