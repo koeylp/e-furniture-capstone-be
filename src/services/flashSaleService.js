@@ -104,11 +104,12 @@ class FlashSaleService {
     };
   }
 
-  static async startFlashSaleChecking(flashSale_id) {
+  static async startFlashSaleChecking(flashSale_id, startDay, endDay) {
     const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
     const cronJob = await FlashSaleUtils.processDateRangeChecking(
-      flashSale.startDay,
-      flashSale.endDay
+      flashSale_id,
+      startDay,
+      endDay
     );
     return cronJob;
   }
