@@ -77,25 +77,25 @@ class CartService {
     });
     await Promise.all(productPromises);
     let productIds = [];
-    for (const product of cart.products) {
-      productIds.push(product._id);
-    }
+    // for (const product of cart.products) {
+    //   productIds.push(product._id);
+    // }
 
-    productIds = await Promise.all(
-      productIds.map(async (data) => {
-        let { total, variation } = await InventoryRepository.getStockForProduct(
-          data._id,
-          data.variation
-        );
-        data.variation = variation;
-        data.stock = total;
-        data.select_variation = data.variation.map((item) => {
-          return defaultVariation(item);
-        });
-        return { ...data };
-      })
-    );
-    cart.products = productIds;
+    // productIds = await Promise.all(
+    //   productIds.map(async (data) => {
+    //     let { total, variation } = await InventoryRepository.getStockForProduct(
+    //       data._id,
+    //       data.variation
+    //     );
+    //     data.variation = variation;
+    //     data.stock = total;
+    //     data.select_variation = data.variation.map((item) => {
+    //       return defaultVariation(item);
+    //     });
+    //     return { ...data };
+    //   })
+    // );
+    // cart.products = productIds;
     return cart;
   }
 

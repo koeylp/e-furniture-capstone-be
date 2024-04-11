@@ -22,7 +22,7 @@ class AddressRepository {
   static async findAddress(query) {
     const address = await _Address.findOne(query).populate({
       path: "account_id",
-      select: "first_name last_name",
+      select: "first_name last_name email",
     });
     if (!address) throw new NotFoundError("Cannot Find Any Address!");
     return address;
@@ -30,7 +30,7 @@ class AddressRepository {
   static async getAddresses(query) {
     const address = await _Address.find(query).populate({
       path: "account_id",
-      select: "first_name last_name",
+      select: "first_name last_name email",
     });
     return address;
   }

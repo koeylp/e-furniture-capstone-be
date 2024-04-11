@@ -8,7 +8,7 @@ const schema = new Schema(
   {
     order: { type: Schema.Types.ObjectId, required: true, ref: "Order" },
     actualProfit: { type: Number, default: 0 },
-    expectedrofit: { type: Number, default: 0 },
+    expectedProfit: { type: Number, default: 0 },
     date: { type: Date, default: () => new Date().setUTCHours(0, 0, 0, 0) },
     status: { type: Number, default: 1 },
   },

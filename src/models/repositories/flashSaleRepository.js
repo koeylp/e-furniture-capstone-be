@@ -22,7 +22,7 @@ class FlashSaleRepository {
       .find(query)
       .populate("products.productId")
       .select(getUnSelectData(option))
-      .sort({ startDay: -1 })
+      .sort({ startDay: 1 })
       .lean();
   }
   static async getFlashSalesWithoutPopulate(query = {}, option = []) {
