@@ -231,18 +231,37 @@ class OrderRepository {
       { arrayFilters: [{ "element.name": state }] }
     );
   }
-  static async update(order_id, newSubstate, state) {
+
+  static async update(order_id, newSubstate, note, state) {
+    return await _Order
+      .findByIdAndUpdate(
+        order_id,
+        {
+          $push: { "order_tracking.$[element].substate": newSubstate },
+          $set: {
+            "order_tracking.$[element].status": parseInt(state),
+            "order_tracking.$[element].note": note,
+          },
+        },
+        { arrayFilters: [{ "element.name": "Shipping" }], new: true }
+      )
+      .lean({ virtuals: true });
+  }
+
+  static async updateShippingState(order_id, newSubstate, note, state) {
     return await _Order
       .findByIdAndUpdate(
         order_id,
         {
           $push: { "order_tracking.$[element].substate": newSubstate },
           $set: { "order_tracking.$[element].status": parseInt(state) },
+          $set: { "order_tracking.$[element].note": note },
         },
         { arrayFilters: [{ "element.name": "Shipping" }], new: true }
       )
       .lean({ virtuals: true });
   }
+
   static async checkFailedOrders(orderId) {
     const failedOrder = await _Order.aggregate([
       {
