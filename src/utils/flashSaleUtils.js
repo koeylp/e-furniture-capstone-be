@@ -28,7 +28,7 @@ class FlashSaleUtils {
   }
 
   static convertDateToString(date) {
-    const result = moment(new Date(date));
+    const result = moment(new Date(date)).subtract(7, "hours");
     return result.format("YYYY-MM-DDTHH:mm:ss");
   }
 
