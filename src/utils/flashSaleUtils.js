@@ -112,6 +112,20 @@ class FlashSaleUtils {
     return { start: startCron, end: endCron };
   }
 
+  static checkDateProgress(startDate, endDate) {
+    if (!startDate || !endDate) {
+      throw new BadRequestError("Invalid startDate and endDate");
+    }
+    startDate = this.convertDateToString(startDate);
+    endDate = this.convertDateToString(endDate);
+    const startTime = FlashSaleUtils.convertTimeDate(startDate);
+    const endTime = FlashSaleUtils.convertTimeDate(endDate);
+    return {
+      startTime,
+      endTime,
+    };
+  }
+
   static convertTimeDate(date) {
     const dayTimeArray = date.split("T");
     const timeArray = dayTimeArray[1].split(":");
