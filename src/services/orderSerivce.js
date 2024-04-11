@@ -71,6 +71,8 @@ class OrderService {
   }
   static async createOrder(account_id, order) {
     const products = await verifyProductStockExistence(order);
+    const warehouses = await StockUtil.updateStock(order);
+
     order = await this.categorizePaymentMethod(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
@@ -81,11 +83,10 @@ class OrderService {
           `Voucher ${found_voucher._id} was applied failed`
         );
     }
-    // for (let product of order.order_products) {
-    //   await CartUtils.removeItem(account_id, product);
-    // }
+    for (let product of order.order_products) {
+      await CartUtils.removeItem(account_id, product);
+    }
 
-    const warehouses = await StockUtil.updateStock(order);
     order.warehouses = warehouses;
     order.order_products = products;
 

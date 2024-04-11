@@ -28,7 +28,7 @@ class FlashSaleUtils {
   }
 
   static convertDateToString(date) {
-    const result = moment(new Date(date)).tz("UTC");
+    const result = moment(new Date(date));
     return result.format("YYYY-MM-DDTHH:mm:ss");
   }
 
@@ -114,12 +114,12 @@ class FlashSaleUtils {
 
   static async processDateRangeChecking(flashSale_id, startDate, endDate) {
     let count = 0;
-    // if (!startDate || !endDate) {
-    //   throw new BadRequestError("Invalid startDate and endDate");
-    // }
-    // startDate = this.convertDateToString(startDate);
-    // endDate = this.convertDateToString(endDate);
-    // console.log(startDate, endDate);
+    if (!startDate || !endDate) {
+      throw new BadRequestError("Invalid startDate and endDate");
+    }
+    startDate = this.convertDateToString(startDate);
+    endDate = this.convertDateToString(endDate);
+    console.log(startDate, endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
     const endTime = FlashSaleUtils.convertTimeDate(endDate);
     const startCron = cron.schedule(
@@ -197,7 +197,8 @@ class FlashSaleUtils {
     const hour = timeArray[0];
     const minute = timeArray[1];
     const momentDate = moment(date);
-    return { hour, minute, momentDate };
+    const monmentDate2 = new Date(date);
+    return { hour, minute, momentDate, monmentDate2 };
   }
 
   static getHourByDate(date) {

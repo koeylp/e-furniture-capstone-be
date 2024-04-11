@@ -15,10 +15,6 @@ class VerifyExistence {
     const products = order.order_products;
     for (const product of products) {
       product.product = await checkProductStock(product);
-      product.variation = await ProductRepository.findVariationValues(
-        product.product_id,
-        product.variation
-      );
     }
     return products;
   }
