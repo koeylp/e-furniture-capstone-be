@@ -28,8 +28,11 @@ class StockUtil {
     if (foundProductStock.stock < quantity) {
       throw new BadRequestError(`Product is out of stock`);
     }
-    if (foundProductStock.stock > 100) return false;
-    return true;
+    const productOrder = await ProductRepository.findProductById(product_id);
+    return {
+      name: productOrder.name,
+      thumbs: productOrder.thumbs,
+    };
   }
   static async updateStock(order) {
     const result = {};
@@ -53,14 +56,15 @@ class StockUtil {
         }
       });
     }
-    const array = [];
 
+    const array = [];
     for (const warehouseId in result) {
       array.push({
         warehouse_id: warehouseId,
         products: result[warehouseId],
       });
     }
+
     return array;
   }
   static async updateWarehouseStock(product, order_shipping) {

@@ -36,7 +36,7 @@ class DeliveryTripService {
     );
 
     await Promise.all([
-      AccountRepository.updateStateAccount(payload.account_id, 2),
+      // AccountRepository.updateStateAccount(payload.account_id, 2),
       NotificationEfurnitureService.notiRequestDeliveryTrip(),
     ]);
     return result;

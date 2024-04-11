@@ -32,6 +32,7 @@ const schema = new Schema(
     order_products: [
       {
         product_id: { type: Schema.Types.ObjectId, ref: "Product" },
+        product: { type: Object },
         variation: { type: Array },
         code: { type: String },
         quantity: { type: Number },

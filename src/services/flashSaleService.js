@@ -31,13 +31,20 @@ class FlashSaleService {
       ],
     };
     const flashSales = await FlashSaleRepository.getFlashSales(query);
-    return Object.entries(
+    let array = Object.entries(
       flashSales.reduce((acc, flashSale) => {
         const hour = FlashSaleUtils.getHourByDate(flashSale.startDay);
         acc[hour] = (acc[hour] || []).concat(flashSale);
         return acc;
       }, {})
-    ).map(([hour, flashSales]) => ({ Hour: hour, FlashSales: flashSales }));
+    ).map(([hour, flashSales]) => ({
+      Hour: hour,
+      FlashSales: flashSales,
+    }));
+    array.sort((a, b) => {
+      return parseFloat(a.Hour) - parseFloat(b.Hour);
+    });
+    return array;
   }
 
   static async getFlashSaleFuture() {
@@ -67,7 +74,8 @@ class FlashSaleService {
     const cronJob = await FlashSaleUtils.processDateRange(
       flashSale.startDay,
       flashSale.endDay,
-      flashSale.products
+      flashSale.products,
+      flashSale._id.toString()
     );
     CronFactory.registerCronType(
       `${flashSale._id.toString()}_start`,
