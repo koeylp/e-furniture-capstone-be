@@ -119,7 +119,11 @@ class FlashSaleUtils {
     startDate = this.convertDateToString(startDate);
     endDate = this.convertDateToString(endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
+    startTime.A = startTime.momentDate.format("D");
+    startTime.B = startTime.momentDate.format("M");
     const endTime = FlashSaleUtils.convertTimeDate(endDate);
+    endTime.A = endTime.momentDate.format("D");
+    endTime.B = endTime.momentDate.format("M");
     return {
       startTime,
       endTime,
