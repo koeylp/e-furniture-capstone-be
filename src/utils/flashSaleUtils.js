@@ -3,13 +3,14 @@ const moment = require("moment");
 const { BadRequestError } = require("./errorHanlder");
 const ProductRepository = require("../models/repositories/productRepository");
 const FlashSaleRepository = require("../models/repositories/flashSaleRepository");
+const ProductService = require("../services/productService");
 const StateUtils = require("./stateUtils");
 require("moment-timezone");
 
 class FlashSaleUtils {
   static getTodayAndTomorowDay() {
     const midnightVN = moment().startOf("day").format("YYYY-MM-DDTHH:mm:ss");
-    const nowDate = moment().add(7, "hours").format("YYYY-MM-DDTHH:00:00");
+    const nowDate = moment().add(7, "hours").format("YYYY-MM-DDTHH:mm:ss");
     const nowDateNow = new Date();
     nowDateNow.setMinutes(0);
     const tomorrowVN = moment(midnightVN)
@@ -89,7 +90,7 @@ class FlashSaleUtils {
             startTime.minute
           } ngày ${startTime.momentDate.format("YYYY-MM-DD")}`
         );
-        // await ProductService.updateRangeProductSalePrice(products);
+        await ProductService.updateRangeProductSalePrice(products);
         await this.updateFlashSaleState(
           flashSale_id,
           StateUtils.FlashSaleState("Ongoing")
@@ -101,7 +102,7 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        // await ProductService.updateRangeProductWithOldSalePrice(products);
+        await ProductService.updateRangeProductWithOldSalePrice(products);
         await this.updateFlashSaleState(
           flashSale_id,
           StateUtils.FlashSaleState("End")

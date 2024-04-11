@@ -6,12 +6,14 @@ class RevenueService {
     if (profit < 0) throw new BadRequestError("Profit must greater than 0!");
     return await RevenueRepository.updateOrInsert(profit, day);
   }
+
   static async getRevenueToday() {
     const query = {
       date: new Date().setUTCHours(0, 0, 0, 0),
     };
     return await RevenueRepository.findRevenue(query);
   }
+
   static async getRevenueByDate(day) {
     day = parseDate(day);
     const query = {
@@ -19,6 +21,7 @@ class RevenueService {
     };
     return await RevenueRepository.findRevenue(query);
   }
+
   static async getRevenueByDateRange(startDay, endDay) {
     startDay = parseDate(startDay);
     endDay = parseDate(endDay);
@@ -35,6 +38,7 @@ class RevenueService {
     }, 0);
     return { sum: sumRevenue, data: listRevenue };
   }
+
   static async getRevenueByDate(day) {
     day = parseDate(day);
     const query = {
@@ -43,6 +47,7 @@ class RevenueService {
     };
     return await RevenueRepository.findRevenue(query);
   }
+
   static async minusRevenue(profit, day = new Date().setUTCHours(0, 0, 0, 0)) {
     if (profit < 0) throw new BadRequestError("Profit must greater than 0!");
     day = parseDate(day);
