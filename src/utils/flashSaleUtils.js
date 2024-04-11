@@ -75,8 +75,8 @@ class FlashSaleUtils {
     if (!startDate || !endDate) {
       throw new BadRequestError("Invalid startDate and endDate");
     }
-    startDate = this.convertDateToStringUCL(startDate);
-    endDate = this.convertDateToStringUCL(endDate);
+    startDate = this.convertDateToString(startDate);
+    endDate = this.convertDateToString(endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
     const endTime = FlashSaleUtils.convertTimeDate(endDate);
     const startCron = cron.schedule(
