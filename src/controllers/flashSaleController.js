@@ -82,5 +82,13 @@ class FlashSaleController {
       metaData: await FlashSaleService.getFlashSaleFuture(),
     }).send(res);
   }
+
+  static async checkTime(req, res) {
+    const { flashSale_id } = req.params;
+    return new OK({
+      message: "FlashSale Check!",
+      metaData: await FlashSaleService.checkDate(flashSale_id),
+    }).send(res);
+  }
 }
 module.exports = FlashSaleController;
