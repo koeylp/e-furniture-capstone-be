@@ -26,7 +26,7 @@ class FlashSaleService {
     const query = {
       $and: [
         { startDay: { $gte: today } },
-        // { startDay: { $gte: now } },
+        { startDay: { $gte: now } },
         { startDay: { $lte: tomorrow } },
       ],
     };
