@@ -43,7 +43,7 @@ class DeliveryTripService {
     });
 
     await Promise.all([
-      // AccountRepository.updateStateAccount(payload.account_id, 2),
+      AccountRepository.updateStateAccount(payload.account_id, 2),
       NotificationEfurnitureService.notiRequestDeliveryTrip(),
     ]);
     return result;
@@ -111,7 +111,11 @@ class DeliveryTripService {
   }
 
   static async findTripByAccount(account_id) {
-    return await DeliveryTripRepository.findTripByAccount(account_id);
+    let result = await DeliveryTripRepository.findTripByAccount(account_id);
+    let current = await DeliveryTripUtils.getCurrentTrip(result);
+    if (current !== -1) return { ...result, current_delivery: current };
+    result.status = 1;
+    return result;
   }
 
   static async updateTrip(trip_id, order_id, state, note) {
