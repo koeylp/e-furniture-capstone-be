@@ -57,11 +57,11 @@ class DeliveryTripService {
         order_id: order.order,
       });
       order.payment = dataOrder.payment_method;
-      order.amount =
-        dataOrder.order_checkout.final_total -
-        dataOrder.order_checkout.paid.must_paid;
+      order.amount = dataOrder.order_checkout.paid.must_paid;
     });
+
     await Promise.all(orderPromise);
+
     return orders;
   }
 

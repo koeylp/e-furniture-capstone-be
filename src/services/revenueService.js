@@ -1,10 +1,22 @@
 const RevenueRepository = require("../models/repositories/revenueRepository");
 const { parseDate } = require("../utils/dateHandler");
 const { BadRequestError } = require("../utils/errorHanlder");
+const OrderRepository = require("../models/repositories/orderRepository");
+
 class RevenueService {
   static async addRevenue(profit, day = new Date().setUTCHours(0, 0, 0, 0)) {
     if (profit < 0) throw new BadRequestError("Profit must greater than 0!");
     return await RevenueRepository.updateOrInsert(profit, day);
+  }
+
+  static async create(order) {
+    const orderFound = await OrderRepository.findOrderById({ order_id: order });
+    const payload = {
+      order: order,
+      actualProfit: orderFound.order_checkout.final_total,
+      expectedProfit: orderFound.order_checkout.paid.must_paid,
+    };
+    return await RevenueRepository.create(payload);
   }
 
   static async getRevenueToday() {
@@ -34,7 +46,7 @@ class RevenueService {
     const listRevenue = await RevenueRepository.getRevenues(query);
     if (listRevenue.length == 0) return { sum: 0, data: listRevenue };
     const sumRevenue = listRevenue.reduce((acc, revenue) => {
-      return acc + revenue.profit;
+      return acc + revenue.actualProfit;
     }, 0);
     return { sum: sumRevenue, data: listRevenue };
   }
@@ -48,13 +60,37 @@ class RevenueService {
     return await RevenueRepository.findRevenue(query);
   }
 
-  static async minusRevenue(profit, day = new Date().setUTCHours(0, 0, 0, 0)) {
-    if (profit < 0) throw new BadRequestError("Profit must greater than 0!");
-    day = parseDate(day);
-    let query = { date: day };
+  static async decreaseActualProfit(order, actualProfit) {
+    if (actualProfit < 0)
+      throw new BadRequestError("Profit must greater than 0!");
+    let query = { order: order };
     let payload = {
       $inc: {
-        profit: -profit,
+        actualProfit: -actualProfit,
+      },
+    };
+    return await RevenueRepository.updateRevenue(query, payload);
+  }
+
+  static async increaseActualProfit(order, actualProfit) {
+    if (actualProfit < 0)
+      throw new BadRequestError("Profit must greater than 0!");
+    let query = { order: order };
+    let payload = {
+      $inc: {
+        actualProfit: +actualProfit,
+      },
+    };
+    return await RevenueRepository.updateRevenue(query, payload);
+  }
+
+  static async updateActualProfit(order, actualProfit) {
+    if (actualProfit < 0)
+      throw new BadRequestError("Profit must greater than 0!");
+    let query = { order: order };
+    let payload = {
+      $inc: {
+        actualProfit: +actualProfit,
       },
     };
     return await RevenueRepository.updateRevenue(query, payload);
