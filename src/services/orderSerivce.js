@@ -21,6 +21,7 @@ const TransactionRepository = require("../models/repositories/transactionReposit
 const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 const DistrictService = require("./districtService");
+const ProductRepository = require("../models/repositories/productRepository");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -69,7 +70,7 @@ class OrderService {
     return await this.createOrder(account_id, order);
   }
   static async createOrder(account_id, order) {
-    await verifyProductStockExistence(order);
+    const products = await verifyProductStockExistence(order);
     order = await this.categorizePaymentMethod(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
@@ -80,12 +81,13 @@ class OrderService {
           `Voucher ${found_voucher._id} was applied failed`
         );
     }
-    for (let product of order.order_products) {
-      await CartUtils.removeItem(account_id, product);
-    }
+    // for (let product of order.order_products) {
+    //   await CartUtils.removeItem(account_id, product);
+    // }
 
     const warehouses = await StockUtil.updateStock(order);
     order.warehouses = warehouses;
+    order.order_products = products;
 
     const newOrder = await OrderRepository.createOrder(account_id, order);
 

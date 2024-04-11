@@ -13,11 +13,14 @@ class VerifyExistence {
 
   static async verifyProductStockExistence(order) {
     const products = order.order_products;
-    let result = false;
     for (const product of products) {
-      result = await checkProductStock(product);
+      product.product = await checkProductStock(product);
+      product.variation = await ProductRepository.findVariationValues(
+        product.product_id,
+        product.variation
+      );
     }
-    return result;
+    return products;
   }
 
   static async verifyOrderExistence(order_id) {
