@@ -206,7 +206,7 @@ class FlashSaleUtils {
   }
 
   static getHourByDate(date) {
-    const day = this.convertDateToString(date);
+    const day = this.convertDateToStringUCL(date);
     const { hour, minute, momentDate } = this.convertTimeDate(day);
     return hour;
   }
