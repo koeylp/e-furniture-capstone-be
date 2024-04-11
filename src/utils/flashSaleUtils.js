@@ -31,6 +31,10 @@ class FlashSaleUtils {
     const result = moment(new Date(date)).subtract(7, "hours");
     return result.format("YYYY-MM-DDTHH:mm:ss");
   }
+  static convertDateToStringUCL(date) {
+    const result = moment(new Date(date));
+    return result.format("YYYY-MM-DDTHH:mm:ss");
+  }
 
   static validateDate(startDate, endDate) {
     if (!startDate || !endDate) throw new BadRequestError("Date is required!");
@@ -71,8 +75,8 @@ class FlashSaleUtils {
     if (!startDate || !endDate) {
       throw new BadRequestError("Invalid startDate and endDate");
     }
-    startDate = this.convertDateToString(startDate);
-    endDate = this.convertDateToString(endDate);
+    startDate = this.convertDateToStringUCL(startDate);
+    endDate = this.convertDateToStringUCL(endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
     const endTime = FlashSaleUtils.convertTimeDate(endDate);
     const startCron = cron.schedule(
