@@ -1,4 +1,3 @@
-const { draftProduct } = require("../models/repositories/productRepository");
 const WarehouseRepository = require("../models/repositories/warehouseRepository");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
 const {
@@ -8,11 +7,8 @@ const {
 } = require("./errorHanlder");
 const { getMapData } = require("./mapDataUtils");
 const ProductInventory = require("../models/repositories/productRepository");
-const NotificationEfurnitureRepository = require("../models/repositories/notificationEfurnitureRepository");
 const NotificationEfurnitureService = require("../services/NotificationEfurnitureService");
-const ProductService = require("../services/productService");
 const ProductRepository = require("../models/repositories/productRepository");
-const LOW_QUANTITY = 10;
 
 class StockUtil {
   static async checkProductStock(product) {

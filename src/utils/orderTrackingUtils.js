@@ -40,10 +40,10 @@ class OrderTrackingUtil {
   static async validatePendingTrackUpdate(key_of_type) {
     const forbiddenKeys = [1, 2, 3, 4, 5, 6];
     if (forbiddenKeys.includes(key_of_type)) {
-      throw new BadRequestError(
+      const errorMessage =
         "The order must be in pending state, the current state: " +
-          orderTrackingMap.get(key_of_type)
-      );
+        orderTrackingMap.get(key_of_type);
+      return Promise.reject(new BadRequestError(errorMessage));
     }
   }
 }
