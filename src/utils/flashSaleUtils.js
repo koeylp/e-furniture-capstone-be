@@ -98,11 +98,8 @@ class FlashSaleUtils {
             startTime.minute
           } ngày ${startTime.momentDate.format("YYYY-MM-DD")}`
         );
-        await ProductService.updateRangeProductSalePrice(products);
-        await this.updateFlashSaleState(
-          flashSale_id,
-          StateUtils.FlashSaleState("Ongoing")
-        );
+        // await ProductService.updateRangeProductSalePrice(products);
+        await this.updateFlashSaleState(flashSale_id, 1);
       }
     );
     const endCron = cron.schedule(
@@ -110,11 +107,8 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        await ProductService.updateRangeProductWithOldSalePrice(products);
-        await this.updateFlashSaleState(
-          flashSale_id,
-          StateUtils.FlashSaleState("End")
-        );
+        // await ProductService.updateRangeProductWithOldSalePrice(products);
+        await this.updateFlashSaleState(flashSale_id, 2);
         console.log(
           `Thực hiện công việc tại ${endTime.hour} ${
             endTime.minute
