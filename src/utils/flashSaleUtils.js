@@ -130,9 +130,9 @@ class FlashSaleUtils {
     if (!startDate || !endDate) {
       throw new BadRequestError("Invalid startDate and endDate");
     }
-    startDate = this.convertDateToString(startDate);
-    endDate = this.convertDateToString(endDate);
-    console.log(startDate, endDate);
+    // startDate = this.convertDateToString(startDate);
+    // endDate = this.convertDateToString(endDate);
+    // console.log(startDate, endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
     const endTime = FlashSaleUtils.convertTimeDate(endDate);
     const startCron = cron.schedule(
@@ -140,7 +140,7 @@ class FlashSaleUtils {
        ${startTime.momentDate.format("D")}
        ${startTime.momentDate.format("M")} *`,
       async () => {
-        // await this.updateFlashSaleState(flashSale_id, 1);
+        await this.updateFlashSaleState(flashSale_id, 1);
         console.log("Run");
       }
     );
@@ -149,7 +149,7 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        // await this.updateFlashSaleState(flashSale_id, 2);
+        await this.updateFlashSaleState(flashSale_id, 2);
         console.log("End");
       }
     );
@@ -210,8 +210,7 @@ class FlashSaleUtils {
     const hour = timeArray[0];
     const minute = timeArray[1];
     const momentDate = moment(date);
-    const monmentDate2 = new Date(date);
-    return { hour, minute, momentDate, monmentDate2 };
+    return { hour, minute, momentDate };
   }
 
   static getHourByDate(date) {
