@@ -7,7 +7,7 @@ class FlashSaleService {
     FlashSaleUtils.validateDate(payload.startDay, payload.endDay);
     payload.startDay = FlashSaleUtils.convertToDate(payload.startDay);
     payload.endDay = FlashSaleUtils.convertToDate(payload.endDay);
-    await FlashSaleUtils.validateProducts(payload.products);
+    payload.products = await FlashSaleUtils.validateProducts(payload.products);
     const result = await FlashSaleRepository.createFlashSale(payload);
     await this.startFlashSaleCron(result);
     return result;
@@ -108,7 +108,9 @@ class FlashSaleService {
     const flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
     const cronJob = await FlashSaleUtils.processDateRangeChecking(
       flashSale_id,
+      flashSale.products,
       startDay,
+
       endDay
     );
     return cronJob;

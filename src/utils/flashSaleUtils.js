@@ -67,7 +67,9 @@ class FlashSaleUtils {
   static async validateProducts(products) {
     await Promise.all(
       products.map(async (product) => {
-        await ProductRepository.findProductById(product.productId);
+        let productFound = await ProductRepository.findProductById(
+          product.productId
+        );
         if (product.count <= 0) {
           throw new BadRequestError(
             "The quantity of products to be sold must be greater than 0!"
@@ -76,8 +78,10 @@ class FlashSaleUtils {
         if (product.salePrice < 0) {
           throw new BadRequestError("The Sale Price must be positive!");
         }
+        product.oldSalePrice = productFound.sale_price;
       })
     );
+    return products;
   }
 
   static async processDateRange(startDate, endDate, products, flashSale_id) {
@@ -98,7 +102,7 @@ class FlashSaleUtils {
             startTime.minute
           } ngày ${startTime.momentDate.format("YYYY-MM-DD")}`
         );
-        await ProductService.updateRangeProductSalePrice(products);
+        await this.updateRangeProductSalePrice(products);
         await this.updateFlashSaleState(flashSale_id, 1);
       }
     );
@@ -107,7 +111,7 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        await ProductService.updateRangeProductWithOldSalePrice(products);
+        await this.updateRangeProductWithOldSalePrice(products);
         await this.updateFlashSaleState(flashSale_id, 2);
         console.log(
           `Thực hiện công việc tại ${endTime.hour} ${
@@ -119,7 +123,12 @@ class FlashSaleUtils {
     return { start: startCron, end: endCron };
   }
 
-  static async processDateRangeChecking(flashSale_id, startDate, endDate) {
+  static async processDateRangeChecking(
+    flashSale_id,
+    products,
+    startDate,
+    endDate
+  ) {
     let count = 0;
     if (!startDate || !endDate) {
       throw new BadRequestError("Invalid startDate and endDate");
@@ -134,7 +143,8 @@ class FlashSaleUtils {
        ${startTime.momentDate.format("D")}
        ${startTime.momentDate.format("M")} *`,
       async () => {
-        await this.updateFlashSaleState(flashSale_id, 1);
+        await this.updateRangeProductSalePrice(products);
+        // await this.updateFlashSaleState(flashSale_id, 1);
         console.log("Run");
       }
     );
@@ -143,7 +153,8 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        await this.updateFlashSaleState(flashSale_id, 2);
+        await this.updateRangeProductWithOldSalePrice(products);
+        // await this.updateFlashSaleState(flashSale_id, 2);
         console.log("End");
       }
     );
@@ -218,6 +229,28 @@ class FlashSaleUtils {
       status: state,
     };
     return await FlashSaleRepository.updateById(flashSale_id, payload);
+  }
+
+  static async updateRangeProductSalePrice(products) {
+    products.forEach(async (product) => {
+      let update = {
+        $set: {
+          sale_price: product.salePrice,
+        },
+      };
+      await ProductRepository.updateProductById(product.productId, update);
+    });
+  }
+
+  static async updateRangeProductWithOldSalePrice(products) {
+    products.forEach(async (product) => {
+      let update = {
+        $set: {
+          sale_price: product.oldSalePrice,
+        },
+      };
+      await ProductRepository.updateProductById(product.productId, update);
+    });
   }
 }
 module.exports = FlashSaleUtils;
