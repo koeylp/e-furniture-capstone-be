@@ -1,5 +1,6 @@
 const { NotFoundError } = require("../utils/errorHanlder");
 const WishlistRepositoy = require("../models/repositories/wishlistRepository");
+const ProductRepository = require("../models/repositories/productRepository");
 
 class VoucherService {
   static async handleWishlist(account_id) {
@@ -24,7 +25,11 @@ class VoucherService {
     await this.handleWishlist(account_id);
     const QUERY = { account: account_id };
     let wishlist = await WishlistRepositoy.findByQueryPopulate(QUERY);
-    return wishlist.products;
+    let query = {
+      _id: { $in: wishlist.products },
+    };
+    let { total, data } = await ProductRepository.getAlls(query);
+    return data;
   }
   static async getProductIndex(account_id, product) {
     let wishlist = await this.handleWishlist(account_id);

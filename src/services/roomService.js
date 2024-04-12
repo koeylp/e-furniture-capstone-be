@@ -2,6 +2,7 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const RoomRepository = require("../models/repositories/roomRepository");
 const { returnSortType } = require("./productFactory/sortType");
 const RoomUtils = require("../utils/roomUtils");
+const ProductRepository = require("../models/repositories/productRepository");
 const sortPhase = new Map([
   ["name_asc", { name: 1 }],
   ["name_desc", { name: -1 }],
@@ -39,7 +40,15 @@ class RoomService {
     return await RoomRepository.getRooms({ limit, sort, page, query });
   }
   static async findRoom(room_slug) {
-    return await RoomRepository.findRoomBySlug(room_slug);
+    let room = await RoomRepository.findRoomBySlugWithoutPopulate(room_slug);
+    room.products = await Promise.all(
+      room.products.map(async (product) => {
+        const modifiedProduct =
+          await ProductRepository.findProductByIDWithModify(product.product);
+        return modifiedProduct;
+      })
+    );
+    return room;
   }
   static async editRoom(room_slug, payload) {
     if (payload.name) {
