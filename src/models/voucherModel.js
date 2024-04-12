@@ -15,7 +15,7 @@ const schema = new Schema(
     },
     value: { type: Number, required: true },
     max_discount: { type: Number, required: true },
-    code: { type: String, required: true, unique: true },
+    code: { type: String, required: true },
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },
     maximum_use: { type: Number, required: true },
