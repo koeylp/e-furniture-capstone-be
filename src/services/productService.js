@@ -127,26 +127,6 @@ class ProductService {
     await WishlistRepositoy.deleteProductInWishList(product._id);
     return await ProductRepository.draftProduct(product._id);
   }
-  static async updateRangeProductSalePrice(products) {
-    products.forEach(async (product) => {
-      let update = {
-        $set: {
-          sale_price: product.salePrice,
-        },
-      };
-      await ProductRepository.updateProductById(product.productId, update);
-    });
-  }
-  static async updateRangeProductWithOldSalePrice(products) {
-    products.forEach(async (product) => {
-      let update = {
-        $set: {
-          sale_price: product.oldSalePrice,
-        },
-      };
-      await ProductRepository.updateProductById(product.productId, update);
-    });
-  }
   static async searchProductByName(text, page = 1, limit = 12) {
     let options = { is_draft: false, is_published: true };
     let filter = [];
