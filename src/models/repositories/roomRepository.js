@@ -52,6 +52,16 @@ class RoomRepository {
     });
     return room;
   }
+  static async findRoomBySlugWithoutPopulate(room_slug) {
+    const query = {
+      slug: room_slug,
+      is_draft: false,
+      is_published: true,
+    };
+    let room = await _Room.findOne(query).lean();
+    if (!room) throw new NotFoundError("Cannot Find Any Room Result!");
+    return room;
+  }
   static async findRoom(query) {
     const room = await _Room.findOne(query);
     return room;
