@@ -56,29 +56,51 @@ class OrderService {
               await ProductRepository.findProductByIDWithModify(
                 item.product_id.toString()
               );
-            item.product_id = modifiedProduct; // Update existing property directly
-            return item; // Optional (if you need to use the item object within the callback)
+            item.product_id = modifiedProduct;
+            return item;
           })
         );
-        return item; // Return modified item (optional)
+        return item;
       })
     );
     return result;
   }
   static async findOrderByTypeU(account_id, type, page, limit) {
+    let result = [];
     if (type === "All") {
       const query = {
         account_id: account_id,
         guest: false,
       };
-      return await OrderRepository.getOrders({ query, page, limit });
+      result = await OrderRepository.getOrdersWithoutPopulate({
+        query,
+        page,
+        limit,
+      });
+    } else {
+      result = await OrderRepository.getOrdersByType({
+        account_id,
+        type,
+        page,
+        limit,
+      });
     }
-    return await OrderRepository.getOrdersByType({
-      account_id,
-      type,
-      page,
-      limit,
-    });
+    result.data = await Promise.all(
+      result.data.map(async (item) => {
+        item.order_products = await Promise.all(
+          item.order_products.map(async (item) => {
+            const modifiedProduct =
+              await ProductRepository.findProductByIDWithModify(
+                item.product_id.toString()
+              );
+            item.product_id = modifiedProduct;
+            return item;
+          })
+        );
+        return item;
+      })
+    );
+    return result;
   }
   static async removeOrder(order_id) {
     return await OrderRepository.removeOrder(order_id);
