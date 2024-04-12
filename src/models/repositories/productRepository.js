@@ -58,6 +58,29 @@ class ProductRepository {
     });
     return result;
   }
+  static async findProductByIDWithModify(product_id) {
+    let result = await _Product
+      .findOne({
+        _id: product_id,
+      })
+      .select(getUnSelectData(["__v", "createdAt", "updatedAt"]))
+      .populate({
+        path: "type",
+        select: "name slug",
+      })
+      .lean()
+      .exec();
+    let { total, variation } = await InventoryRepository.getStockForProduct(
+      result._id,
+      result.variation
+    );
+    result.variation = variation;
+    result.stock = total;
+    result.select_variation = result.variation.map((item) => {
+      return defaultVariation(item);
+    });
+    return result;
+  }
   static async updateProduct(query, update) {
     return await _Product.updateOne(query, update, { new: true });
   }

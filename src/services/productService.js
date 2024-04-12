@@ -159,7 +159,11 @@ class ProductService {
     });
   }
   static async getBestSeller(limit) {
-    return await InventoryRepository.findByQueryPopulate(limit);
+    let { total, data } = await InventoryRepository.findByQueryPopulate(limit);
+    let query = {
+      _id: { $in: data },
+    };
+    return await ProductRepository.getAlls(query);
   }
   static async getAllProducts(page, limit) {
     return await InventoryRepository.findAllByQueryPopulate(page, limit);

@@ -23,30 +23,24 @@ class InventoryRepository {
     const skip = (page - 1) * limit;
     let inventories = await _Inventory
       .find(query)
-      .populate({
-        path: "product",
-        select: "-attributes ",
-      })
       .limit(limit)
       .sort(sortType)
       .lean();
 
-    inventories = await Promise.all(
-      inventories.map(async (data) => {
-        let { total, variation } = await this.getStockForProduct(
-          data.product._id,
-          data.product.variation
-        );
-        let dataMatch = variation.map((item) => {
-          return data.variation.map((vari) => {
-            return valueVariationWithProperty(vari.property_id, item);
-          });
-        });
-        data.variation = dataMatch[0];
-        data.select_variation = dataMatch[0];
-        return { ...data };
-      })
-    );
+    // inventories = await Promise.all(
+    //   inventories.map(async (data) => {
+    //     let { total, variation } = await this.getStockForProduct(
+    //       data.product._id,
+    //       data.product.variation
+    //     );
+    //     data.product.variation = variation;
+    //     data.product.stock = data.stock;
+    //     data.product.select_variation = data.product.variation.map((item) => {
+    //       return defaultVariation(item);
+    //     });
+    //     return { ...data };
+    //   })
+    // );
 
     return inventories;
   }
@@ -58,17 +52,12 @@ class InventoryRepository {
     sortType,
   }) {
     const skip = (page - 1) * limit;
-    let result = await _Inventory.aggregate([
-      {
-        $match: query,
-      },
-      { $skip: skip },
-      { $limit: limit },
-      { $sort: sortType },
-      { $unwind: "$product" },
-      { $project: { _id: 0, product: 1 } },
-    ]);
-    return result;
+    return await _Inventory
+      .find(query)
+      .limit(limit)
+      .sort(sortType)
+      .distinct("product")
+      .lean();
   }
 
   static async getStockForProduct(product_id, variation) {
@@ -141,7 +130,7 @@ class InventoryRepository {
       is_published: true,
     };
     const sortType = { ["sold"]: -1 };
-    let inventories = await this.getInventory({
+    let inventories = await this.getInventoryWithDistinctProduct({
       query: query,
       sortType: sortType,
     });
