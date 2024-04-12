@@ -38,6 +38,36 @@ class OrderRepository {
 
     return { total: total.length, data: updatedProducts };
   }
+  static async getOrdersWithoutPopulate({ query = {}, page, limit }) {
+    const skip = (page - 1) * limit;
+    const [result, total] = await Promise.all([
+      _Order
+        .find(query)
+        .sort([["createdAt", -1]])
+        .select(getUnSelectData(["__v"]))
+        .skip(skip)
+        .limit(limit)
+        .lean({ virtuals: true })
+        .exec(),
+      _Order.find(query),
+    ]);
+    const updatedProducts = await Promise.all(
+      result.map(async (item) => {
+        const updatedOrderProducts = await Promise.all(
+          item.order_products.map(async (product) => {
+            const variation = await ProductRepository.findVariationValues(
+              product.product_id._id.toString(),
+              product.variation
+            );
+            return { ...product, variation };
+          })
+        );
+        return { ...item, order_products: updatedOrderProducts };
+      })
+    );
+
+    return { total: total.length, data: updatedProducts };
+  }
   static async getOrderWithoutPagination(query = {}) {
     const result = await _Order.find(query).lean({ virtuals: true }).exec();
     return { total: result.length, data: result };
@@ -73,7 +103,7 @@ class OrderRepository {
         ],
       };
     }
-    return await this.getOrders({ query, page, limit });
+    return await this.getOrdersWithoutPopulate({ query, page, limit });
   }
   static async findOrderById({ account_id = null, order_id }) {
     checkValidId(order_id);
