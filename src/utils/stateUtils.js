@@ -51,5 +51,19 @@ class StateUtils {
       this.FlashSaleStateMap.get(code) || this.FlashSaleStateMap.get("default")
     );
   };
+
+  static DeliveryTripStateMap = new Map([
+    ["Reject", -1],
+    ["Pending", 0],
+    ["Processing", 1],
+    ["Done", 2],
+    ["default", 0],
+  ]);
+  static DeliveryTripState = (code) => {
+    return (
+      this.DeliveryTripStateMap.get(code) ||
+      this.DeliveryTripStateMap.get("default")
+    );
+  };
 }
 module.exports = StateUtils;

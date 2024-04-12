@@ -12,5 +12,23 @@ class NotificationEfurnitureRepository {
       .sort([["createdAt", -1]])
       .lean();
   }
+
+  static async getNotificationsForAdmin() {
+    return await _NotificationEfuniture
+      .find({
+        status: 1,
+      })
+      .sort([["createdAt", -1]])
+      .lean();
+  }
+
+  static async getNotificationsForStaff() {
+    return await _NotificationEfuniture
+      .find({
+        status: 2,
+      })
+      .sort([["createdAt", -1]])
+      .lean();
+  }
 }
 module.exports = NotificationEfurnitureRepository;

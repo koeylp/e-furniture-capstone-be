@@ -76,6 +76,20 @@ const defaultVariation = (item) => {
     stock: item.properties[index].stock,
   };
 };
+
+const valueVariationWithProperty = (item_id, variation) => {
+  let index = variation.properties.findIndex(
+    (property) => property._id.toString() == item_id
+  );
+  if (index == -1) return {};
+  return {
+    variation_id: variation._id,
+    property_id: variation.properties[index]._id,
+    sub_price: variation.properties[index].sub_price,
+    color: variation.properties[index].value,
+    stock: variation.properties[index].stock,
+  };
+};
 function removeDuplicates(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
     return [];
@@ -112,4 +126,5 @@ module.exports = {
   convertAttributes,
   defaultVariation,
   createCode,
+  valueVariationWithProperty,
 };

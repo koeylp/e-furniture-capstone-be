@@ -192,7 +192,12 @@ class DeliveryTripService {
     );
     if (account.status === 3)
       throw new BadRequestError("Delivery Is On Another Trip!");
-    const result = await this.updateDeliveryTripStatus(trip_id, 1);
+
+    const result = await this.updateDeliveryTripStatus(
+      trip_id,
+      StateUtils.DeliveryTripState("Processing")
+    );
+
     deliveryTrip.orders.forEach(
       async (order) => await OrderService.processingToShiping(order.order)
     );
@@ -204,7 +209,7 @@ class DeliveryTripService {
       account_id: result.account_id,
       title: "Confirm Delivery Trip",
       message: "Your Delivery Trip Has Been Confirm By Staff",
-      status: 2,
+      status: 1,
     };
     await this.SendNotification(payload, accountResult.status);
     return result;
@@ -216,7 +221,10 @@ class DeliveryTripService {
   }
 
   static async updateOrdersWithMainStatus(trip_id) {
-    return await this.updateDeliveryTripStatus(trip_id, 2);
+    return await this.updateDeliveryTripStatus(
+      trip_id,
+      StateUtils.DeliveryTripState("Done")
+    );
   }
 
   static async rejectDeliveryTrip(trip_id, note) {
@@ -230,7 +238,7 @@ class DeliveryTripService {
 
     deliveryTrip.orders.forEach(async (order) => {
       if (!orderState[order.order])
-        throw new NotFoundError("Error With Order!");
+        throw new NotFoundError("Error With Order State!");
 
       let stateValue =
         StateUtils.OrderState(orderState[order.order]) ==
@@ -250,15 +258,20 @@ class DeliveryTripService {
       1
     );
 
+    let result = await this.updateDeliveryTripStatus(
+      trip_id,
+      StateUtils.DeliveryTripState("Reject")
+    );
+
     const payload = {
       account_id: account._id,
       title: "Reject Delivery Trip",
       message: note,
-      status: 2,
+      status: 1,
     };
     await this.SendNotification(payload, accountResult.status);
 
-    return true;
+    return result;
   }
 }
 module.exports = DeliveryTripService;

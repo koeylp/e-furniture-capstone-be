@@ -3,9 +3,11 @@ const {
   getUnSelectData,
   defaultVariation,
   createCode,
+  valueVariationWithProperty,
 } = require("../../utils");
 const { default: mongoose } = require("mongoose");
 const ProductUtils = require("../../utils/productUtils");
+const ProductRepository = require("./productRepository");
 class InventoryRepository {
   static async createInventory(inventory) {
     const newInventory = await _Inventory.create(inventory);
@@ -21,20 +23,28 @@ class InventoryRepository {
     const skip = (page - 1) * limit;
     let inventories = await _Inventory
       .find(query)
-      .distinct("product")
-      .populate("product");
+      .populate({
+        path: "product",
+        select: "-attributes ",
+      })
+      .limit(limit)
+      .sort(sortType)
+      .lean();
+
     inventories = await Promise.all(
       inventories.map(async (data) => {
         let { total, variation } = await this.getStockForProduct(
           data.product._id,
           data.product.variation
         );
-        data.product.variation = variation;
-        data.product.stock = total;
-        data.product.select_variation = data.product.variation.map((item) =>
-          defaultVariation(item)
-        );
-        return data;
+        let dataMatch = variation.map((item) => {
+          return data.variation.map((vari) => {
+            return valueVariationWithProperty(vari.property_id, item);
+          });
+        });
+        data.variation = dataMatch[0];
+        data.select_variation = dataMatch[0];
+        return { ...data };
       })
     );
 

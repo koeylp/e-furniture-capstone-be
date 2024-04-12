@@ -20,4 +20,16 @@ router.get(
   asyncHandler(NotiController.getNotis)
 );
 
+router.get(
+  "/admin",
+  hasPermission(global.PermissionConstants.ADMIN_GET),
+  asyncHandler(NotiController.getNotisAdmin)
+);
+
+router.get(
+  "/staff",
+  hasPermission(global.PermissionConstants.STAFF_GET),
+  asyncHandler(NotiController.getNotisStaff)
+);
+
 module.exports = router;
