@@ -255,7 +255,8 @@ class OrderService {
     );
 
     const substateChecking = await OrderService.checkAndPushFailedState(
-      updatedOrder
+      updatedOrder,
+      note
     );
 
     if (!substateChecking) {
@@ -282,7 +283,7 @@ class OrderService {
     return order;
   }
 
-  static async checkAndPushFailedState(order) {
+  static async checkAndPushFailedState(order, note) {
     const shippingPhaseName = "Shipping";
     const failedSubstateType = "Failed";
     const maxFailureCount = 3;
@@ -302,6 +303,7 @@ class OrderService {
       order.order_tracking.push({
         name: "Failed",
         status: 1,
+        note: note,
       });
     }
     return await OrderRepository.updateOrder(order);
