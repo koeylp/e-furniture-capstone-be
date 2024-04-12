@@ -5,6 +5,8 @@ const TypeRepository = require("../../models/repositories/typeRepository");
 const ProductRepository = require("../../models/repositories/productRepository");
 const { removeUndefineObject } = require("../../utils");
 const SubTypeService = require("../subTypeService");
+const SHIPPING_AMOUNT = 50000;
+
 class Product {
   constructor({
     name,
@@ -56,6 +58,8 @@ class TypeProduct extends Product {
     if (!subType)
       throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
     this.type = type._id;
+    this.regular_price = this.regular_price + SHIPPING_AMOUNT;
+    this.sale_price = this.sale_price + SHIPPING_AMOUNT;
     return await super.createProduct();
   }
   async updateProduct(product_slug) {
