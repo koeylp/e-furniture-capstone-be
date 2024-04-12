@@ -37,13 +37,33 @@ class OrderService {
     return await OrderRepository.getOrdersByUser(account_id, page, limit);
   }
   static async findOrderByType(type, page, limit, status) {
-    if (type === "All") return await OrderRepository.getOrders({ page, limit });
-    return await OrderRepository.getOrdersByType({
-      type,
-      page,
-      limit,
-      status,
-    });
+    let result = [];
+    if (type === "All") {
+      result = await OrderRepository.getOrdersWithoutPopulate({ page, limit });
+    } else {
+      result = await OrderRepository.getOrdersByType({
+        type,
+        page,
+        limit,
+        status,
+      });
+    }
+    result.data = await Promise.all(
+      result.data.map(async (item) => {
+        item.order_products = await Promise.all(
+          item.order_products.map(async (item) => {
+            const modifiedProduct =
+              await ProductRepository.findProductByIDWithModify(
+                item.product_id.toString()
+              );
+            item.product_id = modifiedProduct; // Update existing property directly
+            return item; // Optional (if you need to use the item object within the callback)
+          })
+        );
+        return item; // Return modified item (optional)
+      })
+    );
+    return result;
   }
   static async findOrderByTypeU(account_id, type, page, limit) {
     if (type === "All") {
