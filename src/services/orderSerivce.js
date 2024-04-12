@@ -175,12 +175,12 @@ class OrderService {
         foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
       )
     );
-    await OrderTrackingUtil.validatePresentTrackCancel(key_of_type);
-    const status = key_of_type === 0 ? 1 : 0;
+    // await OrderTrackingUtil.validatePresentTrackCancel(key_of_type);
+    // const status = key_of_type === 0 ? 1 : 0;
     const update = {
       name: orderTrackingMap.get(4),
       note: note,
-      status: status,
+      status: 1,
     };
     const updateTracking = await OrderRepository.updateOrderTracking(
       order_id,
