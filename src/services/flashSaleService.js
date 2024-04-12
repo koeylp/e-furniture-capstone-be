@@ -27,7 +27,7 @@ class FlashSaleService {
       $and: [
         { startDay: { $gte: today } },
         { startDay: { $gte: now } },
-        { startDay: { $lte: tomorrow } },
+        { startDay: { $lt: tomorrow } },
       ],
     };
     const flashSales = await FlashSaleRepository.getFlashSales(query);
