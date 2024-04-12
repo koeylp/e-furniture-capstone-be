@@ -162,7 +162,7 @@ const validateVoucherInput = (data) => {
     type: Joi.string().valid("fixed_amount", "percentage").required(),
     code: Joi.string().required(),
     value: Joi.number().required(),
-    max_discount: Joi.number().required(),
+    max_discount: Joi.number(),
     start_date: Joi.date().iso().required(),
     end_date: Joi.date()
       .iso()

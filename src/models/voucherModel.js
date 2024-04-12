@@ -14,7 +14,7 @@ const schema = new Schema(
       enum: ["fixed_amount", "percentage"],
     },
     value: { type: Number, required: true },
-    max_discount: { type: Number, required: true },
+    max_discount: { type: Number },
     code: { type: String, required: true, unique: true },
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },
