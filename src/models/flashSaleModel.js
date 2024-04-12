@@ -15,6 +15,7 @@ const schema = new Schema(
       {
         productId: { type: String, ref: "Product" },
         count: { type: Number, required: true },
+        sold: { type: Number, default: 0 },
         salePrice: { type: Number },
         oldSalePrice: { type: Number },
       },

@@ -10,7 +10,7 @@ require("moment-timezone");
 class FlashSaleUtils {
   static getTodayAndTomorowDay() {
     const midnightVN = moment().startOf("day").format("YYYY-MM-DDTHH:mm:ss");
-    const nowDate = moment().add(7, "hours").format("YYYY-MM-DDTHH:mm:ss");
+    const nowDate = moment().add(7, "hours").format("YYYY-MM-DDTHH:00:00");
     const nowDateNow = new Date();
     nowDateNow.setMinutes(0);
     const tomorrowVN = moment(midnightVN)
@@ -54,6 +54,14 @@ class FlashSaleUtils {
       throw new BadRequestError(
         "The end time must be later than the current time!"
       );
+    const timeDifferenceInMinutes = Math.floor(
+      (endDate - startDate) / (1000 * 60)
+    );
+    if (timeDifferenceInMinutes > 15) {
+      throw new BadRequestError(
+        "The end time must be less than 15 minutes after the start time"
+      );
+    }
   }
 
   static async validateProducts(products) {
