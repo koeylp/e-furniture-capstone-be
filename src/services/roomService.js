@@ -45,7 +45,8 @@ class RoomService {
       room.products.map(async (product) => {
         const modifiedProduct =
           await ProductRepository.findProductByIDWithModify(product.product);
-        return modifiedProduct;
+        product.product = modifiedProduct;
+        return product;
       })
     );
     return room;
