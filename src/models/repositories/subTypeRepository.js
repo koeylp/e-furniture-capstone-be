@@ -92,8 +92,7 @@ class SubTypeRepository {
       .populate({
         path: "products.productId",
         model: "Product",
-        select:
-          "-is_draft -is_published -createdAt -updatedAt -__v -attributes ",
+        select: "-is_draft -is_published -createdAt -updatedAt -__v  ",
       })
       .lean();
     // result.products = result.products.map((data) => {
