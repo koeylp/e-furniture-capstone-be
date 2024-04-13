@@ -245,7 +245,7 @@ class OrderService {
     const updatedOrder = await OrderRepository.paid(
       account_id,
       order_id,
-      transaction.amount
+      Math.floor(transaction.amount)
     );
     return updatedOrder;
   }
