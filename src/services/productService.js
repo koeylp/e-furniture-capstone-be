@@ -75,7 +75,9 @@ class ProductService {
       typeModel
     );
     const listProduct = getProductsBySubType(page, limit, subTypes);
-    return listProduct.map((item) => item.productId);
+    let data = listProduct.map((item) => item.productId);
+    let total = data.length;
+    return { total, data };
   }
   static async removeProduct(product_slug) {
     const product = await ProductRepository.findProductBySlug(product_slug);
