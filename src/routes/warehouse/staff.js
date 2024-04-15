@@ -21,35 +21,35 @@ router.post(
   hasPermission(global.PermissionConstants.STAFF_POST),
   asyncHandler(WareHouseController.createWareHouse)
 );
+// router.put(
+//   "/:warehouse_id",
+//   hasPermission(global.PermissionConstants.STAFF_PUT),
+//   asyncHandler(WareHouseController.addProductToWareHouse)
+// );
+// router.put(
+//   "/removeProduct/:warehouse_id",
+//   hasPermission(global.PermissionConstants.STAFF_PUT),
+//   asyncHandler(WareHouseController.removeProductFromWareHouse)
+// );
 router.put(
-  "/:warehouse_id",
+  "/lowStock/update",
   hasPermission(global.PermissionConstants.STAFF_PUT),
-  asyncHandler(WareHouseController.addProductToWareHouse)
+  asyncHandler(WareHouseController.updateLowStockValue)
 );
 router.put(
-  "/removeProduct/:warehouse_id",
-  hasPermission(global.PermissionConstants.STAFF_PUT),
-  asyncHandler(WareHouseController.removeProductFromWareHouse)
-);
-router.put(
-  "/lowstock/:warehouse_id",
+  "/lowstock",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(WareHouseController.updateIsLowStock)
 );
 router.put(
-  "/edit/:warehouse_id",
+  "/edit",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(WareHouseController.updateWareHouse)
 );
 router.put(
-  "/stock/update/:warehouse_id",
+  "/stock/update",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(WareHouseController.updateProductStockInWarehouse)
-);
-router.put(
-  "/lowStock/update/:warehouse_id",
-  hasPermission(global.PermissionConstants.STAFF_PUT),
-  asyncHandler(WareHouseController.updateLowStockValue)
 );
 
 module.exports = router;

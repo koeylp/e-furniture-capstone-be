@@ -48,10 +48,13 @@ class WareHouseService {
     return warehouse;
   }
 
-  static async updateWareHouse(warehouse_id, payload) {
-    await WareHouseRepository.findWareHouseById(warehouse_id);
+  static async updateWareHouse(payload) {
+    const warehouse = await WareHouseRepository.findFirst();
     const update = removeUndefineObject(payload);
-    return await WareHouseRepository.updateWareHouse(warehouse_id, update);
+    return await WareHouseRepository.updateWareHouse(
+      warehouse._id.toString(),
+      update
+    );
   }
 
   static async removewWareHouse(warehouse_id) {
@@ -106,17 +109,14 @@ class WareHouseService {
     return result;
   }
 
-  static async updateProductStockInWarehouse(warehouse_id, product) {
+  static async updateProductStockInWarehouse(product) {
     const foundInventory = await InventoryRepository.findByQuery({
       code: product.code,
     });
     if (!foundInventory)
       throw new NotFoundError("Inventory not found with specific product");
-    const foundWarehouse = await WareHouseRepository.findByQuery({
-      _id: warehouse_id,
-    });
-    if (!foundWarehouse)
-      throw new NotFoundError("Warehouse not found with id " + warehouse_id);
+    const foundWarehouse = await WareHouseRepository.findFirst();
+    if (!foundWarehouse) throw new NotFoundError("Warehouse not found ");
     const product_index = foundWarehouse.products.findIndex(
       (el) => el.code === product.code
     );
@@ -132,20 +132,16 @@ class WareHouseService {
     return await WareHouseRepository.save(foundWarehouse);
   }
 
-  static async UpdateIsLowStockNotification(warehouse_id, product) {
-    const { foundWarehouse, product_index } = await this.findProductInWareHouse(
-      warehouse_id,
-      product
-    );
+  static async UpdateIsLowStockNotification(product) {
+    const { foundWarehouse, product_index } =
+      await this.findProductInFirstWareHouse(product);
     foundWarehouse.products[product_index].isNoti = product.isNoti;
     return await WareHouseRepository.save(foundWarehouse);
   }
 
-  static async updateLowStockValueInWarehouse(warehouse_id, product) {
-    const { foundWarehouse, product_index } = await this.findProductInWareHouse(
-      warehouse_id,
-      product
-    );
+  static async updateLowStockValueInWarehouse(product) {
+    const { foundWarehouse, product_index } =
+      await this.findProductInFirstWareHouse(product);
     foundWarehouse.products[product_index].lowStock = product.lowStock;
     return await WareHouseRepository.save(foundWarehouse);
   }
@@ -162,6 +158,17 @@ class WareHouseService {
       (el) => el.product.toHexString() === product.product
     );
 
+    return { foundWarehouse, product_index };
+  }
+
+  static async findProductInFirstWareHouse(product) {
+    const foundWarehouse = await WareHouseRepository.findFirst();
+
+    if (!foundWarehouse) throw new NotFoundError("Warehouse not found");
+    const product_index = foundWarehouse.products.findIndex(
+      (el) => el.code === product.code
+    );
+    if (product_index === -1) throw new NotFoundError("Cannot Found Product!");
     return { foundWarehouse, product_index };
   }
 
