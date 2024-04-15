@@ -138,9 +138,14 @@ class ProductController {
     const { product_id } = req.params;
     const { variation } = req.body;
     if (!product_id || !variation) throw new BadRequestError();
+    let product = await ProductService.updateVariationItem(
+      product_id,
+      variation
+    );
+    await WareHouseService.addItemToWareHouse(product);
     return new OK({
       message: "Update Variation Product Successfully!!",
-      metaData: await ProductService.updateVariationItem(product_id, variation),
+      metaData: product,
     }).send(res);
   }
 

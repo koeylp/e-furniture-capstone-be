@@ -245,7 +245,7 @@ class ProductService {
   static async addVariationItem(product_id, data) {
     let product = await ProductRepository.findProductById(product_id);
     if (!product) throw new BadRequestError("Cannot Find Any Product!");
-    product.variation[0].properties.push(data);
+    product.variation[0].properties.push(...data);
     await ProductRepository.updateProductById(product_id, product);
     return product;
   }
