@@ -8,6 +8,7 @@ const {
 } = require("../../middlewares/rolePermission");
 const { verifyToken } = require("../../jwt/verifyToken");
 
+router.get("/detail", asyncHandler(WareHouseController.findWareHouse));
 router.get(
   "/:warehouse_id",
   asyncHandler(WareHouseController.findWareHouseById)

@@ -42,6 +42,12 @@ class WareHouseService {
     return warehouse;
   }
 
+  static async findWareHouse() {
+    const warehouse = await WareHouseRepository.findByQuery({});
+    if (!warehouse) throw new NotFoundError("WareHouse Not Found");
+    return warehouse;
+  }
+
   static async updateWareHouse(warehouse_id, payload) {
     await WareHouseRepository.findWareHouseById(warehouse_id);
     const update = removeUndefineObject(payload);

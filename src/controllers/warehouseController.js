@@ -35,6 +35,12 @@ class WareHouseController {
       metaData: await WareHouseService.findWareHouseById(warehouse_id),
     }).send(res);
   }
+  static async findWareHouse(req, res) {
+    return new OK({
+      message: "WareHouse Value!",
+      metaData: await WareHouseService.findWareHouse(),
+    }).send(res);
+  }
   static async updateWareHouse(req, res) {
     const { warehouse_id } = req.params;
     if (!warehouse_id) throw new BadRequestError();
