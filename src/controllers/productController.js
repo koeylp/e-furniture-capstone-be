@@ -3,6 +3,7 @@ const ProductService = require("../services/productService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { validateCreateProduct } = require("../utils/validation");
 const { OK } = require("../utils/successHandler");
+const WareHouseService = require("../services/warehouseService");
 
 class ProductController {
   static async createProduct(req, res) {
@@ -67,9 +68,11 @@ class ProductController {
   static async publishProduct(req, res) {
     const { type_slug, product_slug } = req.params;
     if (!type_slug || !product_slug) throw new BadRequestError();
+    let product = await ProductService.publishProduct(type_slug, product_slug);
+    await WareHouseService.addItemToWareHouse(product);
     return new OK({
       message: "Publish Product!!",
-      metaData: await ProductService.publishProduct(type_slug, product_slug),
+      metaData: product,
     }).send(res);
   }
   static async draftProduct(req, res) {
@@ -127,6 +130,46 @@ class ProductController {
       metaData: await ProductService.getProductValidForFlashSale(
         startDay,
         endDay
+      ),
+    }).send(res);
+  }
+
+  static async updateVariation(req, res) {
+    const { product_id } = req.params;
+    const { variation } = req.body;
+    if (!product_id || !variation) throw new BadRequestError();
+    let product = await ProductService.updateVariationItem(
+      product_id,
+      variation
+    );
+    await WareHouseService.addItemToWareHouse(product);
+    return new OK({
+      message: "Update Variation Product Successfully!!",
+      metaData: product,
+    }).send(res);
+  }
+
+  static async addVariation(req, res) {
+    const { product_id } = req.params;
+    const { variation } = req.body;
+    if (!product_id || !variation) throw new BadRequestError();
+    let product = await ProductService.addVariationItem(product_id, variation);
+    await WareHouseService.addItemToWareHouse(product);
+    return new OK({
+      message: "Update Variation Product Successfully!!",
+      metaData: product,
+    }).send(res);
+  }
+
+  static async removeVariation(req, res) {
+    const { product_id } = req.params;
+    const { property_id } = req.body;
+    if (!product_id || !property_id) throw new BadRequestError();
+    return new OK({
+      message: "Update Variation Product Successfully!!",
+      metaData: await ProductService.removeVariationItem(
+        product_id,
+        property_id
       ),
     }).send(res);
   }

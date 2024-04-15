@@ -111,6 +111,26 @@ function createCode(product_id, propertyId) {
   return code;
 }
 
+const generateVariations = (arrays) => {
+  const result = [];
+
+  function generateCombinations(currentCombination, remainingArrays) {
+    if (remainingArrays.length === 0) {
+      result.push(currentCombination);
+      return;
+    }
+
+    for (let i = 0; i < remainingArrays[0].length; i++) {
+      const newCombination = [...currentCombination, remainingArrays[0][i]];
+      generateCombinations(newCombination, remainingArrays.slice(1));
+    }
+  }
+
+  generateCombinations([], arrays);
+
+  return result;
+};
+
 module.exports = {
   getSelectData,
   getUnSelectData,
@@ -127,4 +147,5 @@ module.exports = {
   defaultVariation,
   createCode,
   valueVariationWithProperty,
+  generateVariations,
 };
