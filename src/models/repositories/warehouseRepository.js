@@ -99,6 +99,17 @@ class WareHouseRepository {
   static async findByQuery(query) {
     return await _WareHouse.findOne(query).exec();
   }
+  static async findFirst() {
+    const result = await _WareHouse
+      .findOne()
+      .populate("products.product")
+      .lean();
+    const productFilter = result.products.filter(
+      (product) => product.is_published === true
+    );
+    result.products = productFilter;
+    return result;
+  }
   static async save(warehouse) {
     return await _WareHouse.updateOne({ _id: warehouse._id }, warehouse);
   }

@@ -115,15 +115,11 @@ class WareHouseController {
   }
 
   static async getProductInsideWarehouse(req, res) {
-    const { warehouse_id } = req.params;
-    const { product_id } = req.body;
-    if (!warehouse_id || !product_id) throw new BadRequestError();
+    const { product_id } = req.params;
+    if (!product_id) throw new BadRequestError();
     return new OK({
       message: "Warehouse Detail!",
-      metaData: await WareHouseService.getProductInsideWarehouse(
-        warehouse_id,
-        product_id
-      ),
+      metaData: await WareHouseService.getProductInsideWarehouse(product_id),
     }).send(res);
   }
 
