@@ -12,7 +12,7 @@ router.use(verifyToken);
 router.use(hasAccess(32));
 
 router.get(
-  "/:warehouse_id",
+  "/:product_id",
   hasPermission(global.PermissionConstants.STAFF_GET),
   asyncHandler(WareHouseController.getProductInsideWarehouse)
 );

@@ -201,8 +201,8 @@ class WareHouseService {
     return warehouseResult;
   }
 
-  static async getProductInsideWarehouse(warehouse_id, product_id) {
-    const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
+  static async getProductInsideWarehouse(product_id) {
+    const warehouse = await WareHouseRepository.findFirst();
     if (!warehouse) throw new NotFoundError("Cannot Found Any WareHouse!");
 
     const products = warehouse.products
