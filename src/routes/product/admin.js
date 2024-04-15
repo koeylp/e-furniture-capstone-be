@@ -8,7 +8,6 @@ const {
   hasAccess,
 } = require("../../middlewares/rolePermission");
 const { verifyToken } = require("../../jwt/verifyToken");
-const { hasIn } = require("lodash");
 
 router.use(verifyToken);
 router.use(hasAccess(512));

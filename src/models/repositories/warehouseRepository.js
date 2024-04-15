@@ -135,22 +135,31 @@ class WareHouseRepository {
       })
       .then((warehouses) => {
         if (warehouses.length > 0) {
-          warehouses.forEach((warehouse) => {
-            const productIndex = warehouse.products.findIndex((product) =>
-              product.product.equals(new mongoose.Types.ObjectId(product_id))
-            );
-            if (productIndex !== -1) {
-              warehouse.products[productIndex].is_draft = true;
-              warehouse.products[productIndex].is_published = false;
+          warehouses.forEach(async (warehouse) => {
+            for (let index = 0; index < warehouse.products.length; index++) {
+              if (
+                warehouse.products[index].product.equals(
+                  new mongoose.Types.ObjectId(product_id)
+                )
+              ) {
+                warehouse.products[index].is_draft = true;
+                warehouse.products[index].is_published = false;
+              }
             }
           });
-          Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
-            (error) => console.error(error)
-          );
         }
-      })
-      .catch((error) => {
-        console.error(error);
+        warehouses.forEach(async (warehouse) => {
+          const payload = {
+            $set: {
+              products: warehouse.products,
+            },
+          };
+          const result = await this.updateWareHouse(
+            warehouse._id.toString(),
+            payload
+          );
+          console.log(result);
+        });
       });
   }
   static async publishProductInsideWareHouse(product_id) {
@@ -160,22 +169,27 @@ class WareHouseRepository {
       })
       .then((warehouses) => {
         if (warehouses.length > 0) {
-          warehouses.forEach((warehouse) => {
-            const productIndex = warehouse.products.findIndex((product) =>
-              product.product.equals(new mongoose.Types.ObjectId(product_id))
-            );
-            if (productIndex !== -1) {
-              warehouse.products[productIndex].is_draft = false;
-              warehouse.products[productIndex].is_published = true;
+          warehouses.forEach(async (warehouse) => {
+            for (let index = 0; index < warehouse.products.length; index++) {
+              if (
+                warehouse.products[index].product.equals(
+                  new mongoose.Types.ObjectId(product_id)
+                )
+              ) {
+                warehouse.products[index].is_draft = false;
+                warehouse.products[index].is_published = true;
+              }
             }
           });
-          Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
-            (error) => console.error(error)
-          );
         }
-      })
-      .catch((error) => {
-        console.error(error);
+        warehouses.forEach(async (warehouse) => {
+          const payload = {
+            $set: {
+              products: warehouse.products,
+            },
+          };
+          await this.updateWareHouse(warehouse._id.toString(), payload);
+        });
       });
   }
   static async deleteProductInsideWareHouse(product_id) {

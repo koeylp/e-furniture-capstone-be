@@ -5,9 +5,13 @@ const {
   NotFoundError,
   InternalServerError,
 } = require("../utils/errorHanlder");
-const { removeUndefineObject, checkValidId } = require("../utils");
+const {
+  removeUndefineObject,
+  checkValidId,
+  generateVariations,
+} = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
-const { getCode } = require("../utils/codeUtils");
+const { getCode, getCodeWithProperty } = require("../utils/codeUtils");
 const ProductService = require("./productService");
 class WareHouseService {
   static async createWareHouse(payload) {
@@ -27,6 +31,7 @@ class WareHouseService {
 
   static async findWareHouseById(warehouse_id) {
     const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
+    if (!warehouse) throw new NotFoundError("WareHouse Not Found");
     const productPromises = warehouse.products.map(async (item) => {
       item.variation = await ProductService.findVariationValues(
         item.product._id.toString(),
@@ -189,5 +194,111 @@ class WareHouseService {
 
     return warehouseResult;
   }
+
+  static async getProductInsideWarehouse(warehouse_id, product_id) {
+    const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
+    if (!warehouse) throw new NotFoundError("Cannot Found Any WareHouse!");
+
+    const products = warehouse.products
+      .filter((product) => product.product._id.toString() === product_id)
+      .map(async (product) => {
+        product.variation = await ProductService.findVariationValues(
+          product.product._id.toString(),
+          product.variation
+        );
+        return product;
+      });
+
+    return await Promise.all(products);
+  }
+
+  static async getProductAndWareHouseValue(product_id) {
+    const [product, warehouse] = await Promise.all([
+      ProductRepository.findProductById(product_id),
+      WareHouseRepository.findByQuery({}),
+    ]);
+
+    if (!warehouse) {
+      throw new NotFoundError(`Warehouse not found`);
+    }
+    return { product, warehouse };
+  }
+
+  static async addItemToWareHouse(productInput) {
+    const { product, warehouse } = await this.getProductAndWareHouseValue(
+      productInput._id.toString()
+    );
+
+    const variationCombinations = await this.combineVariations(product);
+
+    const variations = await this.filterProductVariationsNotInWareHouse(
+      variationCombinations,
+      product._id.toString(),
+      warehouse
+    );
+    if (variations.length > 0) {
+      variations.forEach(async (item) => {
+        let data = {
+          product: product._id,
+          variation: item.variation,
+          code: item.code,
+        };
+        warehouse.products.push(data);
+        const inventory = await InventoryRepository.findByQuery({
+          code: item.code,
+        });
+        if (!inventory) await InventoryRepository.createInventory(data);
+      });
+      await WareHouseRepository.save(warehouse);
+    }
+  }
+
+  static async filterProductVariationsNotInWareHouse(
+    variations,
+    product_id,
+    warehouse
+  ) {
+    const results = await Promise.all(
+      variations.map(async (variation) => {
+        const code = await getCode(product_id, variation);
+        const shouldInclude =
+          warehouse.products.findIndex((el) => el.code === code) === -1;
+        return shouldInclude ? { variation, code } : null;
+      })
+    );
+    return results.filter((item) => item !== null);
+  }
+
+  static async combineVariations(product) {
+    const variations = product.variation.map((variation) =>
+      variation.properties.map((property) => ({
+        variation_id: variation._id.toString(),
+        property_id: property._id.toString(),
+      }))
+    );
+
+    return generateVariations(variations);
+  }
 }
 module.exports = WareHouseService;
+
+// const code = await getCode(product._id.toString(), property);
+
+//       const index = warehouse.products.findIndex((el) => el.code === code);
+
+//       if (index !== -1) continue;
+
+//       let item = {
+//         product: product._id,
+//         variation: property,
+//         code: code,
+//       };
+//       warehouse.products.push(item);
+
+//       const inventory = await InventoryRepository.findByQuery({
+//         code: code,
+//       });
+//       if (!inventory) {
+//         product.code = code;
+//         await InventoryRepository.createInventory(product);
+//       }

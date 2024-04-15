@@ -107,5 +107,25 @@ class WareHouseController {
       ),
     }).send(res);
   }
+
+  static async getProductInsideWarehouse(req, res) {
+    const { warehouse_id } = req.params;
+    const { product_id } = req.body;
+    if (!warehouse_id || !product_id) throw new BadRequestError();
+    return new OK({
+      message: "Warehouse Detail!",
+      metaData: await WareHouseService.getProductInsideWarehouse(
+        warehouse_id,
+        product_id
+      ),
+    }).send(res);
+  }
+
+  static async addItemToWareHouse(req, res) {
+    return new OK({
+      message: "Warehouse Detail!",
+      metaData: await WareHouseService.addItemToWareHouse(),
+    }).send(res);
+  }
 }
 module.exports = WareHouseController;

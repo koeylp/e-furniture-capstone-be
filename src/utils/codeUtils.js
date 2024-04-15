@@ -14,7 +14,6 @@ async function getCode(id, variation) {
     .slice(0, 20);
   return code;
 }
-
 module.exports = {
   getCode,
 };

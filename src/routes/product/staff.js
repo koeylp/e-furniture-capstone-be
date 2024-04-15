@@ -23,6 +23,21 @@ router.post(
   asyncHandler(ProductController.createProduct)
 );
 router.put(
+  "/variation/:product_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(ProductController.updateVariation)
+);
+router.put(
+  "/addVariation/:product_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(ProductController.addVariation)
+);
+router.put(
+  "/removeVariation/:product_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(ProductController.removeVariation)
+);
+router.put(
   "/:product_id",
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(ProductController.updateProduct)

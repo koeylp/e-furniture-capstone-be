@@ -47,9 +47,8 @@ class ProductService {
         type
       );
     });
-    await InventoryRepository.publishInventoryByProduct(product._id);
     await WareHouseRepository.publishProductInsideWareHouse(product._id);
-
+    await InventoryRepository.publishInventoryByProduct(product._id);
     return product;
   }
   static async getProductsByType(
@@ -233,6 +232,37 @@ class ProductService {
       })
     );
     return Array.from(product_id);
+  }
+
+  static async updateVariationItem(product_id, variation) {
+    let product = await ProductRepository.findProductById(product_id);
+    if (!product) throw new BadRequestError("Cannot Find Any Product!");
+    product.variation = variation;
+    await ProductRepository.updateProductById(product_id, product);
+    return product;
+  }
+
+  static async addVariationItem(product_id, data) {
+    let product = await ProductRepository.findProductById(product_id);
+    if (!product) throw new BadRequestError("Cannot Find Any Product!");
+    product.variation[0].properties.push(data);
+    await ProductRepository.updateProductById(product_id, product);
+    return product;
+  }
+
+  static async removeVariationItem(product_id, property_id) {
+    let product = await ProductRepository.findProductById(product_id);
+    if (!product) throw new BadRequestError("Cannot Find Any Product!");
+    let index = product.variation[0].properties.findIndex(
+      (property) => property._id == property_id
+    );
+    if (index == -1) throw new NotFoundError("Cannot Found Any Item Result!");
+    product.variation[0].properties = product.variation[0].properties.slice(
+      0,
+      index
+    );
+    // await ProductRepository.updateProductById(product_id, product);
+    return product;
   }
 }
 module.exports = ProductService;
