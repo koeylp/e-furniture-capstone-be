@@ -42,11 +42,9 @@ class WareHouseController {
     }).send(res);
   }
   static async updateWareHouse(req, res) {
-    const { warehouse_id } = req.params;
-    if (!warehouse_id) throw new BadRequestError();
     return new OK({
       message: "Update Ware House Successfully!",
-      metaData: await WareHouseService.updateWareHouse(warehouse_id, req.body),
+      metaData: await WareHouseService.updateWareHouse(req.body),
     }).send(res);
   }
   static async removeWareHouse(req, res) {
@@ -69,36 +67,21 @@ class WareHouseController {
     }).send(res);
   }
   static async updateProductStockInWarehouse(req, res) {
-    const { warehouse_id } = req.params;
-    if (!warehouse_id) throw new BadRequestError();
     return new OK({
       message: "Update Product Stock Warehouse Successfully!",
-      metaData: await WareHouseService.updateProductStockInWarehouse(
-        warehouse_id,
-        req.body
-      ),
+      metaData: await WareHouseService.updateProductStockInWarehouse(req.body),
     }).send(res);
   }
   static async updateIsLowStock(req, res) {
-    const { warehouse_id } = req.params;
-    if (!warehouse_id) throw new BadRequestError();
     return new OK({
       message: "Update Notification Of LowStock Successfully!",
-      metaData: await WareHouseService.UpdateIsLowStockNotification(
-        warehouse_id,
-        req.body
-      ),
+      metaData: await WareHouseService.UpdateIsLowStockNotification(req.body),
     }).send(res);
   }
   static async updateLowStockValue(req, res) {
-    const { warehouse_id } = req.params;
-    if (!warehouse_id) throw new BadRequestError();
     return new OK({
       message: "Update Notification Of LowStock Successfully!",
-      metaData: await WareHouseService.updateLowStockValueInWarehouse(
-        warehouse_id,
-        req.body
-      ),
+      metaData: await WareHouseService.updateLowStockValueInWarehouse(req.body),
     }).send(res);
   }
   static async removeProductFromWareHouse(req, res) {

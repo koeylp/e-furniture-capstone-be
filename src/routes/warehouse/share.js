@@ -25,13 +25,5 @@ router.get(
   ]),
   asyncHandler(WareHouseController.getWareHouses)
 );
-// router.get(
-//   "/:warehouse_id",
-//   hasPermission([
-//     global.PermissionConstants.STAFF_GET,
-//     global.PermissionConstants.ADMIN_GET,
-//   ]),
-//   asyncHandler(WareHouseController.findWareHouseById)
-// );
 
 module.exports = router;
