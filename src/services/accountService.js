@@ -143,7 +143,7 @@ class AccountService {
 
   static async getDeliveryAccount() {
     const deliveryRoleRange = { $gte: 8192, $lte: 122880 };
-    const query = { role: deliveryRoleRange };
+    const query = { role: deliveryRoleRange, status: { $gte: 1 } };
     return await AccountRepository.getAccountsWithoutPagination(query);
   }
 }
