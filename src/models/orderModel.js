@@ -40,7 +40,7 @@ const schema = new Schema(
         status: { type: Number },
       },
     ],
-    warehouses: { type: Array },
+    warehouses: { type: Array, default: [] },
     payment_method: {
       type: String,
       enum: ["Online Payment", "COD"],

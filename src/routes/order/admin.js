@@ -41,10 +41,4 @@ router.get(
   asyncHandler(OrderController.getCancelRequests)
 );
 
-router.get(
-  "/statistics/7days",
-  hasPermission(global.PermissionConstants.ADMIN_GET),
-  asyncHandler(OrderController.getOrdersIn7daysAgo)
-);
-
 module.exports = router;

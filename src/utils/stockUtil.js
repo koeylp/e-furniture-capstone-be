@@ -92,6 +92,7 @@ class StockUtil {
       );
       if (!nearestWarehouse)
         throw NotFoundError("Cannot find neareast warehouse");
+
       const product_index = nearestWarehouse.products.findIndex(
         (el) => el.code === code
       );
@@ -139,16 +140,7 @@ class StockUtil {
     }
     return warehouse;
   }
-  static updateStockInsideItem(warehouse, quantity, product_index) {
-    warehouse.products[product_index].stock -= quantity;
-    warehouse.products[product_index].sold += quantity;
-    return warehouse;
-  }
-  static draftProduct(warehouse, product_index) {
-    warehouse.products[product_index].is_draft = true;
-    warehouse.products[product_index].is_published = false;
-    return warehouse;
-  }
+
   static updateResultWarehouse(
     warehouse,
     id,
@@ -236,6 +228,30 @@ class StockUtil {
       }
     }
     return nearestWarehouse;
+  }
+  static validateStock(stock) {
+    if (stock < 0) throw new BadRequestError("Stock value is invalid!");
+  }
+  static async modifyStock() {
+    const result = {};
+    const products = order.order_products;
+    for (const product of products) {
+      await this.updateInventoryStock(product);
+    }
+  }
+
+  static async modifyInventoryStock() {}
+
+  static updateStockInsideItem(warehouse, quantity, product_index) {
+    warehouse.products[product_index].stock -= quantity;
+    warehouse.products[product_index].sold += quantity;
+    return warehouse;
+  }
+
+  static draftProduct(warehouse, product_index) {
+    warehouse.products[product_index].is_draft = true;
+    warehouse.products[product_index].is_published = false;
+    return warehouse;
   }
 }
 

@@ -1,3 +1,4 @@
+const InventoryService = require("../services/inventoryService");
 const WareHouseService = require("../services/warehouseService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
@@ -67,9 +68,11 @@ class WareHouseController {
     }).send(res);
   }
   static async updateProductStockInWarehouse(req, res) {
+    await InventoryService.updateInventoryStock(req.body);
+    let result = await WareHouseService.updateProductStock(req.body);
     return new OK({
       message: "Update Product Stock Warehouse Successfully!",
-      metaData: await WareHouseService.updateProductStockInWarehouse(req.body),
+      metaData: result,
     }).send(res);
   }
   static async updateIsLowStock(req, res) {

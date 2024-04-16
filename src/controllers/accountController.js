@@ -110,5 +110,11 @@ class AccountController {
       metaData: await AccountService.checkAccountStatus(account_id),
     }).send(res);
   }
+  static async getDeliveryAccount(req, res) {
+    return new OK({
+      message: "Account Status!",
+      metaData: await AccountService.getDeliveryAccount(),
+    }).send(res);
+  }
 }
 module.exports = AccountController;

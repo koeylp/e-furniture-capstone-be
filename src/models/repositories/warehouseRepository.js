@@ -139,38 +139,31 @@ class WareHouseRepository {
     };
     return await _WareHouse.find(query).exec();
   }
+  static async updateProductStatus({ warehouse, product_id, is_draft }) {
+    for (let index = 0; index < warehouse.products.length; index++) {
+      if (
+        warehouse.products[index].product.equals(
+          new mongoose.Types.ObjectId(product_id)
+        )
+      ) {
+        warehouse.products[index].is_draft = is_draft;
+        warehouse.products[index].is_published = !is_draft;
+      }
+    }
+    await this.save(warehouse);
+  }
   static async draftProductInsideWareHouse(product_id) {
     _WareHouse
       .find({
         "products.product": { $eq: new mongoose.Types.ObjectId(product_id) },
       })
-      .then((warehouses) => {
-        if (warehouses.length > 0) {
-          warehouses.forEach(async (warehouse) => {
-            for (let index = 0; index < warehouse.products.length; index++) {
-              if (
-                warehouse.products[index].product.equals(
-                  new mongoose.Types.ObjectId(product_id)
-                )
-              ) {
-                warehouse.products[index].is_draft = true;
-                warehouse.products[index].is_published = false;
-              }
-            }
-          });
-        }
-        warehouses.forEach(async (warehouse) => {
-          const payload = {
-            $set: {
-              products: warehouse.products,
-            },
-          };
-          const result = await this.updateWareHouse(
-            warehouse._id.toString(),
-            payload
-          );
-          console.log(result);
-        });
+      .then(async (warehouses) => {
+        if (warehouses.length < 0) return;
+        await Promise.all(
+          warehouses.map(async (warehouse) =>
+            this.updateProductStatus({ warehouse, product_id, isDraft: true })
+          )
+        );
       });
   }
   static async publishProductInsideWareHouse(product_id) {
@@ -178,29 +171,17 @@ class WareHouseRepository {
       .find({
         "products.product": { $eq: new mongoose.Types.ObjectId(product_id) },
       })
-      .then((warehouses) => {
-        if (warehouses.length > 0) {
-          warehouses.forEach(async (warehouse) => {
-            for (let index = 0; index < warehouse.products.length; index++) {
-              if (
-                warehouse.products[index].product.equals(
-                  new mongoose.Types.ObjectId(product_id)
-                )
-              ) {
-                warehouse.products[index].is_draft = false;
-                warehouse.products[index].is_published = true;
-              }
-            }
-          });
-        }
-        warehouses.forEach(async (warehouse) => {
-          const payload = {
-            $set: {
-              products: warehouse.products,
-            },
-          };
-          await this.updateWareHouse(warehouse._id.toString(), payload);
-        });
+      .then(async (warehouses) => {
+        if (warehouses.length < 0) return;
+        await Promise.all(
+          warehouses.map(async (warehouse) =>
+            this.updateProductStatus({
+              warehouse,
+              product_id,
+              isDraft: false,
+            })
+          )
+        );
       });
   }
   static async deleteProductInsideWareHouse(product_id) {
