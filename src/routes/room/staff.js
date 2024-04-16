@@ -21,5 +21,15 @@ router.put(
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(RoomController.editRoom)
 );
+router.put(
+  "/draft/:room_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(RoomController.disableRoom)
+);
+router.put(
+  "/publish/:room_id",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(RoomController.enableRoom)
+);
 
 module.exports = router;
