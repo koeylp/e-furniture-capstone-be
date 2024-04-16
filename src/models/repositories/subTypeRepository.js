@@ -82,6 +82,15 @@ class SubTypeRepository {
       })
       .select(getUnSelectData(option));
   }
+  static async findSubTypeBySlugV2(slug, subTypeModel) {
+    const query = {
+      slug: slug,
+    };
+    return await subTypeModel
+      .findOne(query)
+      .select(getUnSelectData(["createdAt", "updatedAt", "__v", "attributes"]))
+      .lean();
+  }
   static async findSubTypeBySlugWithPopulate(slug, subTypeModel) {
     const query = {
       slug: slug,

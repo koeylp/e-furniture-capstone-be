@@ -26,8 +26,8 @@ const getProducts = (page = 1, limit = 12, subTypes) => {
 const getProductsBySubType = (page = 1, limit = 12, subTypes) => {
   let skip = (page - 1) * limit;
   let productResult = [];
-  if (subTypes.products.length < skip) return productResult;
-  productResult = subTypes.products.slice(skip);
+  if (subTypes.length < skip) return productResult;
+  productResult = subTypes.slice(skip);
   return productResult.slice(0, limit);
 };
 module.exports = {

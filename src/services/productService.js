@@ -78,6 +78,29 @@ class ProductService {
     let total = data.length;
     return { total, data };
   }
+  static async getProductsBySubTypeV2(page = 1, limit = 12, type_slug, slug) {
+    const typeModel = ProductFactory.productRegistry[type_slug];
+    if (!typeModel) throw new BadRequestError("Invalid Type Product");
+    const subTypes = await SubTypeRepository.findSubTypeBySlugV2(
+      slug,
+      typeModel
+    );
+    const uniqueData = [
+      ...new Set(subTypes.products.map((item) => JSON.stringify(item))),
+    ].map((item) => JSON.parse(item));
+    const listProduct = getProductsBySubType(page, limit, uniqueData);
+    let data = listProduct.map((item) => item.productId);
+    data = await Promise.all(
+      data.map(async (product) => {
+        const modifiedProduct =
+          await ProductRepository.findProductByIDWithModify(product);
+        product = modifiedProduct;
+        return product;
+      })
+    );
+    let total = data.length;
+    return { total, data };
+  }
   static async pullProductFromSubType(product) {
     const subTypeArrayOfProduct = product.attributes.type;
     const listSubType = await SubTypeService.getAll();

@@ -57,10 +57,16 @@ class DeliveryRepository {
   static async getTrips(payload = {}) {
     return await _DeliveryTrip
       .find(payload)
-      .populate({
-        path: "orders.order",
-        select: "order_products order_shipping warehouses",
-      })
+      .populate([
+        {
+          path: "orders.order",
+          select: "order_products order_shipping warehouses",
+        },
+        {
+          path: "account_id",
+          select: "first_name last_name username email",
+        },
+      ])
       .lean();
   }
   static async findTripById(trip_id) {
