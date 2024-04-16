@@ -85,11 +85,12 @@ class ProductService {
       slug,
       typeModel
     );
-    const uniqueData = [
-      ...new Set(subTypes.products.map((item) => JSON.stringify(item))),
+    let data = [
+      ...new Set(
+        subTypes.products.map((item) => JSON.stringify(item.productId))
+      ),
     ].map((item) => JSON.parse(item));
-    const listProduct = getProductsBySubType(page, limit, uniqueData);
-    let data = listProduct.map((item) => item.productId);
+
     data = await Promise.all(
       data.map(async (product) => {
         const modifiedProduct =
