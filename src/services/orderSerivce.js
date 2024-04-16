@@ -22,6 +22,7 @@ const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 const DistrictService = require("./districtService");
 const ProductRepository = require("../models/repositories/productRepository");
+const WareHouseService = require("./warehouseService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -113,7 +114,7 @@ class OrderService {
   }
   static async createOrder(account_id, order) {
     const products = await verifyProductStockExistence(order);
-    const warehouses = await StockUtil.updateStock(order);
+    await StockUtil.updateStock(order);
 
     order = await this.categorizePaymentMethod(order);
     if (order.order_checkout.voucher) {
@@ -129,7 +130,6 @@ class OrderService {
       await CartUtils.removeItem(account_id, product);
     }
 
-    order.warehouses = warehouses;
     order.order_products = products;
 
     const newOrder = await OrderRepository.createOrder(account_id, order);
@@ -141,6 +141,12 @@ class OrderService {
     }
     return newOrder;
   }
+  // static async updateStock(order) {
+  //   const products = order.order_products;
+  //   for (const product of products) {
+  //     await WareHouseService.updateProductStock();
+  //   }
+  // }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);
     const key_of_type = getKeyByValue(

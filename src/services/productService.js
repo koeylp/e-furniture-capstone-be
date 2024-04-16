@@ -78,12 +78,7 @@ class ProductService {
     let total = data.length;
     return { total, data };
   }
-  static async removeProduct(product_slug) {
-    const product = await ProductRepository.findProductBySlug(product_slug);
-    if (!product)
-      throw new BadRequestError("Cannot Find Any Product To Remove!");
-    // if (product.is_draft)
-    //   throw new BadRequestError("Product is already Draft!");
+  static async pullProductFromSubType(product) {
     const subTypeArrayOfProduct = product.attributes.type;
     const listSubType = await SubTypeService.getAll();
     listSubType.map(async (subtype) => {
@@ -97,6 +92,12 @@ class ProductService {
         );
       }
     });
+  }
+  static async removeProduct(product_slug) {
+    const product = await ProductRepository.findProductBySlug(product_slug);
+    if (!product)
+      throw new BadRequestError("Cannot Find Any Product To Draft!");
+    await this.pullProductFromSubType(product);
     await InventoryRepository.deleteInventoryByProduct(product._id);
     await WareHouseRepository.deleteProductInsideWareHouse(product._id);
     await CartRepository.deleteProductInCart(product._id);
@@ -107,21 +108,9 @@ class ProductService {
     const product = await ProductRepository.findProductBySlug(product_slug);
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Draft!");
-    // if (product.is_draft)
-    //   throw new BadRequestError("Product is already Draft!");
-    const subTypeArrayOfProduct = product.attributes.type;
-    const listSubType = await SubTypeService.getAll();
-    listSubType.map(async (subtype) => {
-      if (subTypeArrayOfProduct.includes(subtype.slug)) {
-        let type = await TypeRepository.findTypeBySubType_Slug(subtype.type);
-        let subTypeModel = global.subTypeSchemasMap.get(type[0].slug);
-        await SubTypeRepository.pullProductId(
-          subTypeModel,
-          subtype.slug,
-          product._id
-        );
-      }
-    });
+    if (product.is_draft)
+      throw new BadRequestError("Product is already Draft!");
+    await this.pullProductFromSubType(product);
     await InventoryRepository.draftInventoryByProduct(product._id);
     await WareHouseRepository.draftProductInsideWareHouse(product._id);
     await CartRepository.deleteProductInCart(product._id);

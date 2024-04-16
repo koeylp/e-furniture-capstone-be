@@ -1,5 +1,6 @@
 const WareHouseRepository = require("../models/repositories/warehouseRepository");
 const ProductRepository = require("../models/repositories/productRepository");
+const ProductInventory = require("../models/repositories/productRepository");
 const {
   BadRequestError,
   NotFoundError,
@@ -13,6 +14,8 @@ const {
 const InventoryRepository = require("../models/repositories/inventoryRepository");
 const { getCode, getCodeWithProperty } = require("../utils/codeUtils");
 const ProductService = require("./productService");
+const NotificationEfurnitureService = require("./NotificationEfurnitureService");
+const StockUtil = require("../utils/stockUtil");
 class WareHouseService {
   static async createWareHouse(payload) {
     return await WareHouseRepository.createWareHouse(payload);
@@ -109,26 +112,30 @@ class WareHouseService {
     return result;
   }
 
-  static async updateProductStockInWarehouse(product) {
-    const foundInventory = await InventoryRepository.findByQuery({
-      code: product.code,
-    });
-    if (!foundInventory)
-      throw new NotFoundError("Inventory not found with specific product");
-    const foundWarehouse = await WareHouseRepository.findFirst();
-    if (!foundWarehouse) throw new NotFoundError("Warehouse not found ");
-    const product_index = foundWarehouse.products.findIndex(
-      (el) => el.code === product.code
-    );
-    foundInventory.stock -= foundWarehouse.products[product_index].stock;
+  static async updateProductStock(product) {
+    const { foundWarehouse, product_index } =
+      await this.findProductInFirstWareHouse(product);
+    StockUtil.validateStock(product.stock);
     foundWarehouse.products[product_index].stock = product.stock;
-    foundInventory.stock += foundWarehouse.products[product_index].stock;
-    const updatedInventory = await InventoryRepository.save(
-      foundInventory._id,
-      foundInventory.sold,
-      foundInventory.stock
-    );
-    if (!updatedInventory) throw new InternalServerError();
+    await this.checkLowStockQuantity(foundWarehouse.products[product_index]);
+    return await WareHouseRepository.save(foundWarehouse);
+  }
+
+  // static async descreaseProductStock(product){
+  //   const { foundWarehouse, product_index } =
+  //     await this.findProductInFirstWareHouse(product);
+  //   if (product.stock < 0) throw new BadRequestError("Stock value is invalid!");
+  //   foundWarehouse.products[product_index].stock =
+  //     foundWarehouse.products[product_index].stock - product;
+  //   await this.checkLowStockQuantity(foundWarehouse.products[product_index]);
+  //   return await WareHouseRepository.save(foundWarehouse);
+  // }
+
+  static async updateProductSold(product) {
+    const { foundWarehouse, product_index } =
+      await this.findProductInFirstWareHouse(product);
+    StockUtil.validateStock(product.stock);
+    foundWarehouse.products[product_index].sold += product.stock;
     return await WareHouseRepository.save(foundWarehouse);
   }
 
@@ -291,6 +298,14 @@ class WareHouseService {
     );
 
     return generateVariations(variations);
+  }
+
+  static async checkLowStockQuantity(product) {
+    let lowStock = product.lowStock;
+    let isNoti = product.isNoti;
+    if (isNoti && product.stock < lowStock) {
+      await NotificationEfurnitureService.notiLowStock(product.product.name);
+    }
   }
 }
 module.exports = WareHouseService;

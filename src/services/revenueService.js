@@ -89,8 +89,8 @@ class RevenueService {
       throw new BadRequestError("Profit must greater than 0!");
     let query = { order: order };
     let payload = {
-      $inc: {
-        actualProfit: +actualProfit,
+      $set: {
+        actualProfit: actualProfit,
       },
     };
     return await RevenueRepository.updateRevenue(query, payload);

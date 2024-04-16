@@ -11,72 +11,39 @@ const DeliveryTripUtils = require("../utils/deliveryTripUtils");
 const StateUtils = require("../utils/stateUtils");
 class DeliveryTripService {
   static async create(payload) {
-    const [accountData, orderState, modifiedDirectTrip] = await Promise.all([
+    const [accountData, { orderState, orders }] = await Promise.all([
       AccountRepository.findAccountById(payload.account_id),
-      this.verifyOrders(payload.orders),
-      this.modifyDirectTrip(),
+      this.modifyOrders(payload.orders),
     ]);
     if (accountData.status === 2)
       throw new BadRequestError(
         "Cannot Create Another Request! Waiting For Staff"
       );
 
-    payload.orders = await this.moddifyOrderInsideDelivertTrip(payload.orders);
-
+    payload.orders = orders;
     const result = await DeliveryTripRepository.createTrip(payload);
 
-    payload.orders.forEach(async (order) => {
-      if (!orderState[order.order])
-        throw new NotFoundError("Error With Order Choosen!");
-
-      let stateValue =
-        StateUtils.OrderState(orderState[order.order]) ==
-        StateUtils.OrderState("Shipping")
-          ? StateUtils.ShippingState("Processing")
-          : StateUtils.ProcessingState("Processing");
-
-      await OrderRepository.updateSubStateInsideOrderTracking(
-        order.order,
-        StateUtils.OrderState(orderState[order.order]),
-        stateValue
-      );
-    });
-
     await Promise.all([
+      this.updateSubState(payload, orderState, "Processing"),
       AccountRepository.updateStateAccount(payload.account_id, 2),
       NotificationEfurnitureService.notiRequestDeliveryTrip(),
     ]);
     return result;
   }
 
-  static async modifyDirectTrip() {}
-
-  static async moddifyOrderInsideDelivertTrip(orders) {
+  static async modifyOrders(orders) {
+    const orderState = {};
     const orderPromise = orders.map(async (order) => {
-      const dataOrder = await OrderRepository.findOrderById({
+      let result = await OrderRepository.findOrderById({
         order_id: order.order,
       });
-      order.payment = dataOrder.payment_method;
-      order.amount = dataOrder.order_checkout.paid.must_paid;
+      order.payment = result.payment_method;
+      order.amount = result.order_checkout.paid.must_paid;
+      if (!orderState[result._id])
+        orderState[result._id] = result.current_order_tracking.name;
     });
-
     await Promise.all(orderPromise);
-
-    return orders;
-  }
-
-  static async verifyOrders(orders) {
-    const orderState = {};
-    await Promise.all(
-      orders.map(async (order) => {
-        let result = await OrderRepository.findOrderById({
-          order_id: order.order,
-        });
-        if (!orderState[result._id])
-          orderState[result._id] = result.current_order_tracking.name;
-      })
-    );
-    return orderState;
+    return { orderState, orders };
   }
 
   static async findTrip(trip_id) {
@@ -234,24 +201,9 @@ class DeliveryTripService {
     if (account.status === 3)
       throw new BadRequestError("Delivery Is On The Trip!");
 
-    let orderState = await this.verifyOrders(deliveryTrip.orders);
+    let { orderState, orders } = await this.modifyOrders(deliveryTrip.orders);
 
-    deliveryTrip.orders.forEach(async (order) => {
-      if (!orderState[order.order])
-        throw new NotFoundError("Error With Order State!");
-
-      let stateValue =
-        StateUtils.OrderState(orderState[order.order]) ==
-        StateUtils.OrderState("Shipping")
-          ? StateUtils.ShippingState("Waiting")
-          : StateUtils.ProcessingState("Waiting");
-
-      await OrderRepository.updateSubStateInsideOrderTracking(
-        order.order,
-        StateUtils.OrderState(orderState[order.order]),
-        stateValue
-      );
-    });
+    await this.updateSubState(deliveryTrip, orderState, "Waiting");
 
     const accountResult = await AccountRepository.updateStateAccount(
       account._id,
@@ -272,6 +224,25 @@ class DeliveryTripService {
     await this.SendNotification(payload, accountResult.status);
 
     return result;
+  }
+
+  static async updateSubState(payload, orderState, state) {
+    payload.orders.forEach(async (order) => {
+      if (!orderState[order.order])
+        throw new NotFoundError("Error With Order Choosen!");
+
+      let stateValue =
+        StateUtils.OrderState(orderState[order.order]) ==
+        StateUtils.OrderState("Shipping")
+          ? StateUtils.ShippingState(state)
+          : StateUtils.ProcessingState(state);
+
+      await OrderRepository.updateSubStateInsideOrderTracking(
+        order.order,
+        StateUtils.OrderState(orderState[order.order]),
+        stateValue
+      );
+    });
   }
 }
 module.exports = DeliveryTripService;

@@ -58,6 +58,7 @@ class RoleFactory {
     if (!arrayPermission) throw new NotFoundError("Role is invalid!");
     return await RoleRepository.getRolesByPermissions(arrayPermission);
   }
+
   static async convertRoleFromRangeId(roles) {
     roles.forEach((role) => checkValidId(role));
     return await RoleRepository.getRolesByRangeId(roles);
