@@ -49,7 +49,7 @@ class ProductController {
     if (!type_slug || !slug) throw new BadRequestError();
     return new OK({
       message: "List Published Product!!",
-      metaData: await ProductService.getProductsBySubType(
+      metaData: await ProductService.getProductsBySubTypeV2(
         page,
         limit,
         type_slug,

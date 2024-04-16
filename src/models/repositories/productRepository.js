@@ -157,6 +157,7 @@ class ProductRepository {
     );
     return { total: products.length, data: result };
   }
+
   static async getAllDraft(page, limit, sortType) {
     const query = { is_draft: true, is_published: false };
     return await this.getAlls(query, page, limit, sortType);
