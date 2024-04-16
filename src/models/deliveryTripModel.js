@@ -16,6 +16,21 @@ const schema = new Schema(
         status: { type: Number, default: 0 },
       },
     ],
+    state: [
+      {
+        item: { type: Number, default: 0 },
+        state: { type: String },
+        stateValue: { type: Number },
+        time: { type: Date, default: new Date() },
+      },
+    ],
+    current_state: {
+      item: { type: Number },
+      state: { type: String },
+      stateValue: { type: Number },
+      time: { type: Date, default: new Date() },
+    },
+    warehouse: { type: Object },
     status: { type: Number, default: 0 },
   },
   {

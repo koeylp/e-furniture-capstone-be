@@ -27,6 +27,11 @@ router.put(
   asyncHandler(DeliveryController.updateOrderInTripStatus)
 );
 router.put(
+  "/start/:trip_id",
+  hasPermission(global.PermissionConstants.DELIVERY_PUT),
+  asyncHandler(DeliveryController.startDeliveryTrip)
+);
+router.put(
   "/done/:trip_id",
   hasPermission(global.PermissionConstants.DELIVERY_PUT),
   asyncHandler(DeliveryController.DoneTripStatus)

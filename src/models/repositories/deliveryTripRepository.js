@@ -17,9 +17,9 @@ class DeliveryRepository {
     let result = await _DeliveryTrip
       .findOne(payload)
       .populate({
-        path: "orders.order orders.order.warehouses",
+        path: "orders.order orders.order.warehouses warehouse",
         select:
-          "order_shipping order_code payment_method order_tracking order_checkout order_products warehouses",
+          "order_shipping order_code payment_method order_tracking order_checkout order_products warehouses -products",
       })
       .lean({ virtuals: true });
 
@@ -40,6 +40,18 @@ class DeliveryRepository {
       })
     );
 
+    return result;
+  }
+  static async findTrip(payload) {
+    let result = await _DeliveryTrip
+      .findOne(payload)
+      .populate({
+        path: "orders.order orders.order.warehouses",
+        select:
+          "order_shipping order_code payment_method order_tracking order_checkout order_products warehouses",
+      })
+      .sort({ _id: -1 })
+      .lean({ virtuals: true });
     return result;
   }
   static async getTrips(payload = {}) {
@@ -69,12 +81,19 @@ class DeliveryRepository {
     checkValidId(account_id);
     const payload = {
       account_id: new mongoose.Types.ObjectId(account_id),
-      status: 1,
     };
     return this.findTrip(payload);
   }
   static async updateTrip(payload, update) {
     return await _DeliveryTrip.findOneAndUpdate(payload, update, { new: true });
+  }
+
+  static async updateTripById(trip_id, update) {
+    checkValidId(trip_id);
+    const query = {
+      _id: new mongoose.Types.ObjectId(trip_id),
+    };
+    return await _DeliveryTrip.findOneAndUpdate(query, update, { new: true });
   }
 }
 module.exports = DeliveryRepository;

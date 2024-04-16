@@ -28,6 +28,7 @@ class StockUtil {
     return {
       name: productOrder.name,
       thumbs: productOrder.thumbs,
+      regular_price: productOrder.regular_price,
     };
   }
   static async updateStock(order) {

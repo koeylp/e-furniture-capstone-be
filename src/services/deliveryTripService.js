@@ -9,23 +9,41 @@ const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const OrderService = require("./orderSerivce");
 const DeliveryTripUtils = require("../utils/deliveryTripUtils");
 const StateUtils = require("../utils/stateUtils");
+const WareHouseRepository = require("../models/repositories/warehouseRepository");
 class DeliveryTripService {
   static async create(payload) {
     const [accountData, { orderState, orders }] = await Promise.all([
       AccountRepository.findAccountById(payload.account_id),
       this.modifyOrders(payload.orders),
     ]);
-    if (accountData.status === 2)
+    if (accountData.status === StateUtils.AccountState("Shipping"))
       throw new BadRequestError(
-        "Cannot Create Another Request! Waiting For Staff"
+        "Cannot Assign To Delivery! Waiting For Shipping"
       );
-
     payload.orders = orders;
+    payload.current_state = {
+      item: StateUtils.DeliveryTripState("PickUpPackage"),
+      state: StateUtils.DeliveryTripStateValue("PickUpPackage"),
+      stateValue: StateUtils.DeliveryTripState("PickUpPackage"),
+    };
+    payload.state = [payload.current_state];
+    const warehouse = await WareHouseRepository.findFirst();
+    payload.warehouse = {
+      province: warehouse.province,
+      district: warehouse.district,
+      ward: warehouse.ward,
+      longitude: warehouse.longitude,
+      latitude: warehouse.latitude,
+      location: warehouse.location,
+    };
     const result = await DeliveryTripRepository.createTrip(payload);
 
     await Promise.all([
       this.updateSubState(payload, orderState, "Processing"),
-      AccountRepository.updateStateAccount(payload.account_id, 2),
+      AccountRepository.updateStateAccount(
+        payload.account_id,
+        StateUtils.AccountState("Shipping")
+      ),
       NotificationEfurnitureService.notiRequestDeliveryTrip(),
     ]);
     return result;
@@ -52,9 +70,6 @@ class DeliveryTripService {
 
   static async findTripById(trip_id) {
     let result = await DeliveryTripRepository.findTripById(trip_id);
-    let current = await DeliveryTripUtils.getCurrentTrip(result);
-    if (current !== -1) return { ...result, current_delivery: current };
-    result.status = 1;
     return result;
   }
 
@@ -79,16 +94,35 @@ class DeliveryTripService {
 
   static async findTripByAccount(account_id) {
     let result = await DeliveryTripRepository.findTripByAccount(account_id);
-    let current = await DeliveryTripUtils.getCurrentTrip(result);
-    if (current !== -1) return { ...result, current_delivery: current };
-    result.status = 1;
     return result;
   }
 
   static async updateTrip(trip_id, order_id, state, note) {
     const order = await this.findTrip(trip_id);
     await this.updateOrderInsideOrders(order.orders, order_id, state, note);
-    return await this.updateOrders(order);
+    const currentState = await DeliveryTripUtils.getCurrentTrip(order);
+    let stateValue = currentState === -1 ? "ReturnWareHouse" : "Shipping";
+    await this.updateOrders(order);
+    return await this.updateStateDeliveryTrip(trip_id, order, stateValue);
+  }
+
+  static async updateStateDeliveryTrip(trip_id, deliveryTrip, state) {
+    let current = await DeliveryTripUtils.getCurrentTrip(deliveryTrip);
+    let current_state = {
+      item: current === -1 ? 0 : current,
+      state: StateUtils.DeliveryTripStateValue(state),
+      stateValue: StateUtils.DeliveryTripState(state),
+    };
+    const payload = {
+      $set: {
+        status: StateUtils.DeliveryTripState(state),
+        current_state: current_state,
+      },
+      $push: {
+        state: current_state,
+      },
+    };
+    return await DeliveryTripRepository.updateTripById(trip_id, payload);
   }
 
   static async DoneDeliveryTrip(trip_id) {
@@ -99,6 +133,8 @@ class DeliveryTripService {
       account._id,
       1
     );
+    let stateValue = "Done";
+    await this.updateStateDeliveryTrip(trip_id, deliveryTrip, stateValue);
     const payload = {
       account_id: account._id,
       title: "Done Delivery Trip",
@@ -180,6 +216,31 @@ class DeliveryTripService {
     };
     await this.SendNotification(payload, accountResult.status);
     return result;
+  }
+
+  static async startDeliveryTrip(trip_id) {
+    const { account, deliveryTrip } = await this.getAccountInDeliveryTrip(
+      trip_id
+    );
+
+    deliveryTrip.orders.forEach(
+      async (order) => await OrderService.processingToShiping(order.order)
+    );
+    let current_state = {
+      item: await DeliveryTripUtils.getCurrentTrip(deliveryTrip),
+      state: StateUtils.DeliveryTripStateValue("Shipping"),
+      stateValue: StateUtils.DeliveryTripState("Shipping"),
+    };
+    const payload = {
+      $set: {
+        status: StateUtils.DeliveryTripState("Shipping"),
+        current_state: current_state,
+      },
+      $push: {
+        state: current_state,
+      },
+    };
+    return await DeliveryTripRepository.updateTripById(trip_id, payload);
   }
 
   static async SendNotification(payload, state) {

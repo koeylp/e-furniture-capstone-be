@@ -42,5 +42,15 @@ router.put(
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(ProductController.updateProduct)
 );
+router.put(
+  "/draft/:type_slug/:product_slug",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(ProductController.draftProduct)
+);
+router.put(
+  "/publish/:type_slug/:product_slug",
+  hasPermission(global.PermissionConstants.STAFF_PUT),
+  asyncHandler(ProductController.publishProduct)
+);
 
 module.exports = router;
