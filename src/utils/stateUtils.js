@@ -52,17 +52,42 @@ class StateUtils {
     );
   };
 
+  static AccountStateMap = new Map([
+    ["Available", 1],
+    ["Shipping", 2],
+    ["default", 1],
+  ]);
+  static AccountState = (code) => {
+    return (
+      this.AccountStateMap.get(code) || this.AccountStateMap.get("default")
+    );
+  };
+
   static DeliveryTripStateMap = new Map([
-    ["Reject", -1],
-    ["Pending", 0],
-    ["Processing", 1],
-    ["Done", 2],
+    ["PickUpPackage", 0],
+    ["Shipping", 1],
+    ["ReturnWareHouse", 2],
+    ["Done", 3],
     ["default", 0],
   ]);
   static DeliveryTripState = (code) => {
     return (
       this.DeliveryTripStateMap.get(code) ||
       this.DeliveryTripStateMap.get("default")
+    );
+  };
+
+  static DeliveryTripStateValueMap = new Map([
+    ["PickUpPackage", "Pick Up Package"],
+    ["Shipping", "Shipping"],
+    ["ReturnWareHouse", "Return To WareHouse"],
+    ["Done", "Done"],
+    ["default", "Return To WareHouse"],
+  ]);
+  static DeliveryTripStateValue = (code) => {
+    return (
+      this.DeliveryTripStateValueMap.get(code) ||
+      this.DeliveryTripStateValueMap.get("default")
     );
   };
 }
