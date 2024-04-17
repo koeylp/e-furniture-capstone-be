@@ -75,10 +75,11 @@ class OrderController {
     const { error } = validateOrderInput(order);
     if (error) throw new BadRequestError(error.details[0].message);
 
-    return new OK({
-      message: "Create Order Successfully!",
-      metaData: await OrderService.createOrder(account_id, order),
-    }).send(res);
+    // return new OK({
+    //   message: "Create Order Successfully!",
+    //   metaData: await OrderService.createOrder(account_id, order),
+    // }).send(res);
+    res.redirect(await OrderService.createOrder(account_id, order),);
   }
 
   static async updateTracking(req, res) {
