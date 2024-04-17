@@ -23,6 +23,7 @@ const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 const DistrictService = require("./districtService");
 const ProductRepository = require("../models/repositories/productRepository");
 const WareHouseService = require("./warehouseService");
+const BankService = require("./bankService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -139,7 +140,7 @@ class OrderService {
       // const profit = order.order_checkout.final_total;
       // await RevenueRepository.updateOrInsert(profit, day);
     }
-    return newOrder;
+    return BankService.createPaymentLink(newOrder);
   }
   // static async updateStock(order) {
   //   const products = order.order_products;
