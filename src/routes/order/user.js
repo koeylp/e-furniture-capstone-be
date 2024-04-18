@@ -8,6 +8,8 @@ const {
 } = require("../../middlewares/rolePermission");
 const { verifyToken } = require("../../jwt/verifyToken");
 
+router.get("/checkOrderSatte", asyncHandler(OrderController.findStateInOrder));
+
 router.use(verifyToken);
 router.use(hasAccess(2));
 

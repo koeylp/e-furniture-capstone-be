@@ -10,6 +10,8 @@ const OrderService = require("./orderSerivce");
 const DeliveryTripUtils = require("../utils/deliveryTripUtils");
 const StateUtils = require("../utils/stateUtils");
 const WareHouseRepository = require("../models/repositories/warehouseRepository");
+const RevenueService = require("./revenueService");
+
 class DeliveryTripService {
   static async create(payload) {
     const [accountData, { orderState, orders }] = await Promise.all([
@@ -20,6 +22,11 @@ class DeliveryTripService {
       throw new BadRequestError(
         "Cannot Assign To Delivery! Waiting For Shipping"
       );
+    await Promise.all(
+      orders.map(
+        async (order) => await OrderService.processingToShiping(order.order)
+      )
+    );
     payload.orders = orders;
     payload.current_state = {
       item: StateUtils.DeliveryTripState("PickUpPackage"),
@@ -56,7 +63,7 @@ class DeliveryTripService {
         order_id: order.order,
       });
       order.payment = result.payment_method;
-      order.amount = result.order_checkout.paid.must_paid;
+      order.amount = result.order_checkout.final_total;
       if (!orderState[result._id])
         orderState[result._id] = result.current_order_tracking.name;
     });
@@ -99,6 +106,11 @@ class DeliveryTripService {
 
   static async updateTrip(trip_id, order_id, state, note) {
     const order = await this.findTrip(trip_id);
+    if (
+      order.current_state.stateValue !==
+      StateUtils.DeliveryTripState("Shipping")
+    )
+      throw new BadRequestError("You Cannot Confirm The Journey!");
     await this.updateOrderInsideOrders(order.orders, order_id, state, note);
     const currentState = await DeliveryTripUtils.getCurrentTrip(order);
     let stateValue = currentState === -1 ? "ReturnWareHouse" : "Shipping";
@@ -129,10 +141,19 @@ class DeliveryTripService {
     const { account, deliveryTrip } = await this.getAccountInDeliveryTrip(
       trip_id
     );
+    if (
+      deliveryTrip.current_state.stateValue !==
+      StateUtils.DeliveryTripState("ReturnWareHouse")
+    )
+      throw new BadRequestError("You Cannot Done The Delivery Trip!");
+
+    await this.modifyFinishedOrders(deliveryTrip.orders);
+
     const accountResult = await AccountRepository.updateStateAccount(
       account._id,
       1
     );
+
     let stateValue = "Done";
     await this.updateStateDeliveryTrip(trip_id, deliveryTrip, stateValue);
     const payload = {
@@ -141,23 +162,37 @@ class DeliveryTripService {
       message: "Your Delivery Trip Has Been Done",
       status: 1,
     };
+
     await this.SendNotification(payload, accountResult.status);
     return await this.updateOrdersWithMainStatus(trip_id);
   }
 
-  static async updateOrderInsideOrders(orders, order_id, state, note) {
+  static async modifyFinishedOrders(orders) {
     await Promise.all(
       orders.map(async (order) => {
-        if (order.order.toString() === order_id) {
-          order.status = state;
-          if (state == 1) {
-            await OrderService.doneShipping(order_id, note);
-          } else {
-            await OrderService.updateSubstateShipping(order_id, note);
-          }
+        if (order.status === 2) {
+          await OrderService.failedToShiping(order.order);
+        } else if (order.status === 1) {
+          await RevenueService.addRevenueOrder(
+            order.order.toString(),
+            order.amount
+          );
         }
       })
     );
+  }
+
+  static async updateOrderInsideOrders(orders, order_id, state, note) {
+    const foundIndex = orders.findIndex(
+      (order) => order.order.toString() === order_id
+    );
+    if (foundIndex === -1) return orders;
+    orders[foundIndex].status = state;
+    if (state == 1) {
+      await OrderService.doneShipping(order_id, note);
+    } else {
+      await OrderService.updateSubstateShipping(order_id, note);
+    }
     return orders;
   }
 
@@ -223,9 +258,6 @@ class DeliveryTripService {
       trip_id
     );
 
-    deliveryTrip.orders.forEach(
-      async (order) => await OrderService.processingToShiping(order.order)
-    );
     let current_state = {
       item: await DeliveryTripUtils.getCurrentTrip(deliveryTrip),
       state: StateUtils.DeliveryTripStateValue("Shipping"),

@@ -168,5 +168,12 @@ class OrderController {
       metaData: await OrderService.doneShipping(order_id, note),
     }).send(res);
   }
+
+  static async findStateInOrder(req, res) {
+    return new OK({
+      message: "Done shipping!",
+      metaData: await OrderService.findStateInOrder(),
+    }).send(res);
+  }
 }
 module.exports = OrderController;

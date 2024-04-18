@@ -9,4 +9,6 @@ router.get(
   asyncHandler(SubTypeController.getSubTypeDetail)
 );
 
+router.post("/", asyncHandler(SubTypeController.restore));
+
 module.exports = router;

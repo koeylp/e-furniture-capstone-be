@@ -1,3 +1,4 @@
+const StoreSubTypeService = require("../services/storeSubTypeService");
 const SubTypeService = require("../services/subTypeService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
@@ -67,6 +68,13 @@ class SubTypeController {
     return new OK({
       message: "List Of Attribute",
       metaData: await SubTypeService.getAttributeBySubType(type, listAttribute),
+    }).send(res);
+  }
+
+  static async restore(req, res) {
+    return new OK({
+      message: "List Of Attribute",
+      metaData: await StoreSubTypeService.restore("trongtoan"),
     }).send(res);
   }
 }

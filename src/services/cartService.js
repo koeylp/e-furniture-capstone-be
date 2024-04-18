@@ -8,9 +8,11 @@ const { getCode } = require("../utils/codeUtils");
 const ProductService = require("./productService");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
 const { defaultVariation } = require("../utils");
+const ProductRepository = require("../models/repositories/productRepository");
 
 class CartService {
   static async addToCart(account_id, product) {
+    await ProductRepository.checkProductById(product._id);
     const code = await getCode(product._id, product.variation);
     let cart = await CartUtils.handleCart(account_id);
     const foundIndex = cart.products.findIndex((el) => el.code === code);
