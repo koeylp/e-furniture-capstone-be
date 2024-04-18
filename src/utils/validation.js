@@ -198,6 +198,7 @@ const validateOrderInput = (data) => {
 };
 const variationSchema = Joi.object({
   property_id: Joi.string().required(),
+  stock: Joi.number(),
   sub_price: Joi.number().required(),
   variation_id: Joi.string().required(),
 });
