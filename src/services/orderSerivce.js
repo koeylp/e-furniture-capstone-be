@@ -140,9 +140,10 @@ class OrderService {
       // const profit = order.order_checkout.final_total;
       // await RevenueRepository.updateOrInsert(profit, day);
     }
-    return newOrder.payment_method === "COD"
-      ? BankService.createPaymentLink(newOrder)
-      : newOrder;
+    return newOrder.payment_method === "COD" &&
+      newOrder.order_checkout.final_total < 1000000
+      ? newOrder
+      : BankService.createPaymentLink(newOrder, OrderRepository.size());
   }
   // static async updateStock(order) {
   //   const products = order.order_products;

@@ -8,12 +8,12 @@ const payOS = new PayOS(
 );
 
 class BankService {
-  static async createPaymentLink(order) {
+  static async createPaymentLink(order, size) {
     const buyerAddress = `${order.address}, ${order.ward}, ${order.district}, ${order.province}`;
     const body = {
-      orderCode: 6,
-      amount: 2000,
-      description: "order.orderCode",
+      orderCode: size + 1,
+      amount: order.order_checkout.final_total,
+      description: order.order_code,
       buyerName: order.order_shipping.first_name,
       buyerEmail: order.order_shipping.email,
       buyerPhone: order.order_shipping.phone,
@@ -23,13 +23,10 @@ class BankService {
     };
 
     const paymentLinkRes = await payOS.createPaymentLink(body);
-    console.log(paymentLinkRes.checkoutUrl);
     return paymentLinkRes.checkoutUrl;
   }
 
   static async getPaymentLinkInfomation() {
-    const temp = await payOS.getPaymentLinkInformation("5");
-    console.log(temp);
     return await payOS.getPaymentLinkInformation();
   }
 

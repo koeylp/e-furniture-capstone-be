@@ -145,7 +145,10 @@ class OrderRepository {
       order.order_checkout.final_total < 1000000
     )
       newOrder.order_tracking.push({ name: "Processing", note: note });
-    else newOrder.order_tracking.push({ note: "Your order is waiting to be paid" });
+    else
+      newOrder.order_tracking.push({
+        note: "Your order is waiting to be paid",
+      });
     await newOrder.save();
     const populatedOrder = await _Order
       .findById(newOrder._id)
@@ -186,7 +189,10 @@ class OrderRepository {
       order.order_checkout.final_total < 1000000
     )
       newOrder.order_tracking.push({ name: "Processing", note: order.note });
-    else newOrder.order_tracking.push({ note: "Your order is waiting to be paid"});
+    else
+      newOrder.order_tracking.push({
+        note: "Your order is waiting to be paid",
+      });
     await newOrder.save();
     const populatedOrder = await _Order
       .findById(newOrder._id)
@@ -344,6 +350,9 @@ class OrderRepository {
     await _Order
       .findOneAndUpdate(order._id, order, { new: true })
       .lean({ virtuals: true });
+  }
+  static async size() {
+    return await _Order.countDocuments({}).exec();
   }
 }
 module.exports = OrderRepository;
