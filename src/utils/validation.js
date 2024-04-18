@@ -186,16 +186,48 @@ const validateVoucherInput = (data) => {
 
 const validateOrderInput = (data) => {
   const schema = Joi.object({
-    order_checkout: Joi.object().required(),
-    order_products: Joi.array().required(),
+    order_products: Joi.array().items(orderProductSchema).required(),
     payment_method: Joi.string()
       .valid("Online Payment", "COD")
       .default("Online Payment"),
-    order_shipping: Joi.object().required(),
-    note: Joi.any(),
+    order_shipping: orderShippingSchema.required(),
+    order_checkout: orderCheckoutSchema.required(),
+    note: Joi.string().allow("").optional(),
   });
   return schema.validate(data);
 };
+const variationSchema = Joi.object({
+  property_id: Joi.string().required(),
+  sub_price: Joi.number().required(),
+  variation_id: Joi.string().required(),
+});
+
+const orderProductSchema = Joi.object({
+  product_id: Joi.string().required(),
+  variation: Joi.array().items(variationSchema).required(),
+  code: Joi.string().required(),
+  quantity: Joi.number().required(),
+  price: Joi.number().required(),
+});
+
+const orderShippingSchema = Joi.object({
+  email: Joi.string().email().required(),
+  first_name: Joi.string().required(),
+  last_name: Joi.string().required(),
+  address: Joi.string().required(),
+  ward: Joi.string().required(),
+  district: Joi.string().required(),
+  province: Joi.string().required(),
+  phone: Joi.string().required(),
+  longitude: Joi.number().required(),
+  latitude: Joi.number().required(),
+});
+const orderCheckoutSchema = Joi.object({
+  voucher: Joi.object(),
+  total: Joi.number().required(),
+  final_total: Joi.number().required(),
+});
+
 const validateCreateDistrict = (data) => {
   const schema = Joi.object({
     name: Joi.string().required(),
