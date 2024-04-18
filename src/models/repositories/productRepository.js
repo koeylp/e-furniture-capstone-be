@@ -306,17 +306,5 @@ class ProductRepository {
 
     return result;
   }
-
-  // static async publishProductInside() {
-  //   let products = [];
-  //   type.subTypes.forEach((type) => {
-  //     products.push(...type.products);
-  //     subtypeModel.create(type);
-  //   });
-  //   const query = {
-  //     _id: { $in: products.map((product) => product.productId) },
-  //   };
-  //   await ProductRepository.publishRangeProductByType(query);
-  // }
 }
 module.exports = ProductRepository;

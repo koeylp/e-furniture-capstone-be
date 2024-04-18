@@ -232,25 +232,29 @@ class FlashSaleUtils {
   }
 
   static async updateRangeProductSalePrice(products) {
-    products.forEach(async (product) => {
-      let update = {
-        $set: {
-          sale_price: product.salePrice,
-        },
-      };
-      await ProductRepository.updateProductById(product.productId, update);
-    });
+    await Promise.all(
+      products.map(async (product) => {
+        let update = {
+          $set: {
+            sale_price: product.salePrice,
+          },
+        };
+        await ProductRepository.updateProductById(product.productId, update);
+      })
+    );
   }
 
   static async updateRangeProductWithOldSalePrice(products) {
-    products.forEach(async (product) => {
-      let update = {
-        $set: {
-          sale_price: product.oldSalePrice,
-        },
-      };
-      await ProductRepository.updateProductById(product.productId, update);
-    });
+    await Promise.all(
+      products.map(async (product) => {
+        let update = {
+          $set: {
+            sale_price: product.oldSalePrice,
+          },
+        };
+        await ProductRepository.updateProductById(product.productId, update);
+      })
+    );
   }
 }
 module.exports = FlashSaleUtils;

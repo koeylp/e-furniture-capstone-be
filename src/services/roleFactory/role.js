@@ -60,7 +60,7 @@ class RoleFactory {
   }
 
   static async convertRoleFromRangeId(roles) {
-    roles.forEach((role) => checkValidId(role));
+    await Promise.all(roles.map((role) => checkValidId(role)));
     return await RoleRepository.getRolesByRangeId(roles);
   }
 }
