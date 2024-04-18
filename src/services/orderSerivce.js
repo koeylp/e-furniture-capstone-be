@@ -25,6 +25,7 @@ const DistrictService = require("./districtService");
 const ProductRepository = require("../models/repositories/productRepository");
 const WareHouseService = require("./warehouseService");
 const TransactionService = require("./transactionService");
+const BankService = require("./bankService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -141,7 +142,10 @@ class OrderService {
       // const profit = order.order_checkout.final_total;
       // await RevenueRepository.updateOrInsert(profit, day);
     }
-    return newOrder;
+    return newOrder.payment_method === "COD" &&
+      newOrder.order_checkout.final_total < 1000000
+      ? newOrder
+      : BankService.createPaymentLink(newOrder, OrderRepository.size());
   }
   // static async updateStock(order) {
   //   const products = order.order_products;
@@ -205,8 +209,8 @@ class OrderService {
         foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
       )
     );
-    await OrderTrackingUtil.validatePresentTrackCancel(key_of_type);
-    const status = key_of_type === 0 ? 1 : 0;
+    // await OrderTrackingUtil.validatePresentTrackCancel(key_of_type);
+    // const status = key_of_type === 0 ? 1 : 0;
     const update = {
       name: orderTrackingMap.get(4),
       note: note.reason,
@@ -258,7 +262,7 @@ class OrderService {
     const updatedOrder = await OrderRepository.paid(
       account_id,
       order_id,
-      transaction.amount
+      Math.floor(transaction.amount)
     );
     return updatedOrder;
   }

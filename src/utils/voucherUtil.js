@@ -51,20 +51,6 @@ class VoucherUtil {
 
       order_total_after_voucher += product.new_price * product.quantity;
     };
-
-    // const applyDiscountToAllProducts = () => {
-    //   const discountFactor =
-    //     found_voucher.type === TYPE.FIXED_AMOUNT
-    //       ? found_voucher.value
-    //       : (order_total * found_voucher.value) / 100;
-
-    //   if (order_total < found_voucher.minimum_order_value)
-    //     throw new ForbiddenError(
-    //       `The total of the total is not greater than or equal to the minimum total order value condition (>= ${found_voucher.minimum_order_value})`
-    //     );
-
-    //   order_total_after_voucher = order_total - discountFactor;
-    // };
     const applyDiscountToAllProducts = () => {
       let discountFactor;
       if (found_voucher.type === TYPE.FIXED_AMOUNT) {

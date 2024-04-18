@@ -145,12 +145,16 @@ class OrderRepository {
       order_code: order_code,
     });
     if (!newOrder) throw new InternalServerError();
+    let note = order.note || "Efurniture staff is preparing the order";
     if (
       order.payment_method === "COD" &&
       order.order_checkout.final_total < 1000000
     )
-      newOrder.order_tracking.push({ name: "Processing", note: order.note });
-    else newOrder.order_tracking.push({ note: order.note });
+      newOrder.order_tracking.push({ name: "Processing", note: note });
+    else
+      newOrder.order_tracking.push({
+        note: "Your order is waiting to be paid",
+      });
     await newOrder.save();
     const populatedOrder = await _Order
       .findById(newOrder._id)
@@ -191,7 +195,10 @@ class OrderRepository {
       order.order_checkout.final_total < 1000000
     )
       newOrder.order_tracking.push({ name: "Processing", note: order.note });
-    else newOrder.order_tracking.push({ note: order.note });
+    else
+      newOrder.order_tracking.push({
+        note: "Your order is waiting to be paid",
+      });
     await newOrder.save();
     const populatedOrder = await _Order
       .findById(newOrder._id)
@@ -383,6 +390,9 @@ class OrderRepository {
         { new: true }
       )
       .lean({ virtuals: true });
+  }
+  static async size() {
+    return await _Order.countDocuments({}).exec();
   }
 }
 module.exports = OrderRepository;
