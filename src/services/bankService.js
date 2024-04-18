@@ -21,7 +21,6 @@ class BankService {
       cancelUrl: "https://efurniture.vercel.app/",
       returnUrl: "https://efurniture.vercel.app/",
     };
-
     const paymentLinkRes = await payOS.createPaymentLink(body);
     return paymentLinkRes.checkoutUrl;
   }
