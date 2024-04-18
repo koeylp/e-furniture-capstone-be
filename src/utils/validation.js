@@ -198,7 +198,6 @@ const validateOrderInput = (data) => {
 };
 const variationSchema = Joi.object({
   property_id: Joi.string().required(),
-  stock: Joi.number(),
   sub_price: Joi.number().required(),
   variation_id: Joi.string().required(),
 });
@@ -218,13 +217,13 @@ const orderShippingSchema = Joi.object({
   address: Joi.string().required(),
   ward: Joi.string().required(),
   district: Joi.string().required(),
-  province: Joi.string().required(),
+  province: Joi.string(),
   phone: Joi.string().required(),
   longitude: Joi.number().required(),
   latitude: Joi.number().required(),
 });
 const orderCheckoutSchema = Joi.object({
-  voucher: Joi.object(),
+  voucher: Joi.any(),
   total: Joi.number().required(),
   final_total: Joi.number().required(),
 });
