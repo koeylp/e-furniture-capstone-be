@@ -223,7 +223,9 @@ const orderShippingSchema = Joi.object({
   phone: Joi.string().required(),
   longitude: Joi.number().required(),
   latitude: Joi.number().required(),
-});
+  additionalProperty: Joi.any(),
+}).unknown(true);
+
 const orderCheckoutSchema = Joi.object({
   voucher: Joi.any(),
   total: Joi.number().required(),
