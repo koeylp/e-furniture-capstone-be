@@ -1,6 +1,7 @@
 const RoleRepository = require("../../models/repositories/roleRepository");
 const { checkValidId } = require("../../utils");
 const { NotFoundError } = require("../../utils/errorHanlder");
+const { getRolePhase } = require("../../utils/roleConstant");
 
 class RoleFactory {
   static roleRegistry = {};
@@ -40,7 +41,18 @@ class RoleFactory {
     return inputString.split("");
   }
 
-  static permissionArray(decimalNumber) {
+  static async permissionArray(decimalNumber) {
+    // const inputString = decimalNumber.toString(2);
+    // const resultArray =
+    //   RoleFactory.splitStringAndPushToArray(inputString).reverse();
+    // const keys = Object.values(RoleFactory.roleRegistry);
+    // let permissionArray = [];
+    // for (let i = 1; i < resultArray.length + 1; i++) {
+    //   if (resultArray[i] === "1") {
+    //     permissionArray.push(keys[i - 1]);
+    //   }
+    // }
+    // return permissionArray;
     const inputString = decimalNumber.toString(2);
     const resultArray =
       RoleFactory.splitStringAndPushToArray(inputString).reverse();
@@ -48,19 +60,21 @@ class RoleFactory {
     let permissionArray = [];
     for (let i = 1; i < resultArray.length + 1; i++) {
       if (resultArray[i] === "1") {
-        permissionArray.push(keys[i - 1]);
+        let action = getRolePhase(i);
+        let permission = await this.getRolePermission(action);
+        permissionArray.push(permission);
       }
     }
     return permissionArray;
   }
   static async convertRole(role) {
-    const arrayPermission = RoleFactory.permissionArray(role);
+    const arrayPermission = await RoleFactory.permissionArray(role);
     if (!arrayPermission) throw new NotFoundError("Role is invalid!");
     return await RoleRepository.getRolesByPermissions(arrayPermission);
   }
 
   static async convertRoleFromRangeId(roles) {
-    roles.forEach((role) => checkValidId(role));
+    await Promise.all(roles.map((role) => checkValidId(role)));
     return await RoleRepository.getRolesByRangeId(roles);
   }
 }

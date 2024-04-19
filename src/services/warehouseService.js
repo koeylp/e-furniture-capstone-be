@@ -1,21 +1,16 @@
 const WareHouseRepository = require("../models/repositories/warehouseRepository");
 const ProductRepository = require("../models/repositories/productRepository");
-const ProductInventory = require("../models/repositories/productRepository");
-const {
-  BadRequestError,
-  NotFoundError,
-  InternalServerError,
-} = require("../utils/errorHanlder");
+const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const {
   removeUndefineObject,
   checkValidId,
   generateVariations,
 } = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
-const { getCode, getCodeWithProperty } = require("../utils/codeUtils");
+const { getCode } = require("../utils/codeUtils");
 const ProductService = require("./productService");
 const NotificationEfurnitureService = require("./NotificationEfurnitureService");
-const StockUtil = require("../utils/stockUtil");
+
 class WareHouseService {
   static async createWareHouse(payload) {
     return await WareHouseRepository.createWareHouse(payload);
@@ -36,10 +31,11 @@ class WareHouseService {
     const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
     if (!warehouse) throw new NotFoundError("WareHouse Not Found");
     const productPromises = warehouse.products.map(async (item) => {
-      item.variation = await ProductService.findVariationValues(
+      let variation = await ProductService.findVariationValues(
         item.product._id.toString(),
         item.variation
       );
+      item.variation = variation == null ? product.variation : variation;
     });
     await Promise.all(productPromises);
     return warehouse;
@@ -112,12 +108,35 @@ class WareHouseService {
     return result;
   }
 
-  static async updateProductStock(product) {
+  static async updateProductStock(product, stock) {
     const { foundWarehouse, product_index } =
       await this.findProductInFirstWareHouse(product);
     StockUtil.validateStock(product.stock);
-    foundWarehouse.products[product_index].stock = product.stock;
+    foundWarehouse.products[product_index].stock = stock;
     await this.checkLowStockQuantity(foundWarehouse.products[product_index]);
+    return await WareHouseRepository.save(foundWarehouse);
+  }
+
+  static async increaseProductStock(product, stock) {
+    const { foundWarehouse, product_index } =
+      await this.findProductInFirstWareHouse(product);
+    this.validateStock(stock);
+    foundWarehouse.products[product_index].stock += stock;
+    await this.checkLowStockQuantity(foundWarehouse.products[product_index]);
+    return await WareHouseRepository.save(foundWarehouse);
+  }
+
+  static async decreaseProductStock(product, stock) {
+    const { foundWarehouse, product_index } =
+      await this.findProductInFirstWareHouse(product);
+    this.validateStock(stock);
+    let updatedStock = foundWarehouse.products[product_index].stock - stock;
+
+    foundWarehouse.products[product_index].stock =
+      updatedStock < 0 ? 0 : updatedStock;
+
+    await this.checkLowStockQuantity(foundWarehouse.products[product_index]);
+
     return await WareHouseRepository.save(foundWarehouse);
   }
 
@@ -131,11 +150,21 @@ class WareHouseService {
   //   return await WareHouseRepository.save(foundWarehouse);
   // }
 
-  static async updateProductSold(product) {
+  static async increaseProductSold(product, quantity) {
     const { foundWarehouse, product_index } =
       await this.findProductInFirstWareHouse(product);
-    StockUtil.validateStock(product.stock);
-    foundWarehouse.products[product_index].sold += product.stock;
+    this.validateStock(quantity);
+    foundWarehouse.products[product_index].sold += quantity;
+    return await WareHouseRepository.save(foundWarehouse);
+  }
+
+  static async decreaseProductSold(product, quantity) {
+    const { foundWarehouse, product_index } =
+      await this.findProductInFirstWareHouse(product);
+    this.validateStock(quantity);
+    let updatedStock = foundWarehouse.products[product_index].sold - quantity;
+    foundWarehouse.products[product_index].sold =
+      updatedStock < 0 ? 0 : updatedStock;
     return await WareHouseRepository.save(foundWarehouse);
   }
 
@@ -149,6 +178,7 @@ class WareHouseService {
   static async updateLowStockValueInWarehouse(product) {
     const { foundWarehouse, product_index } =
       await this.findProductInFirstWareHouse(product);
+    this.validateStock(product.stock);
     foundWarehouse.products[product_index].lowStock = product.lowStock;
     return await WareHouseRepository.save(foundWarehouse);
   }
@@ -222,10 +252,11 @@ class WareHouseService {
     const products = warehouse.products
       .filter((product) => product.product._id.toString() === product_id)
       .map(async (product) => {
-        product.variation = await ProductService.findVariationValues(
+        let variation = await ProductService.findVariationValues(
           product.product._id.toString(),
           product.variation
         );
+        product.variation = variation == null ? product.variation : variation;
         return product;
       });
 
@@ -306,6 +337,9 @@ class WareHouseService {
     if (isNoti && product.stock < lowStock) {
       await NotificationEfurnitureService.notiLowStock(product.product.name);
     }
+  }
+  static validateStock(stock) {
+    if (stock < 0) throw new BadRequestError("Stock value is invalid!");
   }
 }
 module.exports = WareHouseService;

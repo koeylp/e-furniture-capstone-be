@@ -1,65 +1,83 @@
-const arrays = [
-  [
-    {
-      variation_id: "660ccc670449387c6bd9972e",
-      property_id: "660ccc670449387c6bd9972f1",
-    },
-    {
-      variation_id: "660ccc670449387c6bd9972e",
-      property_id: "660ccc670449387c6bd9972f2",
-    },
-    {
-      variation_id: "660ccc670449387c6bd9972e",
-      property_id: "660ccc670449387c6bd9972f3",
-    },
-  ],
-  [
-    {
-      variation_id: "660ccc670449387c6bd99721",
-      property_id: "660ccc670449387c6bd9972f4",
-    },
-    {
-      variation_id: "660ccc670449387c6bd99721",
-      property_id: "660ccc670449387c6bd9972f5",
-    },
-    {
-      variation_id: "660ccc670449387c6bd99721",
-      property_id: "660ccc670449387c6bd9972f6",
-    },
-  ],
-];
-const result = [];
+// const arrays = [
+//   [
+//     {
+//       variation_id: "660ccc670449387c6bd9972e",
+//       property_id: "660ccc670449387c6bd9972f1",
+//     },
+//     {
+//       variation_id: "660ccc670449387c6bd9972e",
+//       property_id: "660ccc670449387c6bd9972f2",
+//     },
+//     {
+//       variation_id: "660ccc670449387c6bd9972e",
+//       property_id: "660ccc670449387c6bd9972f3",
+//     },
+//   ],
+//   [
+//     {
+//       variation_id: "660ccc670449387c6bd99721",
+//       property_id: "660ccc670449387c6bd9972f4",
+//     },
+//     {
+//       variation_id: "660ccc670449387c6bd99721",
+//       property_id: "660ccc670449387c6bd9972f5",
+//     },
+//     {
+//       variation_id: "660ccc670449387c6bd99721",
+//       property_id: "660ccc670449387c6bd9972f6",
+//     },
+//   ],
+// ];
+// const result = [];
 
-function generateCombinations(currentCombination, remainingArrays) {
-  if (remainingArrays.length === 0) {
-    result.push(currentCombination);
-    return;
-  }
+const StoreSubTypeService = require("../src/services/storeSubTypeService");
 
-  for (let i = 0; i < remainingArrays[0].length; i++) {
-    const newCombination = [...currentCombination, remainingArrays[0][i]];
-    generateCombinations(newCombination, remainingArrays.slice(1));
-  }
-}
+// function generateCombinations(currentCombination, remainingArrays) {
+//   if (remainingArrays.length === 0) {
+//     result.push(currentCombination);
+//     return;
+//   }
 
-const data = (arrays) => {
-  const result = [];
+//   for (let i = 0; i < remainingArrays[0].length; i++) {
+//     const newCombination = [...currentCombination, remainingArrays[0][i]];
+//     generateCombinations(newCombination, remainingArrays.slice(1));
+//   }
+// }
 
-  function generateCombinations(currentCombination, remainingArrays) {
-    if (remainingArrays.length === 0) {
-      result.push(currentCombination);
-      return;
-    }
+// const data = (arrays) => {
+//   const result = [];
 
-    for (let i = 0; i < remainingArrays[0].length; i++) {
-      const newCombination = [...currentCombination, remainingArrays[0][i]];
-      generateCombinations(newCombination, remainingArrays.slice(1));
-    }
-  }
+//   function generateCombinations(currentCombination, remainingArrays) {
+//     if (remainingArrays.length === 0) {
+//       result.push(currentCombination);
+//       return;
+//     }
 
-  generateCombinations([], arrays);
+//     for (let i = 0; i < remainingArrays[0].length; i++) {
+//       const newCombination = [...currentCombination, remainingArrays[0][i]];
+//       generateCombinations(newCombination, remainingArrays.slice(1));
+//     }
+//   }
 
-  return result;
-};
+//   generateCombinations([], arrays);
 
-console.log(data(arrays));
+//   return result;
+// };
+
+// console.log(data(arrays));
+// const result = async () => {
+//   return await StoreSubTypeService.restore("trongtoan");
+// };
+// let data = result();
+// console.log(data);
+
+// const data = (note) => {
+//   let first = note.split(",");
+//   let firstSplit = first[0].split("Code: ");
+//   let secondSplit = first[1].split("Reason: ");
+//   return { code: firstSplit[1], reason: secondSplit[1] };
+// };
+// let note = data(
+//   "Refund Order Code: EFURNITURE-526E81C5, Reason: tui k mún mua nữa"
+// );
+// console.log(note);

@@ -29,7 +29,10 @@ class OrderRepository {
               product.product_id._id.toString(),
               product.variation
             );
-            return { ...product, variation };
+            return {
+              ...product,
+              variation: variation == null ? product.variation : variation,
+            };
           })
         );
         return { ...item, order_products: updatedOrderProducts };
@@ -59,7 +62,10 @@ class OrderRepository {
               product.product_id._id.toString(),
               product.variation
             );
-            return { ...product, variation };
+            return {
+              ...product,
+              variation: variation == null ? product.variation : variation,
+            };
           })
         );
         return { ...item, order_products: updatedOrderProducts };
@@ -84,23 +90,14 @@ class OrderRepository {
     };
     return await this.getOrders(query, page, limit);
   }
-  static async getOrdersByType({ account_id, type, page, limit, status = 1 }) {
+  static async getOrdersByType({ account_id, type, page, limit }) {
     const query = {
       ...(account_id && { account_id }),
       guest: false,
-      status: 1,
     };
     if (type) {
       query.$expr = {
-        $and: [
-          { $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type] },
-          {
-            $eq: [
-              { $arrayElemAt: ["$order_tracking.status", -1] },
-              parseInt(status),
-            ],
-          },
-        ],
+        $and: [{ $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type] }],
       };
     }
     return await this.getOrdersWithoutPopulate({ query, page, limit });
@@ -351,8 +348,53 @@ class OrderRepository {
       .findOneAndUpdate(order._id, order, { new: true })
       .lean({ virtuals: true });
   }
+
+  static async calculateStateOfOrder(order_id, state) {
+    let count = 0;
+    const query = {
+      _id: new mongoose.Types.ObjectId(order_id),
+    };
+    const order = await _Order.findOne(query).lean({ virtuals: true });
+    if (!order) throw new BadRequestError();
+    for (const substate of order.order_tracking) {
+      if (substate.name === state) {
+        count++;
+      }
+    }
+    return { count, order };
+  }
+
+  static async updateLastState(order_id, newSubstate, note, state) {
+    return await _Order
+      .findOneAndUpdate(
+        { _id: order_id, "order_tracking.name": "Shipping" },
+        {
+          $set: {
+            "order_tracking.$": {
+              name: "Shipping",
+              substate: newSubstate,
+              status: parseInt(state),
+              note: note,
+            },
+          },
+        },
+        { new: true }
+      )
+      .lean({ virtuals: true });
+  }
   static async size() {
     return await _Order.countDocuments({}).exec();
+  }
+
+  static async findOrderByOrderCode(order_code) {
+    const query = {
+      order_code: order_code.toString(),
+    };
+    return await this.findOrder(query);
+  }
+
+  static async findOrder(query) {
+    return await _Order.findOne(query).lean();
   }
 }
 module.exports = OrderRepository;

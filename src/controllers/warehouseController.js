@@ -69,7 +69,11 @@ class WareHouseController {
   }
   static async updateProductStockInWarehouse(req, res) {
     await InventoryService.updateInventoryStock(req.body);
-    let result = await WareHouseService.updateProductStock(req.body);
+    let { product } = req.body;
+    let result = await WareHouseService.updateProductStock(
+      product,
+      product.stock
+    );
     return new OK({
       message: "Update Product Stock Warehouse Successfully!",
       metaData: result,

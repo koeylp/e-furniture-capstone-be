@@ -20,6 +20,32 @@ class PermissionConstants {
   static ADMIN_MASTER_PUT = "AdminMaster_Put";
   static ADMIN_MASTER_DELETE = "AdminMaster_Delete";
 }
+const rolePhase = new Map([
+  [1, "User_Get"],
+  [2, "User_Post"],
+  [3, "User_Put"],
+  [4, "User_Delete"],
+  [5, "Staff_Get"],
+  [6, "Staff_Post"],
+  [7, "Staff_Put"],
+  [8, "Staff_Delete"],
+  [9, "Admin_Get"],
+  [10, "Admin_Post"],
+  [11, "Admin_Put"],
+  [12, "Admin_Delete"],
+  [13, "Delivery_Get"],
+  [14, "Delivery_Post"],
+  [15, "Delivery_Put"],
+  [16, "Delivery_Delete"],
+  [17, "AdminMaster_Get"],
+  [18, "AdminMaster_Post"],
+  [19, "AdminMaster_Put"],
+  [20, "AdminMaster_Delete"],
+]);
+const getRolePhase = (code) => {
+  return rolePhase.get(code) || rolePhase.get("default");
+};
 module.exports = {
   PermissionConstants,
+  getRolePhase,
 };

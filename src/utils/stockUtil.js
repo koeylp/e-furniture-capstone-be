@@ -185,17 +185,11 @@ class StockUtil {
     if (!savedInventory) throw new InternalServerError();
   }
 
-  static async restoreStock(order) {
-    const products = order.order_products;
-    for (const product of products) {
-      await this.restoreInventoryStock(product);
-    }
-  }
-
   static async restoreInventoryStock(product) {
-    const { product_id, quantity } = product;
-    const query = { product: product_id };
+    const { product_id, quantity, code } = product;
+    const query = { code: code };
     const foundInventory = await InventoryRepository.findByQuery(query);
+    if (!foundInventory) return;
     const updatedStock = foundInventory.stock + quantity;
     const updatedSold = foundInventory.sold - quantity;
     const savedInventory = await InventoryRepository.save(
@@ -230,9 +224,7 @@ class StockUtil {
     }
     return nearestWarehouse;
   }
-  static validateStock(stock) {
-    if (stock < 0) throw new BadRequestError("Stock value is invalid!");
-  }
+
   static async modifyStock() {
     const result = {};
     const products = order.order_products;

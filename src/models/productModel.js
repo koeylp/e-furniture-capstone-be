@@ -39,22 +39,21 @@ const schema = new Schema(
   }
 );
 schema.index({ name: "text" });
-schema.pre("save", function (next) {
-  this.slug = slugify(this.name, { lower: true });
-  next();
-});
-schema.pre("updateOne", function (next) {
-  const update = this.getUpdate();
-  if (update.name) {
-    update.slug = slugify(update.name, { lower: true });
+schema.pre("save", async function (next) {
+  let slugAttempt = slugify(this.name, { lower: true });
+  let candidateSlug = slugAttempt;
+  let docCount = await this.model(DOCUMENT_NAME).countDocuments({
+    slug: candidateSlug,
+  });
+
+  while (docCount > 0) {
+    candidateSlug = `${slugAttempt}-${docCount}`;
+    docCount = await this.model(DOCUMENT_NAME).countDocuments({
+      slug: candidateSlug,
+    });
   }
-  next();
-});
-schema.pre("findOneAndUpdate", function (next) {
-  const update = this.getUpdate();
-  if (update.name) {
-    update.slug = slugify(update.name, { lower: true });
-  }
+
+  this.slug = candidateSlug;
   next();
 });
 module.exports = {

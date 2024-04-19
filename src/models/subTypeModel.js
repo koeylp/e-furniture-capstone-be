@@ -3,7 +3,76 @@ const { model, Schema, default: mongoose } = require("mongoose");
 const slugify = require("slugify");
 function generateSubTypeSchema(type) {
   const subTypeCollectionName = `${type.name}`;
+  // const existingSchema = mongoose.model(subTypeCollectionName);
+  // if (existingSchema) {
+  //   console.log(`Schema for "${subTypeCollectionName}" already exists.`);
+  //   return;
+  // }
+  const subTypeSchema = new Schema(
+    {
+      type: { type: String, required: true },
+      slug: { type: String },
+      description: { type: String, default: "" },
+      thumb: { type: String, default: "" },
+      attributes: [
+        {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: "Attribute",
+        },
+      ],
+      group: { type: String, required: true, ref: "SubTypeGroup" },
+      products: [
+        {
+          productId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: "Product",
+          },
+        },
+      ],
+      is_draft: { type: Boolean, default: true },
+      is_published: { type: Boolean, default: false },
+    },
+    {
+      collection: subTypeCollectionName,
+      timestamps: true,
+    }
+  );
+  subTypeSchema.pre("save", async function (next) {
+    let slugAttempt = slugify(this.type, { lower: true });
+    let candidateSlug = slugAttempt;
+    let docCount = await this.model(DOCUMENT_NAME).countDocuments({
+      slug: candidateSlug,
+    });
 
+    while (docCount > 0) {
+      candidateSlug = `${slugAttempt}-${docCount}`;
+      docCount = await this.model(DOCUMENT_NAME).countDocuments({
+        slug: candidateSlug,
+      });
+    }
+
+    this.slug = candidateSlug;
+    next();
+  });
+  return model(subTypeCollectionName, subTypeSchema);
+}
+async function deleteSubTypeSchema(type) {
+  const collectionName = `${type.name}`;
+  const existingModel = mongoose.modelNames().includes(collectionName);
+  if (existingModel) {
+    mongoose.connection.deleteModel(collectionName);
+  }
+  // Xóa collection
+  const mon = await mongoose.connection.db.dropCollection(collectionName);
+}
+function publishSubTypeSchema(type) {
+  const subTypeCollectionName = `${type.name}`;
+  const existingSchema = mongoose.model(subTypeCollectionName);
+  if (existingSchema) {
+    return existingSchema;
+  }
   const subTypeSchema = new Schema(
     {
       type: { type: String, required: true },
@@ -55,13 +124,8 @@ function generateSubTypeSchema(type) {
   });
   return model(subTypeCollectionName, subTypeSchema);
 }
-async function deleteSubTypeSchema(type) {
-  const collectionName = `${type.name}`;
-  const existingModel = mongoose.modelNames().includes(collectionName);
-  if (existingModel) {
-    mongoose.connection.deleteModel(collectionName);
-  }
-  // Xóa collection
-  const mon = await mongoose.connection.db.dropCollection(collectionName);
-}
-module.exports = { generateSubTypeSchema, deleteSubTypeSchema };
+module.exports = {
+  generateSubTypeSchema,
+  deleteSubTypeSchema,
+  publishSubTypeSchema,
+};

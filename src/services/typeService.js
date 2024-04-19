@@ -7,10 +7,12 @@ const ProductFactory = require("../services/productFactory/factory");
 const {
   generateSubTypeSchema,
   deleteSubTypeSchema,
+  publishSubTypeSchema,
 } = require("../models/subTypeModel");
 const SubTypeRepository = require("../models/repositories/subTypeRepository");
 const ProductRepository = require("../models/repositories/productRepository");
 const { FilterSubType } = require("../utils/subTypeUtils");
+const StoreSubTypeService = require("./storeSubTypeService");
 
 class TypeService {
   static async createType(typeName, thumb, subTypes = []) {
@@ -22,13 +24,19 @@ class TypeService {
     const type = await TypeRepository.findTypeBySlug(type_slug);
     if (type.is_published)
       throw new BadRequestError("Type is already published");
+
     const typeCheck = await TypeRepository.existTypeName(type.name);
     if (typeCheck) throw new BadRequestError(`${type.name} is already in use!`);
+
     const result = await TypeRepository.publishType(type._id);
+
     if (result.nModified < 0)
       throw new InternalServerError("Cannot Publish Type!");
+
     const model = generateSubTypeSchema(type);
-    if (!model) throw new InternalServerError("Cannot Publish Type!");
+
+    await StoreSubTypeService.store(type._id.toString(), model);
+
     ProductFactory.registerProductType(type.slug, model);
     global.subTypeSchemasMap.set(type.slug, model);
     return result;
@@ -36,9 +44,13 @@ class TypeService {
   static async draftType(type_slug) {
     const type = await TypeRepository.findTypeBySlug(type_slug);
     if (type.is_draft) throw new BadRequestError("Type is already draft");
+
+    await StoreSubTypeService.restore(type_slug);
+
     const result = await TypeRepository.draftType(type._id);
     if (result.nModified < 0)
       throw new InternalServerError("Cannot Draft Type!");
+
     await Promise.all([
       ProductFactory.unregisterProductType(type.slug),
       global.subTypeSchemasMap.delete(type.slug),

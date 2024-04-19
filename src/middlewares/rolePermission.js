@@ -20,7 +20,7 @@ const hasPermission = (hasRole) => async (req, res, next) => {
   try {
     const { role } = req.payload;
     if (!role) throw new UnAuthorizedError();
-    const roleArray = RoleFactory.permissionArray(role);
+    const roleArray = await RoleFactory.permissionArray(role);
     if (Array.isArray(hasRole) && hasRole.length !== 0) {
       let constantRole = hasRole.map((role) => {
         return RoleFactory.roleRegistry[role];

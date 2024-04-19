@@ -1,4 +1,5 @@
 const OrderService = require("../services/orderSerivce");
+const ReportService = require("../services/reportService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { capitalizeFirstLetter } = require("../utils/format");
 const { OK } = require("../utils/successHandler");
@@ -72,12 +73,14 @@ class OrderController {
     const { account_id } = req.payload;
     const order = req.body;
     if (!order) throw new BadRequestError();
-    const { error } = validateOrderInput(order);
-    if (error) throw new BadRequestError(error.details[0].message);
-    return new OK({
-      message: "Create Order Successfully!",
-      metaData: await OrderService.createOrder(account_id, order),
-    }).send(res);
+    // const { error } = validateOrderInput(order);
+    // if (error) throw new BadRequestError(error.details[0].message);
+    if (order.payment_method === "COD")
+      return new OK({
+        message: "Create Order Successfully!",
+        metaData: await OrderService.createOrder(account_id, order),
+      }).send(res);
+    res.redirect(await OrderService.createOrder(account_id, order));
   }
 
   static async updateTracking(req, res) {
@@ -107,9 +110,17 @@ class OrderController {
     const { order_id } = req.params;
     const { note } = req.body;
     if (!note) throw new BadRequestError("Note's cancel is required");
+    let result = await OrderService.cancelOrder(account_id, order_id, note);
+    if (result.isReport) {
+      await ReportService.createRefundReport(
+        result.note,
+        result.foundOrder,
+        result.account
+      );
+    }
     return new OK({
       message: "Send cancel order request successfully! Please, wait!",
-      metaData: await OrderService.cancelOrder(account_id, order_id, note),
+      metaData: result.update,
     }).send(res);
   }
 
@@ -165,6 +176,13 @@ class OrderController {
     return new OK({
       message: "Done shipping!",
       metaData: await OrderService.doneShipping(order_id, note),
+    }).send(res);
+  }
+
+  static async findStateInOrder(req, res) {
+    return new OK({
+      message: "Done shipping!",
+      metaData: await OrderService.findStateInOrder(),
     }).send(res);
   }
 }

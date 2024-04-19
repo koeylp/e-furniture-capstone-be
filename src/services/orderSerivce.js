@@ -18,16 +18,21 @@ const RevenueRepository = require("../models/repositories/revenueRepository");
 const CartUtils = require("../utils/cartUtils");
 const StockUtil = require("../utils/stockUtil");
 const TransactionRepository = require("../models/repositories/transactionRepository");
+const AccountRepository = require("../models/repositories/accountRepository");
 const MailtrapService = require("./mailtrapService");
 const OrderTrackingUtil = require("../utils/orderTrackingUtils");
 const DistrictService = require("./districtService");
 const ProductRepository = require("../models/repositories/productRepository");
 const WareHouseService = require("./warehouseService");
+const TransactionService = require("./transactionService");
 const BankService = require("./bankService");
+const ReportService = require("./reportService");
+const StateUtils = require("../utils/stateUtils");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
 const SUB_STATE = [0, 1, 2];
+
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -135,22 +140,11 @@ class OrderService {
 
     const newOrder = await OrderRepository.createOrder(account_id, order);
 
-    if (newOrder) {
-      const day = new Date().setUTCHours(0, 0, 0, 0);
-      // const profit = order.order_checkout.final_total;
-      // await RevenueRepository.updateOrInsert(profit, day);
-    }
     return newOrder.payment_method === "COD" &&
       newOrder.order_checkout.final_total < 1000000
       ? newOrder
       : BankService.createPaymentLink(newOrder);
   }
-  // static async updateStock(order) {
-  //   const products = order.order_products;
-  //   for (const product of products) {
-  //     await WareHouseService.updateProductStock();
-  //   }
-  // }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);
     const key_of_type = getKeyByValue(
@@ -168,10 +162,6 @@ class OrderService {
         "order_checkout.paid.paid_amount": order.order_checkout.final_total,
       };
     }
-    // await this.increaseOrderInDistrict(
-    //   orderTrackingMap.get(key_of_type + 1),
-    //   order.order_shipping.district
-    // );
 
     const updatePush = {
       name: orderTrackingMap.get(key_of_type + 1),
@@ -190,16 +180,11 @@ class OrderService {
     order.warehouses = warehouses;
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
-    else {
-      // const day = new Date().setUTCHours(0, 0, 0, 0);
-      // const profit = order.order_checkout.final_total;
-      // await RevenueRepository.updateOrInsert(profit, day);
-      // await StockUtil.updateStock(order);
-    }
     await MailtrapService.send(newOrder);
     return newOrder;
   }
   static async cancelOrder(account_id, order_id, note) {
+    let account = await AccountRepository.findAccountById(account_id);
     const foundOrder = await verifyOrderExistenceWithUser(account_id, order_id);
     const key_of_type = getKeyByValue(
       orderTrackingMap,
@@ -207,11 +192,9 @@ class OrderService {
         foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
       )
     );
-    // await OrderTrackingUtil.validatePresentTrackCancel(key_of_type);
-    // const status = key_of_type === 0 ? 1 : 0;
     const update = {
       name: orderTrackingMap.get(4),
-      note: note,
+      note: note.reason,
       status: 1,
     };
     const updateTracking = await OrderRepository.updateOrderTracking(
@@ -219,13 +202,21 @@ class OrderService {
       update,
       {}
     );
-    if (
-      updateTracking &&
-      updateTracking.order_tracking[updateTracking.order_tracking.length - 1]
-        .status === 1
-    )
-      await StockUtil.restoreStock(foundOrder);
-    return updateTracking;
+    if (updateTracking) await this.restoreStock(foundOrder);
+
+    if (!foundOrder.order_checkout.is_paid) return updateTracking;
+
+    let payment = foundOrder.payment_method;
+
+    if (payment != StateUtils.PaymentMethod("online"))
+      return { update: updateTracking, isReport: false };
+    return {
+      update: updateTracking,
+      note,
+      foundOrder,
+      account,
+      isReport: true,
+    };
   }
   static async paid(account_id, transaction) {
     const order_id = transaction.order_id;
@@ -248,8 +239,13 @@ class OrderService {
     await OrderTrackingUtil.validatePendingTrackUpdate(key_of_type);
     if (foundOrder.order_checkout.is_paid)
       throw new BadRequestError("Order was paid");
-    transaction.account_id = account_id;
-    const transactionCreation = await TransactionRepository.create(transaction);
+
+    const transactionCreation = await TransactionService.createPaidTransaction(
+      account_id,
+      transaction,
+      foundOrder.order_code
+    );
+
     if (!transactionCreation)
       throw new InternalServerError("Saving transaction failed!");
     const updatedOrder = await OrderRepository.paid(
@@ -299,20 +295,13 @@ class OrderService {
     if (foundOrder.current_order_tracking.name != TRACKING[2])
       throw new BadRequestError("Order is not in shipping state");
 
-    const updatedOrder = await OrderRepository.update(
-      order_id,
-      newSubstate,
-      note,
-      SUB_STATE[2]
-    );
-
     const substateChecking = await OrderService.checkAndPushFailedState(
-      updatedOrder,
+      foundOrder,
       note
     );
 
     if (!substateChecking) {
-      return updatedOrder;
+      return foundOrder;
     } else {
       return substateChecking;
     }
@@ -338,26 +327,26 @@ class OrderService {
   static async checkAndPushFailedState(order, note) {
     const shippingPhaseName = "Shipping";
     const failedSubstateType = "Failed";
-    const maxFailureCount = 3;
-    const shippingPhase = order.order_tracking.find(
-      (phase) => phase.name === shippingPhaseName
-    );
-    if (!shippingPhase) {
-      return;
-    }
-    let failedCount = 0;
-    for (const substate of shippingPhase.substate) {
-      if (substate.type === failedSubstateType) {
-        failedCount++;
-      }
-    }
-    if (failedCount >= maxFailureCount) {
-      order.order_tracking.push({
-        name: "Failed",
-        status: 1,
-        note: note,
-      });
-    }
+    // const maxFailureCount = 3;
+    // const shippingPhase = order.order_tracking.find(
+    //   (phase) => phase.name === shippingPhaseName
+    // );
+    // if (!shippingPhase) {
+    //   return;
+    // }
+    // let failedCount = 0;
+    // for (const substate of shippingPhase.substate) {
+    //   if (substate.type === failedSubstateType) {
+    //     failedCount++;
+    //   }
+    // }
+    // if (failedCount >= maxFailureCount) {
+    order.order_tracking.push({
+      name: "Failed",
+      status: 1,
+      note: note,
+    });
+    // }
     return await OrderRepository.updateOrder(order);
   }
   static async doneShipping(order_id, note) {
@@ -375,6 +364,20 @@ class OrderService {
     };
     // await this.increaseOrderInDistrict(order.order_shipping.district);
     return await OrderRepository.updateOrderTracking(order_id, update, {});
+  }
+
+  static async refundOrder(code, note) {
+    const order = await OrderRepository.findOrderByOrderCode(code);
+    if (!order) throw new BadRequestError();
+    const update = {
+      name: orderTrackingMap.get(5),
+      note: note,
+    };
+    return await OrderRepository.updateOrderTracking(
+      order._id.toString(),
+      update,
+      {}
+    );
   }
 
   static async increaseOrderInDistrict(district) {
@@ -396,6 +399,32 @@ class OrderService {
       note: "Your Order Is On Its Way",
     };
     return await OrderRepository.updateOrderTracking(order_id, update, {});
+  }
+
+  static async failedToShiping(order_id) {
+    let { count, order } = await OrderRepository.calculateStateOfOrder(
+      order_id,
+      "Failed"
+    );
+    if (count >= 2) {
+      await this.restoreStock(order);
+      return;
+    }
+    const update = {
+      name: orderTrackingMap.get(2),
+      note: "Your Order Is On Its Way",
+      status: 2,
+    };
+    return await OrderRepository.updateOrderTracking(order_id, update, {});
+  }
+
+  static async restoreStock(order) {
+    const products = order.order_products;
+    for (const product of products) {
+      await StockUtil.restoreInventoryStock(product);
+      await WareHouseService.decreaseProductSold(product, product.quantity);
+      await WareHouseService.increaseProductStock(product, product.quantity);
+    }
   }
 }
 module.exports = OrderService;

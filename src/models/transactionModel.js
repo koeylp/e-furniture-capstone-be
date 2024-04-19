@@ -6,11 +6,11 @@ const DOCUMENT_NAME = "Transaction ";
 
 const schema = new Schema(
   {
-    account_id: { type: Schema.Types.ObjectId, required: true, ref: "Account" },
-    order_id: { type: Schema.Types.ObjectId, required: true, ref: "Order" },
+    receiver: { type: Object },
+    sender: { type: Object },
     amount: { type: Number, required: true },
     description: { type: String, required: true },
-    when: { type: String, required: true },
+    date: { type: Date, default: new Date() },
   },
   {
     collection: COLLECTION_NAME,
