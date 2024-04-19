@@ -97,12 +97,7 @@ class OrderRepository {
     };
     if (type) {
       query.$expr = {
-        $and: [
-          { $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type] },
-          {
-            $eq: [{ $arrayElemAt: ["$order_tracking.status", -1] }],
-          },
-        ],
+        $and: [{ $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type] }],
       };
     }
     return await this.getOrdersWithoutPopulate({ query, page, limit });
