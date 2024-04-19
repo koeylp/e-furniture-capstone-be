@@ -9,24 +9,39 @@ const payOS = new PayOS(
 
 class BankService {
   static async createPaymentLink(order, size) {
-    const buyerAddress = `${order.address}, ${order.ward}, ${order.district}, ${order.province}`;
+    // const buyerAddress = `${order.address}, ${order.ward}, ${order.district}, ${order.province}`;
+    // const body = {
+    //   orderCode: size + 1,
+    //   amount: order.order_checkout.final_total,
+    //   description: order.order_code,
+    //   buyerName: order.order_shipping.first_name,
+    //   buyerEmail: order.order_shipping.email,
+    //   buyerPhone: order.order_shipping.phone,
+    //   buyerAddress: buyerAddress,
+    //   cancelUrl: "https://efurniture.vercel.app/",
+    //   returnUrl: "https://efurniture.vercel.app/",
+    // };
+
     const body = {
-      orderCode: size + 1,
-      amount: order.order_checkout.final_total,
-      description: order.order_code,
-      buyerName: order.order_shipping.first_name,
-      buyerEmail: order.order_shipping.email,
-      buyerPhone: order.order_shipping.phone,
-      buyerAddress: buyerAddress,
+            orderCode: 21,
+      amount: 2000,
+      description: "order.order_code",
+      buyerName: "order.order_shipping.first_name",
+      buyerEmail: "asdfas@gmail.com",
+      buyerPhone: "order.order_shipping.phone",
+      buyerAddress: "buyerAddress",
       cancelUrl: "https://efurniture.vercel.app/",
       returnUrl: "https://efurniture.vercel.app/",
     };
-    const paymentLinkRes = await payOS.createPaymentLink(body);
-    return paymentLinkRes.checkoutUrl;
+    // const paymentLinkRes = await payOS.createPaymentLink(body);
+    // return paymentLinkRes.checkoutUrl;
+    // console.log(await this.verifyPaymentWebhookData(body)); 
+    // console.log(await this.getPaymentLinkInfomation());
+    console.log(await payOS.createPaymentLink(body));
   }
 
   static async getPaymentLinkInfomation() {
-    return await payOS.getPaymentLinkInformation();
+    return await payOS.getPaymentLinkInformation("5");
   }
 
   static async cancelPaymentLink() {
@@ -35,11 +50,11 @@ class BankService {
 
   static async confirmWebhook() {
     const temp = await payOS.confirmWebhook("https://efurniture.vercel.app/");
-    console.log(temp);
   }
 
-  static async verifyPaymentWebhookData() {
-    return payOS.verifyPaymentWebhookData(req.body);
+  static async verifyPaymentWebhookData(order) {
+    return payOS.verifyPaymentWebhookData(order);
   }
 }
+BankService.createPaymentLink();
 module.exports = BankService;
