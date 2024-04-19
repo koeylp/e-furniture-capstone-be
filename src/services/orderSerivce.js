@@ -143,8 +143,7 @@ class OrderService {
     return newOrder.payment_method === "COD" &&
       newOrder.order_checkout.final_total < 1000000
       ? newOrder
-      : // : BankService.createPaymentLink(newOrder, await OrderRepository.size());
-        newOrder;
+      : BankService.createPaymentLink(newOrder, await OrderRepository.size());
   }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);
