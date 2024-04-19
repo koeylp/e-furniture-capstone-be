@@ -1,5 +1,6 @@
 // CommonJS
 const PayOS = require("@payos/node");
+const { generateOrderCodePayOS } = require("../utils/generateOrderCode");
 
 const payOS = new PayOS(
   "18249539-698d-41a3-8528-4bc1580f84aa",
@@ -8,10 +9,13 @@ const payOS = new PayOS(
 );
 
 class BankService {
-  static async createPaymentLink(order, size) {
+  static async createPaymentLink(order) {
     const buyerAddress = `${order.order_shipping.address}, ${order.order_shipping.ward}, ${order.order_shipping.district}, ${order.order_shipping.province}`;
+    const orderCode = await generateOrderCodePayOS(
+      BankService.checkOrderCodeExists
+    );
     const body = {
-      orderCode: size + 1,
+      orderCode: orderCode,
       amount: order.order_checkout.final_total,
       description: order.order_code,
       buyerName: order.order_shipping.first_name,
@@ -26,8 +30,8 @@ class BankService {
     return paymentLinkRes.checkoutUrl;
   }
 
-  static async getPaymentLinkInfomation() {
-    return await payOS.getPaymentLinkInformation("5");
+  static async getPaymentLinkInfomation(orderCode) {
+    return await payOS.getPaymentLinkInformation(orderCode);
   }
 
   static async cancelPaymentLink() {
@@ -35,11 +39,20 @@ class BankService {
   }
 
   static async confirmWebhook() {
-    const temp = await payOS.confirmWebhook("https://efurniture.vercel.app/");
+    return await payOS.confirmWebhook("https://efurniture.vercel.app/");
   }
 
   static async verifyPaymentWebhookData(order) {
     return payOS.verifyPaymentWebhookData(order);
+  }
+
+  static async checkOrderCodeExists(orderCode) {
+    try {
+      const transaction = await BankService.getPaymentLinkInfomation(orderCode);
+      if (transaction) return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
 module.exports = BankService;

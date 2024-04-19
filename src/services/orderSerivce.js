@@ -143,7 +143,7 @@ class OrderService {
     return newOrder.payment_method === "COD" &&
       newOrder.order_checkout.final_total < 1000000
       ? newOrder
-      : BankService.createPaymentLink(newOrder, await OrderRepository.size());
+      : BankService.createPaymentLink(newOrder);
   }
   // static async updateStock(order) {
   //   const products = order.order_products;
