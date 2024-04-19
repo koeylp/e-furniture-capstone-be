@@ -22,11 +22,6 @@ router.get(
   asyncHandler(TransactionController.getTransactions)
 );
 router.get(
-  "/:account_id",
-  hasPermission(global.PermissionConstants.ADMIN_GET),
-  asyncHandler(TransactionController.getTransactionsByAccount)
-);
-router.get(
   "/detail/:transaction_id",
   hasPermission(global.PermissionConstants.ADMIN_GET),
   asyncHandler(TransactionController.findTransactionByID)

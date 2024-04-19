@@ -26,6 +26,7 @@ const ProductRepository = require("../models/repositories/productRepository");
 const WareHouseService = require("./warehouseService");
 const TransactionService = require("./transactionService");
 const BankService = require("./bankService");
+const ReportService = require("./reportService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -137,22 +138,11 @@ class OrderService {
 
     const newOrder = await OrderRepository.createOrder(account_id, order);
 
-    if (newOrder) {
-      const day = new Date().setUTCHours(0, 0, 0, 0);
-      // const profit = order.order_checkout.final_total;
-      // await RevenueRepository.updateOrInsert(profit, day);
-    }
     return newOrder.payment_method === "COD" &&
       newOrder.order_checkout.final_total < 1000000
       ? newOrder
       : BankService.createPaymentLink(newOrder, await OrderRepository.size());
   }
-  // static async updateStock(order) {
-  //   const products = order.order_products;
-  //   for (const product of products) {
-  //     await WareHouseService.updateProductStock();
-  //   }
-  // }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);
     const key_of_type = getKeyByValue(
@@ -170,10 +160,6 @@ class OrderService {
         "order_checkout.paid.paid_amount": order.order_checkout.final_total,
       };
     }
-    // await this.increaseOrderInDistrict(
-    //   orderTrackingMap.get(key_of_type + 1),
-    //   order.order_shipping.district
-    // );
 
     const updatePush = {
       name: orderTrackingMap.get(key_of_type + 1),
@@ -192,12 +178,6 @@ class OrderService {
     order.warehouses = warehouses;
     const newOrder = await OrderRepository.createOrderGuest(order);
     if (!newOrder) throw InternalServerError();
-    else {
-      // const day = new Date().setUTCHours(0, 0, 0, 0);
-      // const profit = order.order_checkout.final_total;
-      // await RevenueRepository.updateOrInsert(profit, day);
-      // await StockUtil.updateStock(order);
-    }
     await MailtrapService.send(newOrder);
     return newOrder;
   }
@@ -209,8 +189,6 @@ class OrderService {
         foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
       )
     );
-    // await OrderTrackingUtil.validatePresentTrackCancel(key_of_type);
-    // const status = key_of_type === 0 ? 1 : 0;
     const update = {
       name: orderTrackingMap.get(4),
       note: note.reason,
@@ -221,12 +199,9 @@ class OrderService {
       update,
       {}
     );
-    if (
-      updateTracking &&
-      updateTracking.order_tracking[updateTracking.order_tracking.length - 1]
-        .status === 1
-    )
-      await StockUtil.restoreStock(foundOrder);
+    if (updateTracking) await StockUtil.restoreStock(foundOrder);
+    if (!foundOrder.order_checkout.is_paid) return updateTracking;
+    await ReportService.createRefundReport(note, foundOrder);
     return updateTracking;
   }
   static async paid(account_id, transaction) {
@@ -305,13 +280,6 @@ class OrderService {
     const foundOrder = await verifyOrderExistence(order_id);
     if (foundOrder.current_order_tracking.name != TRACKING[2])
       throw new BadRequestError("Order is not in shipping state");
-
-    // const updatedOrder = await OrderRepository.update(
-    //   order_id,
-    //   newSubstate,
-    //   note,
-    //   SUB_STATE[2]
-    // );
 
     const substateChecking = await OrderService.checkAndPushFailedState(
       foundOrder,

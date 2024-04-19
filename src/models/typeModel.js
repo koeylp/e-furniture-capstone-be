@@ -18,8 +18,21 @@ const schema = new Schema(
     timestamps: true,
   }
 );
-schema.pre("save", function (next) {
-  this.slug = slugify(this.name, { lower: true });
+schema.pre("save", async function (next) {
+  let slugAttempt = slugify(this.name, { lower: true });
+  let candidateSlug = slugAttempt;
+  let docCount = await this.model(DOCUMENT_NAME).countDocuments({
+    slug: candidateSlug,
+  });
+
+  while (docCount > 0) {
+    candidateSlug = `${slugAttempt}-${docCount}`;
+    docCount = await this.model(DOCUMENT_NAME).countDocuments({
+      slug: candidateSlug,
+    });
+  }
+
+  this.slug = candidateSlug;
   next();
 });
 schema.pre("updateOne", function (next) {
