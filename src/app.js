@@ -5,13 +5,8 @@ const _CONF = require("./config");
 const { startServer } = require("../server");
 
 const app = express();
-const corsOptions = {
-  origin: "https://efurniture.vercel.app",
-  optionsSuccessStatus: 200,
-};
-
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
