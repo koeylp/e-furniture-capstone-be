@@ -39,22 +39,21 @@ function generateSubTypeSchema(type) {
       timestamps: true,
     }
   );
-  subTypeSchema.pre("save", function (next) {
-    this.slug = slugify(this.type, { lower: true });
-    next();
-  });
-  subTypeSchema.pre("updateOne", function (next) {
-    const update = this.getUpdate();
-    if (update.name) {
-      update.slug = slugify(update.name, { lower: true });
+  subTypeSchema.pre("save", async function (next) {
+    let slugAttempt = slugify(this.type, { lower: true });
+    let candidateSlug = slugAttempt;
+    let docCount = await this.model(DOCUMENT_NAME).countDocuments({
+      slug: candidateSlug,
+    });
+
+    while (docCount > 0) {
+      candidateSlug = `${slugAttempt}-${docCount}`;
+      docCount = await this.model(DOCUMENT_NAME).countDocuments({
+        slug: candidateSlug,
+      });
     }
-    next();
-  });
-  subTypeSchema.pre("findOneAndUpdate", function (next) {
-    const update = this.getUpdate();
-    if (update.name) {
-      update.slug = slugify(update.name, { lower: true });
-    }
+
+    this.slug = candidateSlug;
     next();
   });
   return model(subTypeCollectionName, subTypeSchema);

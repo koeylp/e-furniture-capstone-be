@@ -19,15 +19,15 @@ class ReportRepository {
 
   static async getReports({ query = {}, page, limit }) {
     const skip = (page - 1) * limit;
-    return await _Report.find(query).skip(skip).limit(limit).lean();
+    let result = await _Report.find(query).skip(skip).limit(limit).lean();
+    return { total: result.length, data: result };
   }
 
   static async getReportsByState({ state, page, limit }) {
-    const skip = (page - 1) * limit;
     const query = {
       status: state,
     };
-    return await _Report.find(query).skip(skip).limit(limit).lean();
+    return await this.getReports({ query, page, limit });
   }
 
   static async findReportById(request_id) {

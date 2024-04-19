@@ -23,6 +23,23 @@ class TransactionService {
     return await this.create(transaction);
   }
 
+  static async createRefundTransaction(report) {
+    let transaction = {
+      receiver: {
+        name: report.requester.name,
+        email: report.requester.email,
+      },
+      sender: {
+        name: "eFurniture",
+        email: "eFurniture@gmail.com",
+      },
+      amount: report.amount,
+      description: report.note,
+    };
+
+    return await this.create(transaction);
+  }
+
   static async getTransactionsByAccount(account_id, page = 1, limit = 12) {
     let query = {
       account_id: new mongoose.Types.ObjectId(account_id),

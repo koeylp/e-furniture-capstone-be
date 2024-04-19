@@ -11,16 +11,6 @@ const RevenueController = require("../../controllers/revenueController");
 router.use(verifyToken);
 router.use(hasAccess(512));
 
-router.post(
-  "/",
-  hasPermission(global.PermissionConstants.ADMIN_POST),
-  asyncHandler(RevenueController.addRevenue)
-);
-router.put(
-  "/",
-  hasPermission(global.PermissionConstants.ADMIN_PUT),
-  asyncHandler(RevenueController.minusRevenue)
-);
 router.get(
   "/",
   hasPermission(global.PermissionConstants.ADMIN_GET),
