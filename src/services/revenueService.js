@@ -5,11 +5,9 @@ const { BadRequestError } = require("../utils/errorHanlder");
 
 class RevenueService {
   static async addRevenue(profit, day = new Date().setUTCHours(0, 0, 0, 0)) {
-    this.validateRevenue(profit);
     let query = {
       date: day,
     };
-
     return await RevenueRepository.updateOrInsert(query, profit);
   }
 
@@ -50,28 +48,6 @@ class RevenueService {
       return acc + revenue.profit;
     }, 0);
     return { sum: sumRevenue, data: listRevenue };
-  }
-
-  static async decreaseProfit(revenue_id, profit) {
-    await this.validateRevenue(profit);
-    const revenue = await RevenueRepository.findRevenueById(revenue_id);
-    let updateProfit = revenue.profit - profit;
-    revenue.profit = updateProfit < 0 ? 0 : updateProfit;
-    return await RevenueRepository.save(revenue);
-  }
-
-  static async increaseprofit(revenue_id, profit) {
-    await this.validateRevenue(profit);
-    const revenue = await RevenueRepository.findRevenueById(revenue_id);
-    revenue.profit += profit;
-    return await RevenueRepository.save(revenue);
-  }
-
-  static async updateprofit(revenue_id, profit) {
-    await this.validateRevenue(profit);
-    const revenue = await RevenueRepository.findRevenueById(revenue_id);
-    revenue.profit = profit;
-    return await RevenueRepository.save(revenue);
   }
 
   static async validateRevenue(profit) {

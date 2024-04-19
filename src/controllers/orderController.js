@@ -1,4 +1,5 @@
 const OrderService = require("../services/orderSerivce");
+const ReportService = require("../services/reportService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { capitalizeFirstLetter } = require("../utils/format");
 const { OK } = require("../utils/successHandler");
@@ -109,9 +110,17 @@ class OrderController {
     const { order_id } = req.params;
     const { note } = req.body;
     if (!note) throw new BadRequestError("Note's cancel is required");
+    let result = await OrderService.cancelOrder(account_id, order_id, note);
+    if (result.isReport) {
+      await ReportService.createRefundReport(
+        result.note,
+        result.foundOrder,
+        result.account
+      );
+    }
     return new OK({
       message: "Send cancel order request successfully! Please, wait!",
-      metaData: await OrderService.cancelOrder(account_id, order_id, note),
+      metaData: result.update,
     }).send(res);
   }
 

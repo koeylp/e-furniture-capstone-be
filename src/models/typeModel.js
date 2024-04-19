@@ -35,19 +35,5 @@ schema.pre("save", async function (next) {
   this.slug = candidateSlug;
   next();
 });
-schema.pre("updateOne", function (next) {
-  const update = this.getUpdate();
-  if (update.name) {
-    update.slug = slugify(update.name, { lower: true });
-  }
-  next();
-});
-schema.pre("findOneAndUpdate", function (next) {
-  const update = this.getUpdate();
-  if (update.name) {
-    update.slug = slugify(update.name, { lower: true });
-  }
-  next();
-});
 
 module.exports = model(DOCUMENT_NAME, schema);

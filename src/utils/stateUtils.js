@@ -90,5 +90,17 @@ class StateUtils {
       this.DeliveryTripStateValueMap.get("default")
     );
   };
+
+  static paymentMedthodPhase = new Map([
+    ["online", "Online Payment"],
+    ["cod", "COD"],
+    ["default", "Online Payment"],
+  ]);
+  static PaymentMethod = (code) => {
+    return (
+      this.paymentMedthodPhase.get(code) ||
+      this.paymentMedthodPhase.get("default")
+    );
+  };
 }
 module.exports = StateUtils;

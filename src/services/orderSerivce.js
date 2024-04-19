@@ -27,10 +27,12 @@ const WareHouseService = require("./warehouseService");
 const TransactionService = require("./transactionService");
 const BankService = require("./bankService");
 const ReportService = require("./reportService");
+const StateUtils = require("../utils/stateUtils");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
 const SUB_STATE = [0, 1, 2];
+
 class OrderService {
   static async getOrders(page, limit) {
     return await OrderRepository.getOrders({ page, limit });
@@ -182,6 +184,7 @@ class OrderService {
     return newOrder;
   }
   static async cancelOrder(account_id, order_id, note) {
+    let account = await AccountRepository.findAccountById(account_id);
     const foundOrder = await verifyOrderExistenceWithUser(account_id, order_id);
     const key_of_type = getKeyByValue(
       orderTrackingMap,
@@ -192,17 +195,28 @@ class OrderService {
     const update = {
       name: orderTrackingMap.get(4),
       note: note.reason,
-      status: status,
+      status: 1,
     };
     const updateTracking = await OrderRepository.updateOrderTracking(
       order_id,
       update,
       {}
     );
-    if (updateTracking) await StockUtil.restoreStock(foundOrder);
+    if (updateTracking) await this.restoreStock(foundOrder);
+
     if (!foundOrder.order_checkout.is_paid) return updateTracking;
-    await ReportService.createRefundReport(note, foundOrder);
-    return updateTracking;
+
+    let payment = foundOrder.payment_method;
+
+    if (payment != StateUtils.PaymentMethod("online"))
+      return { update: updateTracking, isReport: false };
+    return {
+      update: updateTracking,
+      note,
+      foundOrder,
+      account,
+      isReport: true,
+    };
   }
   static async paid(account_id, transaction) {
     const order_id = transaction.order_id;
@@ -350,6 +364,20 @@ class OrderService {
     };
     // await this.increaseOrderInDistrict(order.order_shipping.district);
     return await OrderRepository.updateOrderTracking(order_id, update, {});
+  }
+
+  static async refundOrder(code, note) {
+    const order = await OrderRepository.findOrderByOrderCode(code);
+    if (!order) throw new BadRequestError();
+    const update = {
+      name: orderTrackingMap.get(5),
+      note: note,
+    };
+    return await OrderRepository.updateOrderTracking(
+      order._id.toString(),
+      update,
+      {}
+    );
   }
 
   static async increaseOrderInDistrict(district) {

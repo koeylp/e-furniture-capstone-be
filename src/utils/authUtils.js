@@ -20,7 +20,7 @@ function hasPermission(roles, roleRequired) {
   return roleRequired.some((role) => roleSet.has(role.toString()));
 }
 const checkPermissionLogin = async (role, enumLogin = "login_user") => {
-  const roleArray = RoleFactory.permissionArray(role);
+  const roleArray = await RoleFactory.permissionArray(role);
   let roleRequire = returnLoginPhase(enumLogin);
   roleRequire = await RoleFactory.getListRolePermission(roleRequire);
   let check = hasPermission(roleArray, roleRequire);

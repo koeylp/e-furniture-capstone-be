@@ -394,5 +394,16 @@ class OrderRepository {
   static async size() {
     return await _Order.countDocuments({}).exec();
   }
+
+  static async findOrderByOrderCode(order_code) {
+    const query = {
+      order_code: order_code.toString(),
+    };
+    return await this.findOrder(query);
+  }
+
+  static async findOrder(query) {
+    return await _Order.findOne(query).lean();
+  }
 }
 module.exports = OrderRepository;
