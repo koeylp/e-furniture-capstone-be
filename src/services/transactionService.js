@@ -1,12 +1,28 @@
 const { default: mongoose } = require("mongoose");
 const TransactionRepository = require("../models/repositories/transactionRepository");
 const AccountRepository = require("../models/repositories/accountRepository");
+
 class TransactionService {
-  static async create(account_id, payload) {
-    await AccountRepository.findAccountById(account_id);
-    payload.account_id = account_id;
+  static async create(payload) {
     return await TransactionRepository.create(payload);
   }
+
+  static async createPaidTransaction(account_id, transaction, order_code) {
+    const account = await AccountRepository.findAccountById(account_id);
+
+    transaction.sender = {
+      name: `${account.first_name} ${account.last_name}`,
+      email: account.email,
+    };
+    transaction.receiver = {
+      name: "eFurniture",
+      email: "eFurniture@gmail.com",
+    };
+    transaction.description = `Paid For Order Code:${order_code}`;
+
+    return await this.create(transaction);
+  }
+
   static async getTransactionsByAccount(account_id, page = 1, limit = 12) {
     let query = {
       account_id: new mongoose.Types.ObjectId(account_id),

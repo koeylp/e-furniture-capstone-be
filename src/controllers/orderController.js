@@ -72,8 +72,8 @@ class OrderController {
     const { account_id } = req.payload;
     const order = req.body;
     if (!order) throw new BadRequestError();
-    const { error } = validateOrderInput(order);
-    if (error) throw new BadRequestError(error.details[0].message);
+    // const { error } = validateOrderInput(order);
+    // if (error) throw new BadRequestError(error.details[0].message);
     if (order.payment_method === "COD")
       return new OK({
         message: "Create Order Successfully!",
@@ -167,6 +167,13 @@ class OrderController {
     return new OK({
       message: "Done shipping!",
       metaData: await OrderService.doneShipping(order_id, note),
+    }).send(res);
+  }
+
+  static async findStateInOrder(req, res) {
+    return new OK({
+      message: "Done shipping!",
+      metaData: await OrderService.findStateInOrder(),
     }).send(res);
   }
 }

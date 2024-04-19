@@ -1,10 +1,8 @@
 const SubTypeRepository = require("../../models/repositories/subTypeRepository");
 const { BadRequestError } = require("../../utils/errorHanlder");
-const { validateSubType } = require("./validateSubType");
 const TypeRepository = require("../../models/repositories/typeRepository");
 const ProductRepository = require("../../models/repositories/productRepository");
 const { removeUndefineObject } = require("../../utils");
-const SubTypeService = require("../subTypeService");
 const SHIPPING_AMOUNT = 50000;
 
 class Product {

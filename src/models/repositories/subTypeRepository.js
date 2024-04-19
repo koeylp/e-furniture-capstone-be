@@ -33,6 +33,10 @@ class SubTypeRepository {
       })
       .select(getSelectData(option));
   }
+  static async getSubTypesV2(subTypeModel) {
+    console.log(subTypeModel);
+    return await subTypeModel.find({}).populate().lean();
+  }
   static async getSubTypesWithoutPopulate(subTypeModel) {
     const option = ["products", "createdAt", "updatedAt"];
     const query = {

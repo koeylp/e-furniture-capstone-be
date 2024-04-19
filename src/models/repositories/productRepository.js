@@ -5,7 +5,10 @@ const {
   checkValidId,
   defaultVariation,
 } = require("../../utils/index");
-const { InternalServerError } = require("../../utils/errorHanlder");
+const {
+  InternalServerError,
+  NotFoundError,
+} = require("../../utils/errorHanlder");
 const { default: mongoose } = require("mongoose");
 const InventoryRepository = require("./inventoryRepository");
 
@@ -13,6 +16,19 @@ class ProductRepository {
   static async createProduct(payload) {
     const product = await _Product.create(payload);
     if (!product) throw new InternalServerError();
+    return product;
+  }
+  static async checkProductById(product_id) {
+    checkValidId(product_id);
+    const product = await _Product
+      .findOne({
+        _id: new mongoose.Types.ObjectId(product_id),
+        is_draft: false,
+        is_published: true,
+      })
+      .lean()
+      .exec();
+    if (!product) throw new NotFoundError("Product Not Found!");
     return product;
   }
   static async findProductById(product_id, filter = []) {
@@ -62,6 +78,8 @@ class ProductRepository {
     let result = await _Product
       .findOne({
         _id: product_id,
+        // is_draft: false,
+        // is_published: true,
       })
       .select(getUnSelectData(["__v", "createdAt", "updatedAt"]))
       .populate({
@@ -207,6 +225,13 @@ class ProductRepository {
     };
     return await _Product.updateMany(query, update);
   }
+  static async publishRangeProductByType(query) {
+    const update = {
+      is_draft: false,
+      is_published: true,
+    };
+    return await _Product.updateMany(query, update);
+  }
   static async removeRangeProductByType(type_id) {
     const query = {
       type: type_id,
@@ -259,6 +284,7 @@ class ProductRepository {
   }
   static async findVariationValues(product_id, variation) {
     const product = await this.findProductById(product_id);
+    if (!product) return;
     const matchingVariations = product.variation.filter((item) =>
       variation.some((inside) => inside.variation_id === item._id.toString())
     );
