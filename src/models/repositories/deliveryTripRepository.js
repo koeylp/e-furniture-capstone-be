@@ -87,7 +87,6 @@ class DeliveryRepository {
     checkValidId(account_id);
     const payload = {
       account_id: new mongoose.Types.ObjectId(account_id),
-      status: 0,
     };
     return this.findTrip(payload);
   }
