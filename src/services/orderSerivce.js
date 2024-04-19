@@ -28,6 +28,7 @@ const TransactionService = require("./transactionService");
 const BankService = require("./bankService");
 const ReportService = require("./reportService");
 const StateUtils = require("../utils/stateUtils");
+const { generateOrderCode } = require("../utils/generateOrderCode");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -137,13 +138,22 @@ class OrderService {
     }
 
     order.order_products = products;
-
-    const newOrder = await OrderRepository.createOrder(account_id, order);
-
-    return newOrder.payment_method === "COD" &&
-      newOrder.order_checkout.final_total < 1000000
-      ? newOrder
-      : BankService.createPaymentLink(newOrder);
+    order.order_code = generateOrderCode();
+    if (
+      order.payment_method === "COD" &&
+      order.order_checkout.final_total < 1000000
+    ) {
+      return await OrderRepository.createOrder(account_id, order);
+    } else {
+      const pay_os = await BankService.createPaymentLink(order);
+      order.order_checkout.pay_os = {
+        orderCode: pay_os.orderCode,
+        status: pay_os.status,
+        expiredAt: pay_os.expiredAt,
+        checkoutUrl: pay_os.checkoutUrl,
+      };
+      return await OrderRepository.createOrder(account_id, order);
+    }
   }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);

@@ -28,6 +28,7 @@ const schema = new Schema(
         },
         must_paid: { type: Number, required: true },
       },
+      pay_os: { type: Object },
     },
     order_products: [
       {

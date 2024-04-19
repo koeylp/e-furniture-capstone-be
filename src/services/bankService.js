@@ -22,12 +22,12 @@ class BankService {
       buyerEmail: order.order_shipping.email,
       buyerPhone: order.order_shipping.phone,
       buyerAddress: buyerAddress,
+      expiredAt: Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000),
       cancelUrl: "https://efurniture.vercel.app/",
       returnUrl: "https://efurniture.vercel.app/",
     };
-
     const paymentLinkRes = await payOS.createPaymentLink(body);
-    return paymentLinkRes.checkoutUrl;
+    return paymentLinkRes;
   }
 
   static async getPaymentLinkInfomation(orderCode) {
