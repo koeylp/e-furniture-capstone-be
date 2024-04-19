@@ -436,5 +436,12 @@ class OrderService {
       await WareHouseService.increaseProductStock(product, product.quantity);
     }
   }
+
+  static async getByOrderCodePayOS(orderCode) {
+    const query = {
+      "order_checkout.pay_os.orderCode": parseInt(orderCode),
+    };
+    return await OrderRepository.findOrder(query);
+  }
 }
 module.exports = OrderService;

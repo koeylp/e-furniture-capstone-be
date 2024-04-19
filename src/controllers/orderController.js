@@ -183,5 +183,12 @@ class OrderController {
       metaData: await OrderService.findStateInOrder(),
     }).send(res);
   }
+  static async getByOrderCodePayOS(req, res) {
+    const { orderCode } = req.params;
+    return new OK({
+      message: "Your order!",
+      metaData: await OrderService.getByOrderCodePayOS(orderCode),
+    }).send(res);
+  }
 }
 module.exports = OrderController;

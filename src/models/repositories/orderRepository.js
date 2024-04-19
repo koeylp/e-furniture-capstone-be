@@ -395,5 +395,11 @@ class OrderRepository {
   static async findOrder(query) {
     return await _Order.findOne(query).lean();
   }
+
+  static async findOrderCode(orderCode) {
+    return await _Order
+      .findOne({ "order_checkout.pay_os.orderCode": orderCode })
+      .lean();
+  }
 }
 module.exports = OrderRepository;

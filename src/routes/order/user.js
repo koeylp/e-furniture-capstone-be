@@ -55,4 +55,8 @@ router.post(
   asyncHandler(OrderController.requestRefund)
 );
 
+router.get("/payos/:orderCode",
+hasPermission(global.PermissionConstants.USER_GET),
+asyncHandler(OrderController.getByOrderCodePayOS))
+
 module.exports = router;
