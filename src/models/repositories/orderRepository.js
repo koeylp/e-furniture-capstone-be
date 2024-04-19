@@ -126,14 +126,13 @@ class OrderRepository {
     return await _Order.deleteOne(query);
   }
   static async createOrder(account_id, order) {
-    const order_code = generateOrderCode();
     const newOrder = await _Order.create({
       account_id: account_id,
       order_checkout: order.order_checkout,
       order_products: order.order_products,
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
-      order_code: order_code,
+      order_code: order.order_code,
     });
     if (!newOrder) throw new InternalServerError();
     let note = order.note || "Efurniture staff is preparing the order";
