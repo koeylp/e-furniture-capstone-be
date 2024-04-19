@@ -90,21 +90,17 @@ class OrderRepository {
     };
     return await this.getOrders(query, page, limit);
   }
-  static async getOrdersByType({ account_id, type, page, limit, status = 1 }) {
+  static async getOrdersByType({ account_id, type, page, limit }) {
     const query = {
       ...(account_id && { account_id }),
       guest: false,
-      status: 1,
     };
     if (type) {
       query.$expr = {
         $and: [
           { $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type] },
           {
-            $eq: [
-              { $arrayElemAt: ["$order_tracking.status", -1] },
-              parseInt(status),
-            ],
+            $eq: [{ $arrayElemAt: ["$order_tracking.status", -1] }],
           },
         ],
       };
