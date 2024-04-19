@@ -34,7 +34,8 @@ class BankService {
   }
 
   static async confirmWebhook() {
-    return await payOS.confirmWebhook("https://efurniture.vercel.app/");
+    const temp = await payOS.confirmWebhook("https://efurniture.vercel.app/");
+    console.log(temp);
   }
 
   static async verifyPaymentWebhookData() {
