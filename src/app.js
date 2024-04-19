@@ -5,7 +5,6 @@ const _CONF = require("./config");
 const { startServer } = require("../server");
 
 const app = express();
-
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());

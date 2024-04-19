@@ -21,7 +21,6 @@ class BankService {
       cancelUrl: "https://efurniture.vercel.app/",
       returnUrl: "https://efurniture.vercel.app/",
     };
-
     const paymentLinkRes = await payOS.createPaymentLink(body);
     return paymentLinkRes.checkoutUrl;
   }
@@ -35,7 +34,8 @@ class BankService {
   }
 
   static async confirmWebhook() {
-    return await payOS.confirmWebhook("https://efurniture.vercel.app/");
+    const temp = await payOS.confirmWebhook("https://efurniture.vercel.app/");
+    console.log(temp);
   }
 
   static async verifyPaymentWebhookData() {

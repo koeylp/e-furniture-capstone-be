@@ -200,7 +200,8 @@ const variationSchema = Joi.object({
   property_id: Joi.string().required(),
   sub_price: Joi.number().required(),
   variation_id: Joi.string().required(),
-});
+  additionalProperty: Joi.any(),
+}).unknown(true);
 
 const orderProductSchema = Joi.object({
   product_id: Joi.string().required(),
@@ -208,7 +209,8 @@ const orderProductSchema = Joi.object({
   code: Joi.string().required(),
   quantity: Joi.number().required(),
   price: Joi.number().required(),
-});
+  additionalProperty: Joi.any(),
+}).unknown(true);
 
 const orderShippingSchema = Joi.object({
   email: Joi.string().email().required(),
@@ -221,7 +223,9 @@ const orderShippingSchema = Joi.object({
   phone: Joi.string().required(),
   longitude: Joi.number().required(),
   latitude: Joi.number().required(),
-});
+  additionalProperty: Joi.any(),
+}).unknown(true);
+
 const orderCheckoutSchema = Joi.object({
   voucher: Joi.any(),
   total: Joi.number().required(),
