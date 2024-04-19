@@ -70,3 +70,14 @@ const StoreSubTypeService = require("../src/services/storeSubTypeService");
 // };
 // let data = result();
 // console.log(data);
+
+// const data = (note) => {
+//   let first = note.split(",");
+//   let firstSplit = first[0].split("Code: ");
+//   let secondSplit = first[1].split("Reason: ");
+//   return { code: firstSplit[1], reason: secondSplit[1] };
+// };
+// let note = data(
+//   "Refund Order Code: EFURNITURE-526E81C5, Reason: tui k mún mua nữa"
+// );
+// console.log(note);
