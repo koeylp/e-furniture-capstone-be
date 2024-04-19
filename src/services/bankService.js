@@ -9,7 +9,7 @@ const payOS = new PayOS(
 
 class BankService {
   static async createPaymentLink(order, size) {
-    const buyerAddress = `${order.address}, ${order.ward}, ${order.district}, ${order.province}`;
+    const buyerAddress = `${order.order_shipping.address}, ${order.order_shipping.ward}, ${order.order_shipping.district}, ${order.order_shipping.province}`;
     const body = {
       orderCode: size + 1,
       amount: order.order_checkout.final_total,
@@ -22,8 +22,8 @@ class BankService {
       returnUrl: "https://efurniture.vercel.app/",
     };
 
-     const paymentLinkRes = await payOS.createPaymentLink(body);
-     return paymentLinkRes.checkoutUrl;
+    const paymentLinkRes = await payOS.createPaymentLink(body);
+    return paymentLinkRes.checkoutUrl;
   }
 
   static async getPaymentLinkInfomation() {
@@ -42,5 +42,4 @@ class BankService {
     return payOS.verifyPaymentWebhookData(order);
   }
 }
-BankService.createPaymentLink();
 module.exports = BankService;
