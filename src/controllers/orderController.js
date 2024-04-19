@@ -75,12 +75,10 @@ class OrderController {
     if (!order) throw new BadRequestError();
     // const { error } = validateOrderInput(order);
     // if (error) throw new BadRequestError(error.details[0].message);
-    if (order.payment_method === "COD")
-      return new OK({
-        message: "Create Order Successfully!",
-        metaData: await OrderService.createOrder(account_id, order),
-      }).send(res);
-    res.redirect(await OrderService.createOrder(account_id, order));
+    return new OK({
+      message: "Create Order Successfully!",
+      metaData: await OrderService.createOrder(account_id, order),
+    }).send(res);
   }
 
   static async updateTracking(req, res) {
