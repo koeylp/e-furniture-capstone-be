@@ -16,15 +16,16 @@ class BankService {
     );
     const body = {
       orderCode: orderCode,
-      amount: order.order_checkout.final_total,
+      // amount: order.order_checkout.final_total,
+      amount: 2000,
       description: order.order_code,
       buyerName: order.order_shipping.first_name,
       buyerEmail: order.order_shipping.email,
       buyerPhone: order.order_shipping.phone,
       buyerAddress: buyerAddress,
       expiredAt: Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000),
-      cancelUrl: "https://efurniture.vercel.app/",
-      returnUrl: "https://efurniture.vercel.app/",
+      cancelUrl: "http://localhost:5173/order-cancelled",
+      returnUrl: "http://localhost:5173/order-confirmation",
     };
     const paymentLinkRes = await payOS.createPaymentLink(body);
     return paymentLinkRes;
