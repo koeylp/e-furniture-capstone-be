@@ -102,5 +102,17 @@ class StateUtils {
       this.paymentMedthodPhase.get("default")
     );
   };
+
+  static TransactionTypePhase = new Map([
+    ["Income", "Income"],
+    ["Outcome", "Outcome"],
+    ["default", "Income"],
+  ]);
+  static TransactionType = (code) => {
+    return (
+      this.TransactionTypePhase.get(code) ||
+      this.TransactionTypePhase.get("default")
+    );
+  };
 }
 module.exports = StateUtils;

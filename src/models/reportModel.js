@@ -8,6 +8,7 @@ const schema = new Schema(
     requester: { type: Object, required: true },
     note: { type: Schema.Types.Mixed, required: true },
     amount: { type: Number, required: true },
+    thumbs: { type: Array, default: [] },
     status: { type: Number, default: 0 },
   },
   {

@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const TransactionRepository = require("../models/repositories/transactionRepository");
 const AccountRepository = require("../models/repositories/accountRepository");
+const StateUtils = require("../utils/stateUtils");
 
 class TransactionService {
   static async create(payload) {
@@ -19,6 +20,7 @@ class TransactionService {
       email: "eFurniture@gmail.com",
     };
     transaction.description = `Paid For Order Code:${order_code}`;
+    transaction.type = StateUtils.TransactionType("Income");
 
     return await this.create(transaction);
   }
@@ -35,6 +37,7 @@ class TransactionService {
       },
       amount: report.amount,
       description: report.note,
+      type: StateUtils.TransactionType("Outcome"),
     };
 
     return await this.create(transaction);
