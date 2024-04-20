@@ -22,5 +22,12 @@ class DistrictController {
       metaData: await DistrictService.getAllDistricts(),
     }).send(res);
   }
+
+  static async updateDistrict(req, res) {
+    return new OK({
+      message: "Detail Of Districts!",
+      metaData: await DistrictService.getAllDistricts(),
+    }).send(res);
+  }
 }
 module.exports = DistrictController;

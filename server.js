@@ -19,7 +19,7 @@ const startServer = async (app) => {
           "http://localhost:5173",
           "https://emate-user.vercel.app",
           "https://emate-admin.vercel.app",
-          "https://efurniture-admin.vercel.app/",
+          "https://efurniture-admin.vercel.app",
         ],
         credentials: true,
       },

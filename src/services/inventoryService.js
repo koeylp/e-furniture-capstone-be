@@ -1,6 +1,5 @@
 const InventoryRepository = require("../models/repositories/inventoryRepository");
 const { NotFoundError } = require("../utils/errorHanlder");
-const StockUtil = require("../utils/stockUtil");
 class InventoryService {
   static async create(inventory) {
     return InventoryRepository.createInventory(inventory);
@@ -17,14 +16,14 @@ class InventoryService {
 
   static async updateInventoryStock(product) {
     const inventory = await this.findInventoryByCode(product.code);
-    StockUtil.validateStock(product.stock);
+    this.validateStock(product.stock);
     inventory.stock = product.stock;
     return this.updateInventory(inventory);
   }
 
   static async updateInventorySold(product) {
     const inventory = await this.findInventoryByCode(product.code);
-    StockUtil.validateStock(product.stock);
+    this.validateStock(product.stock);
     inventory.sold += product.stock;
     return this.updateInventory(inventory);
   }
@@ -35,6 +34,10 @@ class InventoryService {
       inventory.sold,
       inventory.stock
     );
+  }
+
+  static validateStock(stock) {
+    if (stock < 0) throw new BadRequestError("Stock value is invalid!");
   }
 }
 module.exports = InventoryService;
