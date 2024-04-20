@@ -169,7 +169,6 @@ class OrderRepository {
       .lean({ virtuals: true });
   }
   static async createOrderGuest(order) {
-    const order_code = generateOrderCode();
     const newOrder = await _Order.create({
       guest: true,
       order_checkout: order.order_checkout,
@@ -177,7 +176,7 @@ class OrderRepository {
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
       warehouses: order.warehouses,
-      order_code: order_code,
+      order_code: order.order_code,
     });
     if (!newOrder) throw new InternalServerError();
     if (
@@ -393,7 +392,7 @@ class OrderRepository {
   }
 
   static async findOrder(query) {
-    return await _Order.findOne(query).lean();
+    return await _Order.findOne(query).populate("order_products.product_id").lean();
   }
 
 }

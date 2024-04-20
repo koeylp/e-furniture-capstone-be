@@ -57,6 +57,6 @@ router.post(
 
 router.get("/payos/:orderCode",
 hasPermission(global.PermissionConstants.USER_GET),
-asyncHandler(OrderController.getByOrderCodePayOS))
+asyncHandler(OrderController.payPayOS))
 
 module.exports = router;
