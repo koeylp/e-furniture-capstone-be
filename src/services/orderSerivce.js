@@ -188,11 +188,29 @@ class OrderService {
     order = await this.categorizePaymentMethod(order);
     const warehouses = await StockUtil.updateStock(order);
     order.warehouses = warehouses;
-    const newOrder = await OrderRepository.createOrderGuest(order);
-    if (!newOrder) throw InternalServerError();
+    order.order_code = generateOrderCode();
+
+    let newOrder;
+    if (
+      order.payment_method === "COD" &&
+      order.order_checkout.final_total < 1000000
+    ) {
+      newOrder = await OrderRepository.createOrderGuest(order);
+    } else {
+      const pay_os = await BankService.createPaymentLink(order);
+      order.order_checkout.pay_os = {
+        orderCode: pay_os.orderCode,
+        status: pay_os.status,
+        expiredAt: pay_os.expiredAt,
+        checkoutUrl: pay_os.checkoutUrl,
+      };
+      newOrder = await OrderRepository.createOrderGuest(order);
+    }
+
     await MailtrapService.send(newOrder);
     return newOrder;
   }
+
   static async cancelOrder(account_id, order_id, note) {
     let account = await AccountRepository.findAccountById(account_id);
     const foundOrder = await verifyOrderExistenceWithUser(account_id, order_id);
@@ -437,11 +455,24 @@ class OrderService {
     }
   }
 
-  static async getByOrderCodePayOS(orderCode) {
+  static async payPayOS(account_id, orderCode) {
     const query = {
       "order_checkout.pay_os.orderCode": parseInt(orderCode),
     };
-    return await OrderRepository.findOrder(query);
+    const transaction = await BankService.getPaymentLinkInfomation(orderCode);
+    if (transaction.status === "PAID") {
+      var foundOrder = await OrderRepository.findOrder(query);
+      if (!foundOrder.order_checkout.is_paid) {
+        let db_transaction = {
+          order_id: foundOrder._id,
+          amount: transaction.amountPaid,
+          description: transaction.transactions[0].description,
+          when: transaction.createdAt,
+        };
+        return await this.paid(account_id, db_transaction);
+      }
+    }
+    return foundOrder;
   }
 }
 module.exports = OrderService;
