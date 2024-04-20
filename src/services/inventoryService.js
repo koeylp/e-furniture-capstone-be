@@ -1,5 +1,5 @@
 const InventoryRepository = require("../models/repositories/inventoryRepository");
-const { NotFoundError } = require("../utils/errorHanlder");
+const { NotFoundError, BadRequestError } = require("../utils/errorHanlder");
 class InventoryService {
   static async create(inventory) {
     return InventoryRepository.createInventory(inventory);
