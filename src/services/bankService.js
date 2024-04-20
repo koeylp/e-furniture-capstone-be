@@ -25,7 +25,8 @@ class BankService {
       buyerAddress: buyerAddress,
       expiredAt: Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000),
       cancelUrl: "http://localhost:5173/order-cancelled",
-      returnUrl: "http://localhost:5173/order-confirmation",
+      // returnUrl: "http://localhost:5173/order-confirmation",
+      returnUrl: "exp://192.168.0.101:8081",
     };
     const paymentLinkRes = await payOS.createPaymentLink(body);
     return paymentLinkRes;
