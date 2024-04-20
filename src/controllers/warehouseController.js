@@ -68,8 +68,8 @@ class WareHouseController {
     }).send(res);
   }
   static async updateProductStockInWarehouse(req, res) {
+    let product = req.body;
     await InventoryService.updateInventoryStock(req.body);
-    let { product } = req.body;
     let result = await WareHouseService.updateProductStock(
       product,
       product.stock

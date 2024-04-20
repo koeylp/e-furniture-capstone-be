@@ -111,7 +111,7 @@ class WareHouseService {
   static async updateProductStock(product, stock) {
     const { foundWarehouse, product_index } =
       await this.findProductInFirstWareHouse(product);
-    StockUtil.validateStock(product.stock);
+    this.validateStock(product.stock);
     foundWarehouse.products[product_index].stock = stock;
     await this.checkLowStockQuantity(foundWarehouse.products[product_index]);
     return await WareHouseRepository.save(foundWarehouse);

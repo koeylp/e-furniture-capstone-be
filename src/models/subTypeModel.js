@@ -42,13 +42,13 @@ function generateSubTypeSchema(type) {
   subTypeSchema.pre("save", async function (next) {
     let slugAttempt = slugify(this.type, { lower: true });
     let candidateSlug = slugAttempt;
-    let docCount = await this.model(DOCUMENT_NAME).countDocuments({
+    let docCount = await this.model(subTypeCollectionName).countDocuments({
       slug: candidateSlug,
     });
 
     while (docCount > 0) {
       candidateSlug = `${slugAttempt}-${docCount}`;
-      docCount = await this.model(DOCUMENT_NAME).countDocuments({
+      docCount = await this.model(subTypeCollectionName).countDocuments({
         slug: candidateSlug,
       });
     }
