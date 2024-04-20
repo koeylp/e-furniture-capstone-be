@@ -23,8 +23,8 @@ class BankService {
       buyerPhone: order.order_shipping.phone,
       buyerAddress: buyerAddress,
       expiredAt: Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000),
-      cancelUrl: "https://efurniture.vercel.app/",
-      returnUrl: "https://efurniture.vercel.app/",
+      cancelUrl: "http://localhost:5173/order-cancelled",
+      returnUrl: "http://localhost:5173/order-confirmation",
     };
     const paymentLinkRes = await payOS.createPaymentLink(body);
     return paymentLinkRes;
