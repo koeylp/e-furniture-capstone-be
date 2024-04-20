@@ -24,8 +24,9 @@ class ReportController {
 
   static async confirmReport(req, res) {
     const { report_id } = req.params;
-    if (!report_id) throw new BadRequestError();
-    let result = await ReportService.confirmReport(report_id);
+    const { thumbs } = req.body;
+    if (!report_id || !thumbs) throw new BadRequestError();
+    let result = await ReportService.confirmReport(report_id, thumbs);
     await OrderService.refundOrder(result.code, result.reason);
     await TransactionService.createRefundTransaction(result.report);
     await RevenueService.addRevenue(-result.amount);

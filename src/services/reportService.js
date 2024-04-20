@@ -32,10 +32,10 @@ class ReportService {
     return await ReportRepository.getReportsByState({ state, page, limit });
   }
 
-  static async confirmReport(report_id) {
+  static async confirmReport(report_id, thumbs) {
     const report = await ReportRepository.findReportById(report_id);
     let { code, reason } = this.getOrderCodeAndReason(report.note);
-    await this.updateState(report_id);
+    await this.updateState(report_id, thumbs);
     return { code, reason, report, amount: report.amount };
   }
 
@@ -46,10 +46,11 @@ class ReportService {
     return { code: firstSplit[1], reason: secondSplit[1] };
   }
 
-  static async updateState(report_id, state = 1) {
+  static async updateState(report_id, thumbs, state = 1) {
     const payload = {
       $set: {
         status: state,
+        thumbs: thumbs,
       },
     };
     return await ReportRepository.updateById(report_id, payload);

@@ -10,6 +10,11 @@ const schema = new Schema(
     sender: { type: Object },
     amount: { type: Number, required: true },
     description: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["Income", "Outcome"],
+      default: "Income",
+    },
     date: { type: Date, default: new Date() },
   },
   {
