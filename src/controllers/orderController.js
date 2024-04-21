@@ -183,12 +183,21 @@ class OrderController {
       metaData: await OrderService.findStateInOrder(),
     }).send(res);
   }
+
   static async payPayOS(req, res) {
     const { orderCode } = req.params;
     const { account_id } = req.payload;
     return new OK({
       message: "Your order!",
       metaData: await OrderService.payPayOS(account_id, orderCode),
+    }).send(res);
+  }
+
+  static async payPayOSGuest(req, res) {
+    const { orderCode } = req.params;
+    return new OK({
+      message: "Your order!",
+      metaData: await OrderService.payPayOSGuest(orderCode),
     }).send(res);
   }
 }

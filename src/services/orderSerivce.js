@@ -284,6 +284,43 @@ class OrderService {
     return updatedOrder;
   }
 
+  static async paidGuest(transaction) {
+    const order_id = transaction.order_id;
+    const foundOrder = await OrderRepository.findOrderById({
+      order_id,
+    });
+    if (!foundOrder) throw new NotFoundError("Order not found for this user");
+    if (foundOrder.order_checkout.paid.must_paid != transaction.amount)
+      throw new BadRequestError(
+        "The amount of money must be equal to " +
+          foundOrder.order_checkout.paid.must_paid
+      );
+    const key_of_type = getKeyByValue(
+      orderTrackingMap,
+      capitalizeFirstLetter(
+        foundOrder.order_tracking[foundOrder.order_tracking.length - 1].name
+      )
+    );
+    await OrderTrackingUtil.validatePendingTrackUpdate(key_of_type);
+    if (foundOrder.order_checkout.is_paid)
+      throw new BadRequestError("Order was paid");
+
+    // const transactionCreation = await TransactionService.createPaidTransaction(
+    //   account_id,
+    //   transaction,
+    //   foundOrder.order_code
+    // );
+
+    if (!transactionCreation)
+      throw new InternalServerError("Saving transaction failed!");
+    const updatedOrder = await OrderRepository.paid(
+      null,
+      order_id,
+      Math.floor(transaction.amount)
+    );
+    return updatedOrder;
+  }
+
   static async acceptCancel(order_id) {
     const order = await verifyOrderExistence(order_id);
     if (
@@ -470,6 +507,26 @@ class OrderService {
           when: transaction.createdAt,
         };
         return await this.paid(account_id, db_transaction);
+      }
+    }
+    return foundOrder;
+  }
+
+  static async payPayOSGuest(orderCode) {
+    const query = {
+      "order_checkout.pay_os.orderCode": parseInt(orderCode),
+    };
+    const transaction = await BankService.getPaymentLinkInfomation(orderCode);
+    if (transaction.status === "PAID") {
+      var foundOrder = await OrderRepository.findOrder(query);
+      if (!foundOrder.order_checkout.is_paid) {
+        let db_transaction = {
+          order_id: foundOrder._id,
+          amount: transaction.amountPaid,
+          description: transaction.transactions[0].description,
+          when: transaction.createdAt,
+        };
+        return await this.paidGuest(db_transaction);
       }
     }
     return foundOrder;
