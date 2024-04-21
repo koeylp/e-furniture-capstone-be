@@ -311,8 +311,8 @@ class OrderService {
     //   foundOrder.order_code
     // );
 
-    if (!transactionCreation)
-      throw new InternalServerError("Saving transaction failed!");
+    // if (!transactionCreation)
+    //   throw new InternalServerError("Saving transaction failed!");
     const updatedOrder = await OrderRepository.paid(
       null,
       order_id,
