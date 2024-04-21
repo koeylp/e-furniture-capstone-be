@@ -14,6 +14,7 @@ class StockUtil {
   static async checkProductStock(product) {
     const { product_id, quantity, code } = product;
     const query = { code: code };
+    const productOrder = await ProductRepository.findProductById(product_id);
     const foundProductStock = await InventoryRepository.findByQuery(query);
     if (!foundProductStock)
       throw new NotFoundError(`Stock not found with id + ${product_id}`);
@@ -24,7 +25,7 @@ class StockUtil {
     if (foundProductStock.stock < quantity) {
       throw new BadRequestError(`Product is out of stock`);
     }
-    const productOrder = await ProductRepository.findProductById(product_id);
+
     return {
       name: productOrder.name,
       thumbs: productOrder.thumbs,
