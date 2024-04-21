@@ -14,7 +14,7 @@ class BankService {
     const orderCode = await generateOrderCodePayOS(
       BankService.checkOrderCodeExists
     );
-    const returnUrl = "http://localhost:5173/order-confirmation";
+    let returnUrl = "http://localhost:5173/order-confirmation";
     if (order.order_shipping.mobile)
       returnUrl = "exp://192.168.0.101:8081/--/order-confirmation";
     const body = {
