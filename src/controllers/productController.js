@@ -173,5 +173,16 @@ class ProductController {
       ),
     }).send(res);
   }
+
+  static async getProductDetailByVariationProperty(req, res) {
+    const products = req.body;
+    if (!products) throw new BadRequestError();
+    return new OK({
+      message: "Product Data!!",
+      metaData: await ProductService.getProductDetailByVariationProperty(
+        products
+      ),
+    }).send(res);
+  }
 }
 module.exports = ProductController;

@@ -16,6 +16,7 @@ const WishlistRepositoy = require("../models/repositories/wishlistRepository");
 const FlashSaleRepository = require("../models/repositories/flashSaleRepository");
 const FlashSaleUtils = require("../utils/flashSaleUtils");
 const { default: mongoose } = require("mongoose");
+const { verifyProductExistence } = require("../utils/verifyExistence");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -276,6 +277,41 @@ class ProductService {
     );
     // await ProductRepository.updateProductById(product_id, product);
     return product;
+  }
+
+  static async getProductDetailByVariationProperty(products) {
+    const productPromises = products.map(async (product, index) => {
+      console.log(product);
+      const foundProduct = await verifyProductExistence(product.product_id);
+      if (!foundProduct) throw new BadRequestError();
+
+      product.product_id = foundProduct;
+      product.product_id.select_variation = await this.findVariationValues(
+        foundProduct._id.toString(),
+        product.variation
+      );
+      product.product_id.quantity_in_cart = product.quantity;
+      product.product_id.code = product.code;
+    });
+
+    await Promise.all(productPromises);
+    let productIds = [];
+    for (const product of products) {
+      productIds.push(product.product_id);
+    }
+    productIds = await Promise.all(
+      productIds.map(async (data) => {
+        let { total, variation } = await InventoryRepository.getStockForProduct(
+          data._id,
+          data.variation
+        );
+        data.variation = variation;
+        data.stock = total;
+        return { ...data };
+      })
+    );
+    products = productIds;
+    return products;
   }
 }
 module.exports = ProductService;
