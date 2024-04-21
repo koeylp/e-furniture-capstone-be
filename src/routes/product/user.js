@@ -4,6 +4,10 @@ const router = express.Router();
 const ProductController = require("../../controllers/productController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
+router.post(
+  "/info",
+  asyncHandler(ProductController.getProductDetailByVariationProperty)
+);
 router.get("/:type_slug", asyncHandler(ProductController.getProductsByType));
 router.get("/search/:text", asyncHandler(ProductController.searchProduct));
 router.get("/detail/:slug", asyncHandler(ProductController.findProduct));
