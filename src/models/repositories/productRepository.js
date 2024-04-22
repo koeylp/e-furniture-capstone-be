@@ -63,16 +63,19 @@ class ProductRepository {
       })
       .lean()
       .exec();
-    let { total, variation } = await InventoryRepository.getStockForProduct(
-      result._id,
-      result.variation
-    );
-    result.variation = variation;
-    result.stock = total;
-    result.select_variation = result.variation.map((item) => {
-      return defaultVariation(item);
-    });
-    return result;
+    if (!result)
+      throw new NotFoundError(`Cannot Find Any Product With Slug ${slug}`);
+    // let { total, variation } = await InventoryRepository.getStockForProduct(
+    //   result._id,
+    //   result.variation
+    // );
+    // result.variation = variation;
+    // result.stock = total;
+    // result.select_variation = result.variation.map((item) => {
+    //   return defaultVariation(item);
+    // });
+    // return result;
+    return await this.handleStockAndDefaultVariation(result);
   }
   static async findProductByIDWithModify(product_id) {
     let result = await _Product
@@ -88,16 +91,17 @@ class ProductRepository {
       })
       .lean()
       .exec();
-    let { total, variation } = await InventoryRepository.getStockForProduct(
-      result._id,
-      result.variation
-    );
-    result.variation = variation;
-    result.stock = total;
-    result.select_variation = result.variation.map((item) => {
-      return defaultVariation(item);
-    });
-    return result;
+    if (!result) throw new NotFoundError(`Cannot Find Any Product With ID`);
+    // let { total, variation } = await InventoryRepository.getStockForProduct(
+    //   result._id,
+    //   result.variation
+    // );
+    // result.variation = variation;
+    // result.stock = total;
+    // result.select_variation = result.variation.map((item) => {
+    //   return defaultVariation(item);
+    // });
+    return await this.handleStockAndDefaultVariation(result);
   }
   static async updateProduct(query, update) {
     return await _Product.updateOne(query, update, { new: true });
@@ -161,19 +165,32 @@ class ProductRepository {
       .lean();
     result = await Promise.all(
       result.map(async (data) => {
-        let { total, variation } = await InventoryRepository.getStockForProduct(
-          data._id,
-          data.variation
-        );
-        data.variation = variation;
-        data.stock = total;
-        data.select_variation = data.variation.map((item) => {
-          return defaultVariation(item);
-        });
-        return { ...data };
+        // let { total, variation } = await InventoryRepository.getStockForProduct(
+        //   data._id,
+        //   data.variation
+        // );
+        // data.variation = variation;
+        // data.stock = total;
+        // data.select_variation = data.variation.map((item) => {
+        //   return defaultVariation(item);
+        // });
+        return await this.handleStockAndDefaultVariation(data);
       })
     );
     return { total: products.length, data: result };
+  }
+
+  static async handleStockAndDefaultVariation(result) {
+    let { total, variation } = await InventoryRepository.getStockForProduct(
+      result._id,
+      result.variation
+    );
+    result.variation = variation;
+    result.stock = total;
+    result.select_variation = result.variation.map((item) => {
+      return defaultVariation(item);
+    });
+    return result;
   }
 
   static async getAllDraft(page, limit, sortType) {
