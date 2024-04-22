@@ -187,8 +187,8 @@ class ProductService {
     return result;
   }
   static async getProductValidForFlashSale(startDay, endDay) {
-    startDay = FlashSaleUtils.convertToDateUTC(startDay);
-    endDay = FlashSaleUtils.convertToDateUTC(endDay);
+    startDay = FlashSaleUtils.convertToDate(startDay);
+    endDay = FlashSaleUtils.convertToDate(endDay);
     let query = {
       $or: [
         {
