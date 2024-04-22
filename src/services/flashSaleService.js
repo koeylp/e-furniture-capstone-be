@@ -56,9 +56,10 @@ class FlashSaleService {
   }
 
   static async update(flashSale_id, payload) {
+    let flashsale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
     FlashSaleUtils.validateDate(payload.startDay, payload.endDay);
     await FlashSaleUtils.validateProducts(payload.products);
-    // await this.startFlashSaleCron(flashSale);
+    await this.startFlashSaleCron(flashsale);
     return await FlashSaleRepository.updateById(flashSale_id, payload);
   }
 
