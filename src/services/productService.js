@@ -187,8 +187,8 @@ class ProductService {
     return result;
   }
   static async getProductValidForFlashSale(startDay, endDay) {
-    startDay = FlashSaleUtils.convertToDate(startDay);
-    endDay = FlashSaleUtils.convertToDate(endDay);
+    startDay = FlashSaleUtils.convertToDateUTC(startDay);
+    endDay = FlashSaleUtils.convertToDateUTC(endDay);
     let query = {
       $or: [
         {
@@ -281,7 +281,6 @@ class ProductService {
 
   static async getProductDetailByVariationProperty(products) {
     const productPromises = products.map(async (product, index) => {
-      console.log(product);
       const foundProduct = await verifyProductExistence(product.product_id);
       if (!foundProduct) throw new BadRequestError();
 
