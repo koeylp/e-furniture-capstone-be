@@ -187,6 +187,7 @@ class OrderService {
     await verifyProductStockExistence(order);
     order = await this.categorizePaymentMethod(order);
     const warehouses = await StockUtil.updateStock(order);
+    order = await this.categorizePaymentMethod(order);
     order.warehouses = warehouses;
     order.order_code = generateOrderCode();
 
