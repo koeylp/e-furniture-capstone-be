@@ -27,6 +27,11 @@ class FlashSaleUtils {
     const date = new Date(day);
     return date;
   }
+  static convertToDateUTC(day) {
+    const date = new Date(day);
+    date.setTime(date.getTime() + 7 * 60 * 60 * 1000);
+    return date;
+  }
 
   static convertDateToString(date) {
     const result = moment(new Date(date)).subtract(7, "hours");
