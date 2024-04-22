@@ -392,8 +392,10 @@ class OrderRepository {
   }
 
   static async findOrder(query) {
-    return await _Order.findOne(query).populate("order_products.product_id").lean();
+    return await _Order
+      .findOne(query)
+      .populate("order_products.product_id")
+      .lean({ virtuals: true });
   }
-
 }
 module.exports = OrderRepository;
