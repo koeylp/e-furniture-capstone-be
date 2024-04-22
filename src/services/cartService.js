@@ -91,7 +91,10 @@ class CartService {
   static async getCart(account_id) {
     let cart = await CartUtils.handleCart(account_id);
     const productPromises = cart.products.map(async (product, index) => {
-      const foundProduct = await verifyProductExistence(product._id);
+      // const foundProduct = await verifyProductExistence(product._id);
+      const foundProduct = await ProductRepository.findProductByIDWithModify(
+        product._id
+      );
       if (!foundProduct) throw new BadRequestError();
       // let { stock, outOfStock } = await this.updateMaxStock(
       //   cart.products[index].code,
@@ -118,17 +121,18 @@ class CartService {
       productIds.push(product._id);
     }
 
-    productIds = await Promise.all(
-      productIds.map(async (data) => {
-        let { total, variation } = await InventoryRepository.getStockForProduct(
-          data._id,
-          data.variation
-        );
-        data.variation = variation;
-        data.stock = total;
-        return { ...data };
-      })
-    );
+    // productIds = await Promise.all(
+    //   productIds.map(async (data) => {
+    //     let { total, variation } = await InventoryRepository.getStockForProduct(
+    //       data._id,
+    //       data.variation
+    //     );
+    //     data.variation = variation;
+    //     data.stock = total;
+    //     return { ...data };
+    //   })
+    // );
+
     cart.products = productIds;
     return cart;
   }

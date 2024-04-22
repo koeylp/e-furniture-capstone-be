@@ -17,7 +17,6 @@ class VoucherService {
     if (wishlist.products.some((el) => el === product)) return wishlist;
     wishlist.products.push(product);
     await WishlistRepositoy.save(wishlist);
-    console.log(wishlist);
     return wishlist;
   }
 
