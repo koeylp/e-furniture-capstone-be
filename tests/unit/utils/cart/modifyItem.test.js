@@ -6,9 +6,6 @@ const CartController = require("../../../../src/controllers/cartController");
 const CartRepository = require("../../../../src/models/repositories/cartRepository");
 const CartService = require("../../../../src/services/cartService");
 const { OK } = require("../../../../src/utils/successHandler");
-const CartUtils = require("../../../../src/utils/cartUtils");
-const ProductRepository = require("../../../../src/models/repositories/productRepository");
-const { BadRequestError } = require("../../../../src/utils/errorHanlder");
 
 chai.use(sinonChai);
 const { expect } = chai;
