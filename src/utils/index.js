@@ -68,7 +68,13 @@ const handleProducts = (products) => {
 };
 const defaultVariation = (item) => {
   let index = item.properties.findIndex((property) => property.stock > 0);
-  if (index == -1) return {};
+  if (index == -1)
+    return {
+      variation_id: item._id,
+      property_id: item.properties[0]._id,
+      sub_price: item.properties[0].sub_price,
+      stock: item.properties[0].stock,
+    };
   return {
     variation_id: item._id,
     property_id: item.properties[index]._id,

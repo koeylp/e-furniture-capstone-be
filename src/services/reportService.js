@@ -1,7 +1,5 @@
 const ReportRepository = require("../models/repositories/reportRepository");
-const TransactionService = require("./transactionService");
-const RevenueService = require("./revenueService");
-const OrderService = require("./orderSerivce");
+const { calculateAmountRefund } = require("../utils/calculator");
 
 class ReportService {
   static async create(payload) {
@@ -19,7 +17,7 @@ class ReportService {
         email: account.email,
       },
       note: `Refund Order Code: ${order.order_code}, Reason: ${payload.reason}`,
-      amount: order.order_checkout.final_total,
+      amount: calculateAmountRefund(order.order_checkout.final_total),
     };
     return await this.create(report);
   }

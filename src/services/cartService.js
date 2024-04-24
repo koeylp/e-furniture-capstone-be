@@ -91,28 +91,23 @@ class CartService {
   static async getCart(account_id) {
     let cart = await CartUtils.handleCart(account_id);
     const productPromises = cart.products.map(async (product, index) => {
-      // const foundProduct = await verifyProductExistence(product._id);
-      const foundProduct = await ProductRepository.findProductByIDWithModify(
-        product._id
-      );
-      if (!foundProduct) throw new BadRequestError();
-      // let { stock, outOfStock } = await this.updateMaxStock(
-      //   cart.products[index].code,
-      //   cart.products[index].quantity
-      // );
-      cart.products[index]._id = foundProduct;
-      cart.products[index]._id.select_variation =
-        await ProductService.findVariationValues(
-          foundProduct._id.toString(),
-          cart.products[index].variation
-        );
-      cart.products[index]._id.quantity_in_cart = cart.products[index].quantity;
-      cart.products[index]._id.code = cart.products[index].code;
-      // if (outOfStock) {
-      //   cart.products = cart.products.filter((product, i) => i !== index);
-      //   cart.count_product--;
-      //   await this.removeItem(account_id, product);
-      // }
+      const foundProduct =
+        await ProductRepository.findPublishProductByIDWithModify(product._id);
+      if (!foundProduct) {
+        cart.products = cart.products.filter((product, i) => i !== index);
+        cart.count_product--;
+        await this.removeItem(account_id, product);
+      } else {
+        cart.products[index]._id = foundProduct;
+        cart.products[index]._id.select_variation =
+          await ProductService.findVariationValues(
+            foundProduct._id.toString(),
+            cart.products[index].variation
+          );
+        cart.products[index]._id.quantity_in_cart =
+          cart.products[index].quantity;
+        cart.products[index]._id.code = cart.products[index].code;
+      }
     });
 
     await Promise.all(productPromises);
@@ -120,19 +115,6 @@ class CartService {
     for (const product of cart.products) {
       productIds.push(product._id);
     }
-
-    // productIds = await Promise.all(
-    //   productIds.map(async (data) => {
-    //     let { total, variation } = await InventoryRepository.getStockForProduct(
-    //       data._id,
-    //       data.variation
-    //     );
-    //     data.variation = variation;
-    //     data.stock = total;
-    //     return { ...data };
-    //   })
-    // );
-
     cart.products = productIds;
     return cart;
   }

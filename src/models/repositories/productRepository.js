@@ -81,8 +81,6 @@ class ProductRepository {
     let result = await _Product
       .findOne({
         _id: product_id,
-        // is_draft: false,
-        // is_published: true,
       })
       .select(getUnSelectData(["__v", "createdAt", "updatedAt"]))
       .populate({
@@ -101,6 +99,23 @@ class ProductRepository {
     // result.select_variation = result.variation.map((item) => {
     //   return defaultVariation(item);
     // });
+    return await this.handleStockAndDefaultVariation(result);
+  }
+  static async findPublishProductByIDWithModify(product_id) {
+    let result = await _Product
+      .findOne({
+        _id: product_id,
+        is_draft: false,
+        is_published: true,
+      })
+      .select(getUnSelectData(["__v", "createdAt", "updatedAt"]))
+      .populate({
+        path: "type",
+        select: "name slug",
+      })
+      .lean()
+      .exec();
+    if (!result) return result;
     return await this.handleStockAndDefaultVariation(result);
   }
   static async updateProduct(query, update) {
