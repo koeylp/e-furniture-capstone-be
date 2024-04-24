@@ -6,4 +6,8 @@ const calculateOrderTotal = (products) => {
   return order_total;
 };
 
-module.exports = { calculateOrderTotal };
+const calculateAmountRefund = (amount) => {
+  return (amount * 90) / 100;
+};
+
+module.exports = { calculateOrderTotal, calculateAmountRefund };

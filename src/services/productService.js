@@ -282,21 +282,24 @@ class ProductService {
 
   static async getProductDetailByVariationProperty(products) {
     const productPromises = products.map(async (product, index) => {
-      const foundProduct = await ProductRepository.findProductByIDWithModify(
-        product.product_id
-      );
-      if (!foundProduct) throw new BadRequestError();
-
-      product.product_id = foundProduct;
-      product.product_id.select_variation = await this.findVariationValues(
-        foundProduct._id.toString(),
-        product.variation
-      );
-      product.product_id.quantity_in_cart = product.quantity;
-      product.product_id.code = await getCode(
-        foundProduct._id,
-        product.variation
-      );
+      const foundProduct =
+        await ProductRepository.findPublishProductByIDWithModify(
+          product.product_id
+        );
+      if (!foundProduct) {
+        products = products.filter((product, i) => i !== index);
+      } else {
+        product.product_id = foundProduct;
+        product.product_id.select_variation = await this.findVariationValues(
+          foundProduct._id.toString(),
+          product.variation
+        );
+        product.product_id.quantity_in_cart = product.quantity;
+        product.product_id.code = await getCode(
+          foundProduct._id,
+          product.variation
+        );
+      }
     });
 
     await Promise.all(productPromises);

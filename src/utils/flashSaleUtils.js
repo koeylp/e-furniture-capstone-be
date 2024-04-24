@@ -3,9 +3,8 @@ const moment = require("moment");
 const { BadRequestError } = require("./errorHanlder");
 const ProductRepository = require("../models/repositories/productRepository");
 const FlashSaleRepository = require("../models/repositories/flashSaleRepository");
-const ProductService = require("../services/productService");
-const StateUtils = require("./stateUtils");
 require("moment-timezone");
+const MINUTE_THRESHOLD = 30;
 
 class FlashSaleUtils {
   static getTodayAndTomorowDay() {
@@ -62,7 +61,7 @@ class FlashSaleUtils {
     const timeDifferenceInMinutes = Math.floor(
       (endDate - startDate) / (1000 * 60)
     );
-    if (timeDifferenceInMinutes > 15) {
+    if (timeDifferenceInMinutes > MINUTE_THRESHOLD) {
       throw new BadRequestError(
         "The end time must be less than 15 minutes after the start time"
       );
@@ -75,7 +74,7 @@ class FlashSaleUtils {
         let productFound = await ProductRepository.findProductById(
           product.productId
         );
-        if (product.count <= 0) {
+        if (product.count < 0) {
           throw new BadRequestError(
             "The quantity of products to be sold must be greater than 0!"
           );
