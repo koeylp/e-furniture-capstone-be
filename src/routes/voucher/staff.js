@@ -21,5 +21,10 @@ router.get(
   hasPermission(global.PermissionConstants.STAFF_GET),
   asyncHandler(VoucherController.getAllVouchers)
 );
+router.delete(
+  "/:voucher_id",
+  hasPermission(global.PermissionConstants.STAFF_DELETE),
+  asyncHandler(VoucherController.removeVoucher)
+);
 
 module.exports = router;

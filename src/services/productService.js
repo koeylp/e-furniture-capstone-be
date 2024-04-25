@@ -3,10 +3,7 @@ const SubTypeRepository = require("../models/repositories/subTypeRepository");
 const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const ProductFactory = require("./productFactory/factory");
 const { returnSortType } = require("./productFactory/sortType");
-const {
-  getProducts,
-  getProductsBySubType,
-} = require("../utils/skipLimitForProduct");
+const { getProductsBySubType } = require("../utils/skipLimitForProduct");
 const TypeRepository = require("../models/repositories/typeRepository");
 const SubTypeService = require("./subTypeService");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
@@ -16,7 +13,6 @@ const WishlistRepositoy = require("../models/repositories/wishlistRepository");
 const FlashSaleRepository = require("../models/repositories/flashSaleRepository");
 const FlashSaleUtils = require("../utils/flashSaleUtils");
 const { default: mongoose } = require("mongoose");
-const { verifyProductExistence } = require("../utils/verifyExistence");
 const { getCode } = require("../utils/codeUtils");
 
 class ProductService {
@@ -258,7 +254,9 @@ class ProductService {
   }
 
   static async addVariationItem(product_id, data) {
-    let product = await ProductRepository.findProductById(product_id);
+    let product = await ProductRepository.findProductByIdWithoutState(
+      product_id
+    );
     if (!product) throw new BadRequestError("Cannot Find Any Product!");
     product.variation[0].properties.push(...data);
     await ProductRepository.updateProductById(product_id, product);
@@ -266,7 +264,9 @@ class ProductService {
   }
 
   static async removeVariationItem(product_id, property_id) {
-    let product = await ProductRepository.findProductById(product_id);
+    let product = await ProductRepository.findProductByIdWithoutState(
+      product_id
+    );
     if (!product) throw new BadRequestError("Cannot Find Any Product!");
     let index = product.variation[0].properties.findIndex(
       (property) => property._id == property_id
