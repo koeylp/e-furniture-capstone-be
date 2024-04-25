@@ -74,11 +74,11 @@ class FlashSaleUtils {
         let productFound = await ProductRepository.findProductById(
           product.productId
         );
-        if (product.count < 0) {
-          throw new BadRequestError(
-            "The quantity of products to be sold must be greater than 0!"
-          );
-        }
+        // if (product.count < 0) {
+        //   throw new BadRequestError(
+        //     "The quantity of products to be sold must be greater than 0!"
+        //   );
+        // }
         if (product.salePrice < 0) {
           throw new BadRequestError("The Sale Price must be positive!");
         }
