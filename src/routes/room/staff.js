@@ -31,5 +31,10 @@ router.put(
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(RoomController.enableRoom)
 );
+router.delete(
+  "/:room_slug",
+  hasPermission(global.PermissionConstants.STAFF_DELETE),
+  asyncHandler(RoomController.removeRoom)
+);
 
 module.exports = router;

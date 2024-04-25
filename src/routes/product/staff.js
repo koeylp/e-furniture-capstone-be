@@ -52,5 +52,10 @@ router.put(
   hasPermission(global.PermissionConstants.STAFF_PUT),
   asyncHandler(ProductController.publishProduct)
 );
+router.delete(
+  "/:product_slug",
+  hasPermission(global.PermissionConstants.STAFF_DELETE),
+  asyncHandler(ProductController.removeProduct)
+);
 
 module.exports = router;
