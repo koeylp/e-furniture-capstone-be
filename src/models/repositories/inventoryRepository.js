@@ -8,6 +8,7 @@ const {
 const { default: mongoose } = require("mongoose");
 const ProductUtils = require("../../utils/productUtils");
 const ProductRepository = require("./productRepository");
+const { getCodeByOneProperty } = require("../../utils/codeUtils");
 class InventoryRepository {
   static async createInventory(inventory) {
     const newInventory = await _Inventory.create(inventory);

@@ -276,7 +276,7 @@ class ProductService {
       0,
       index
     );
-    // await ProductRepository.updateProductById(product_id, product);
+    await ProductRepository.updateProductById(product_id, product);
     return product;
   }
 
