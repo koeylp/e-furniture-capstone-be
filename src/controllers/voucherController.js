@@ -51,5 +51,14 @@ class VoucherController {
       metaData: await VoucherSerivce.removeVoucher(voucher_id),
     }).send(res);
   }
+
+  static async editVoucher(req, res) {
+    const { voucher_id } = req.params;
+    if (!voucher_id) throw new BadRequestError();
+    return new OK({
+      message: "Update Voucher",
+      metaData: await VoucherSerivce.editVoucher(voucher_id, req.body),
+    }).send(res);
+  }
 }
 module.exports = VoucherController;

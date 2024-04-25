@@ -46,6 +46,11 @@ class VoucherService {
   static async removeVoucher(voucher_id) {
     return await VoucherRepository.removeVoucher(voucher_id);
   }
+
+  static async editVoucher(voucher_id, payload) {
+    await this.handleVoucher(voucher_id);
+    return await VoucherRepository.updateVoucherById(voucher_id, payload);
+  }
 }
 
 module.exports = VoucherService;
