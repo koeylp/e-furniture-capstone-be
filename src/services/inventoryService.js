@@ -36,6 +36,10 @@ class InventoryService {
     );
   }
 
+  static async removeInventory(code) {
+    return await InventoryRepository.removeInventoryByCode(code);
+  }
+
   static validateStock(stock) {
     if (stock < 0) throw new BadRequestError("Stock value is invalid!");
   }

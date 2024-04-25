@@ -174,7 +174,15 @@ class ProductRepository {
   static async getAllsWithoutPopulateAndStock(query) {
     return await _Product
       .find(query)
-      .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
+      .select(
+        getUnSelectData([
+          "__v",
+          "isDraft",
+          "isPublished",
+          "attributes",
+          "model3D",
+        ])
+      )
       .lean();
   }
   static async getAlls(query, page, limit, sortType) {
