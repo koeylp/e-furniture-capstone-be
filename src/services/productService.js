@@ -14,6 +14,7 @@ const FlashSaleRepository = require("../models/repositories/flashSaleRepository"
 const FlashSaleUtils = require("../utils/flashSaleUtils");
 const { default: mongoose } = require("mongoose");
 const { getCode } = require("../utils/codeUtils");
+const VariationUtils = require("../utils/variationUtils");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -253,12 +254,22 @@ class ProductService {
     return product;
   }
 
-  static async addVariationItem(product_id, data) {
+  static async addVariationItem(product_id, variation) {
     let product = await ProductRepository.findProductByIdWithoutState(
       product_id
     );
+
     if (!product) throw new BadRequestError("Cannot Find Any Product!");
-    product.variation[0].properties.push(...data);
+
+    product.variation[0].properties.push(...variation);
+
+    let hasDuplicates = VariationUtils.checkDuplicateProperties(
+      product.variation
+    );
+
+    if (hasDuplicates) {
+      throw new BadRequestError("Variation is already in use!");
+    }
     await ProductRepository.updateProductById(product_id, product);
     return product;
   }

@@ -3,6 +3,7 @@ const { BadRequestError } = require("../../utils/errorHanlder");
 const TypeRepository = require("../../models/repositories/typeRepository");
 const ProductRepository = require("../../models/repositories/productRepository");
 const { removeUndefineObject } = require("../../utils");
+const VariationUtils = require("../../utils/variationUtils");
 const SHIPPING_AMOUNT = 50000;
 
 class Product {
@@ -77,7 +78,9 @@ class TypeProduct extends Product {
     }
 
     if (this.variation) {
-      let hasDuplicates = await this.checkDuplicateProperties(this.variation);
+      let hasDuplicates = VariationUtils.checkDuplicateProperties(
+        this.variation
+      );
       if (hasDuplicates) {
         throw new BadRequestError("Variation is already in use!");
       }
@@ -85,29 +88,6 @@ class TypeProduct extends Product {
     let objectParams = removeUndefineObject(this);
     const updateProduct = await super.updateProduct(product_slug, objectParams);
     return updateProduct;
-  }
-  async checkDuplicateProperties(variations) {
-    const seenValues = new Set();
-    let hasDuplicates = false;
-
-    for (const variation of variations) {
-      for (const property of variation.properties) {
-        const value = property.value;
-
-        if (seenValues.has(value)) {
-          hasDuplicates = true;
-          break;
-        } else {
-          seenValues.add(value);
-        }
-      }
-
-      if (hasDuplicates) {
-        break;
-      }
-    }
-
-    return hasDuplicates;
   }
 }
 
