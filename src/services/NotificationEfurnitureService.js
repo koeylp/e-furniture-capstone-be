@@ -1,4 +1,6 @@
+const AccountRepository = require("../models/repositories/accountRepository");
 const NotificationEfurnitureRepository = require("../models/repositories/notificationEfurnitureRepository");
+
 class NotificationEfurnitureService {
   static async createNotification(payload) {
     return await NotificationEfurnitureRepository.create(payload);
@@ -25,11 +27,23 @@ class NotificationEfurnitureService {
     await this.createNotification(payload);
     _io.emit("lowstockWareHouse", true);
   }
-  static async notiRequestDeliveryTrip() {
+
+  static async notiRequestDeliveryTrip(name) {
     const payload = {
       title: "Request Delivery Trip!",
-      message: "New Delivery Trip Has Been Create",
-      status: 2,
+      message: `New Delivery Trip Has Been Assigned To ${name}`,
+      status: 1,
+    };
+    await this.createNotification(payload);
+    _io.emit("requestDeliveryTrip", true);
+  }
+
+  static async notiToAdmin(account_id, type, name, action) {
+    let account = await AccountRepository.findAccountById(account_id);
+    const payload = {
+      title: `${action} New ${type}!`,
+      message: `${account.first_name} ${account.last_name} Has ${action} ${type}: ${name}`,
+      status: 1,
     };
     await this.createNotification(payload);
     _io.emit("requestDeliveryTrip", true);

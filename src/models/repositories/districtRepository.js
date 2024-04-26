@@ -28,7 +28,11 @@ class DistrictRepository {
     return await this.findDistrict(query);
   }
   static async getDistricts() {
-    return await _District.find().lean();
+    return await _District
+      .find({
+        totalOrder: { $gte: 1 },
+      })
+      .lean();
   }
   static async save(district) {
     return await _District.findByIdAndUpdate(district._id, district, {
