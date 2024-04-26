@@ -51,7 +51,9 @@ class DeliveryTripService {
         payload.account_id,
         StateUtils.AccountState("Shipping")
       ),
-      NotificationEfurnitureService.notiRequestDeliveryTrip(),
+      NotificationEfurnitureService.notiRequestDeliveryTrip(
+        `${accountData.first_name} ${accountData.last_name}`
+      ),
     ]);
     return result;
   }

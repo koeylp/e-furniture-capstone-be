@@ -5,15 +5,24 @@ const { validateCreateProduct } = require("../utils/validation");
 const { OK } = require("../utils/successHandler");
 const WareHouseService = require("../services/warehouseService");
 const InventoryService = require("../services/inventoryService");
+const NotificationEfurnitureService = require("../services/NotificationEfurnitureService");
 
 class ProductController {
   static async createProduct(req, res) {
     const { error } = validateCreateProduct(req.body);
     if (error) throw new BadRequestError(error.details[0].message);
     const { type } = req.body;
+    const { account_id } = req.payload;
+    let product = await ProductFactory.createProduct(type, req.body);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Product",
+      product.name,
+      "Created"
+    );
     return new OK({
       message: "Create Product Successfully!",
-      metaData: await ProductFactory.createProduct(type, req.body),
+      metaData: product,
     }).send(res);
   }
   static async getDraftProduct(req, res) {
