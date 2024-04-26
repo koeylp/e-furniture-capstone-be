@@ -96,8 +96,6 @@ class FlashSaleUtils {
     if (!startDate || !endDate) {
       throw new BadRequestError("Invalid startDate and endDate");
     }
-    const { today, now, tomorrow } = this.getTodayAndTomorowDay();
-    startDate = startDate < now ? now : startDate;
     startDate = this.convertDateToString(startDate);
     endDate = this.convertDateToString(endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
