@@ -265,12 +265,15 @@ class WareHouseService {
 
   static async getProductAndWareHouseValue(product_id) {
     const [product, warehouse] = await Promise.all([
-      ProductRepository.findProductById(product_id),
+      ProductRepository.findProductByIdWithoutState(product_id),
       WareHouseRepository.findByQuery({}),
     ]);
 
     if (!warehouse) {
       throw new NotFoundError(`Warehouse not found`);
+    }
+    if (!product) {
+      throw new NotFoundError(`Product not found`);
     }
     return { product, warehouse };
   }

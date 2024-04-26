@@ -279,6 +279,8 @@ class ProductService {
       product_id
     );
     if (!product) throw new BadRequestError("Cannot Find Any Product!");
+    if (product.variation[0].properties.length <= 1)
+      throw new BadRequestError("You Cannot Remove Last Variation!");
     let index = product.variation[0].properties.findIndex(
       (property) => property._id == property_id
     );

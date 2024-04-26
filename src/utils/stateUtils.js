@@ -114,5 +114,17 @@ class StateUtils {
       this.TransactionTypePhase.get("default")
     );
   };
+
+  static ProductItemOrderPhase = new Map([
+    ["FeedBack", 1],
+    ["PayAgain", 2],
+    ["default", 2],
+  ]);
+  static ProductItemOrderType = (code) => {
+    return (
+      this.ProductItemOrderPhase.get(code) ||
+      this.ProductItemOrderPhase.get("default")
+    );
+  };
 }
 module.exports = StateUtils;

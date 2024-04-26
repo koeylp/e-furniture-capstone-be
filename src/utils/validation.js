@@ -289,6 +289,7 @@ const validateCreateTransaction = (data) => {
 const validateCreateFeedBack = (data) => {
   const schema = Joi.object({
     product_id: Joi.string().required(),
+    order_code: Joi.string().required(),
     content: Joi.string().required(),
     rating: Joi.number(),
   });

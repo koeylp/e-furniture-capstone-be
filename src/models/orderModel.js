@@ -38,7 +38,7 @@ const schema = new Schema(
         code: { type: String },
         quantity: { type: Number },
         price: { type: Number },
-        status: { type: Number },
+        status: { type: Number, default: 1 },
       },
     ],
     warehouses: { type: Array, default: [] },
