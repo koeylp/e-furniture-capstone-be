@@ -544,5 +544,17 @@ class OrderService {
     }
     return await OrderRepository.updateOrder(order);
   }
+  static async payAgain(order_id) {
+    const order = await verifyOrderExistence(order_id);
+    const pay_os = await BankService.createPaymentLink(order);
+    order.order_checkout.pay_os = {
+      orderCode: pay_os.orderCode,
+      status: pay_os.status,
+      expiredAt: pay_os.expiredAt,
+      checkoutUrl: pay_os.checkoutUrl,
+    };
+    await OrderRepository.updateOrder(order);
+    return pay_os.checkoutUrl;
+  }
 }
 module.exports = OrderService;

@@ -55,8 +55,16 @@ router.post(
   asyncHandler(OrderController.requestRefund)
 );
 
-router.get("/payos/:orderCode",
-hasPermission(global.PermissionConstants.USER_GET),
-asyncHandler(OrderController.payPayOS))
+router.get(
+  "/payos/:orderCode",
+  hasPermission(global.PermissionConstants.USER_GET),
+  asyncHandler(OrderController.payPayOS)
+);
+
+router.put(
+  "/pay-again/:order_id",
+  hasPermission(global.PermissionConstants.USER_PUT),
+  asyncHandler(OrderController.payAgain)
+);
 
 module.exports = router;

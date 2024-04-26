@@ -63,7 +63,6 @@ describe("RoomService", () => {
   });
 
   it("should throw BadRequestError when enabling a non-existing room", async () => {
-    // Stub the RoomRepository method to return null, indicating a non-existing room
     const nonExistingRoomId = "non_existing_room_id";
     sinon.stub(RoomRepository, "findRoomById").resolves(null);
 

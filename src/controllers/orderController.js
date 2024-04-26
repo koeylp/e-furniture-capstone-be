@@ -200,5 +200,13 @@ class OrderController {
       metaData: await OrderService.payPayOSGuest(orderCode),
     }).send(res);
   }
+
+  static async payAgain(req, res) {
+    const { order_id } = req.params;
+    return new OK({
+      message: "Your order!",
+      metaData: await OrderService.payAgain(order_id),
+    }).send(res);
+  }
 }
 module.exports = OrderController;
