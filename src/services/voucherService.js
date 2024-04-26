@@ -3,6 +3,8 @@ const VoucherRepository = require("../models/repositories/voucherRepository");
 const AccountRepository = require("../models/repositories/accountRepository");
 const { calculateOrderTotal } = require("../utils/calculator");
 const VoucherUtil = require("../utils/voucherUtil");
+const ProductRepository = require("../models/repositories/productRepository");
+const { default: mongoose } = require("mongoose");
 
 class VoucherService {
   static async handleVoucher(voucher_id) {
@@ -20,7 +22,22 @@ class VoucherService {
   static async getAllVouchers() {
     const QUERY = {};
     const SORT = [["createdAt", -1]];
-    return await VoucherRepository.findAllByQuery(QUERY, SORT);
+    const vouchers = await VoucherRepository.findAllByQuery(QUERY, SORT);
+    for (const voucher of vouchers) {
+      const objectIds = voucher.products.map(
+        (product) => new mongoose.Types.ObjectId(product)
+      );
+      const query = {
+        _id: {
+          $in: [objectIds],
+        },
+      };
+      voucher.products = await ProductRepository.getAllsWithoutPopulateAndStock(
+        query
+      );
+    }
+
+    return vouchers;
   }
 
   static async applyVoucher(account_id, voucher_id, products) {
@@ -45,6 +62,11 @@ class VoucherService {
 
   static async removeVoucher(voucher_id) {
     return await VoucherRepository.removeVoucher(voucher_id);
+  }
+
+  static async editVoucher(voucher_id, payload) {
+    await this.handleVoucher(voucher_id);
+    return await VoucherRepository.updateVoucherById(voucher_id, payload);
   }
 }
 

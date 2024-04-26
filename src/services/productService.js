@@ -3,10 +3,7 @@ const SubTypeRepository = require("../models/repositories/subTypeRepository");
 const { BadRequestError, NotFoundError } = require("../utils/errorHanlder");
 const ProductFactory = require("./productFactory/factory");
 const { returnSortType } = require("./productFactory/sortType");
-const {
-  getProducts,
-  getProductsBySubType,
-} = require("../utils/skipLimitForProduct");
+const { getProductsBySubType } = require("../utils/skipLimitForProduct");
 const TypeRepository = require("../models/repositories/typeRepository");
 const SubTypeService = require("./subTypeService");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
@@ -16,8 +13,8 @@ const WishlistRepositoy = require("../models/repositories/wishlistRepository");
 const FlashSaleRepository = require("../models/repositories/flashSaleRepository");
 const FlashSaleUtils = require("../utils/flashSaleUtils");
 const { default: mongoose } = require("mongoose");
-const { verifyProductExistence } = require("../utils/verifyExistence");
 const { getCode } = require("../utils/codeUtils");
+const VariationUtils = require("../utils/variationUtils");
 
 class ProductService {
   static async getAllDraft(page = 1, limit = 12, sortType = "default") {
@@ -257,17 +254,33 @@ class ProductService {
     return product;
   }
 
-  static async addVariationItem(product_id, data) {
-    let product = await ProductRepository.findProductById(product_id);
+  static async addVariationItem(product_id, variation) {
+    let product = await ProductRepository.findProductByIdWithoutState(
+      product_id
+    );
+
     if (!product) throw new BadRequestError("Cannot Find Any Product!");
-    product.variation[0].properties.push(...data);
+
+    product.variation[0].properties.push(...variation);
+
+    let hasDuplicates = VariationUtils.checkDuplicateProperties(
+      product.variation
+    );
+
+    if (hasDuplicates) {
+      throw new BadRequestError("Variation is already in use!");
+    }
     await ProductRepository.updateProductById(product_id, product);
     return product;
   }
 
   static async removeVariationItem(product_id, property_id) {
-    let product = await ProductRepository.findProductById(product_id);
+    let product = await ProductRepository.findProductByIdWithoutState(
+      product_id
+    );
     if (!product) throw new BadRequestError("Cannot Find Any Product!");
+    if (product.variation[0].properties.length <= 1)
+      throw new BadRequestError("You Cannot Remove Last Variation!");
     let index = product.variation[0].properties.findIndex(
       (property) => property._id == property_id
     );
@@ -276,7 +289,7 @@ class ProductService {
       0,
       index
     );
-    // await ProductRepository.updateProductById(product_id, product);
+    await ProductRepository.updateProductById(product_id, product);
     return product;
   }
 

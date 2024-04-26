@@ -1,8 +1,6 @@
-const { verifyProductExistence } = require("./verifyExistence");
 const crypto = require("crypto");
 async function getCode(id, variation) {
   const values = [];
-  await verifyProductExistence(id);
   variation.forEach((obj) => {
     values.push(obj.property_id);
   });
@@ -14,6 +12,15 @@ async function getCode(id, variation) {
     .slice(0, 20);
   return code;
 }
+async function getCodeByOneProperty(id, property_id) {
+  const code = crypto
+    .createHash("sha256")
+    .update(id + property_id)
+    .digest("hex")
+    .slice(0, 20);
+  return code;
+}
 module.exports = {
   getCode,
+  getCodeByOneProperty,
 };

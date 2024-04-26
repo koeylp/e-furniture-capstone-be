@@ -43,6 +43,16 @@ class ProductRepository {
       .lean()
       .exec();
   }
+  static async findProductByIdWithoutState(product_id, filter = []) {
+    checkValidId(product_id);
+    return await _Product
+      .findOne({
+        _id: new mongoose.Types.ObjectId(product_id),
+      })
+      .select(getSelectData(filter))
+      .lean()
+      .exec();
+  }
   static async findProductByName(name) {
     return await _Product
       .findOne({
@@ -164,7 +174,15 @@ class ProductRepository {
   static async getAllsWithoutPopulateAndStock(query) {
     return await _Product
       .find(query)
-      .select(getUnSelectData(["__v", "isDraft", "isPublished"]))
+      .select(
+        getUnSelectData([
+          "__v",
+          "isDraft",
+          "isPublished",
+          "attributes",
+          "model3D",
+        ])
+      )
       .lean();
   }
   static async getAlls(query, page, limit, sortType) {

@@ -41,14 +41,26 @@ class RoomService {
   }
   static async findRoom(room_slug) {
     let room = await RoomRepository.findRoomBySlugWithoutPopulate(room_slug);
+    // room.products = await Promise.all(
+    //   room.products.map(async (product) => {
+    //     const modifiedProduct =
+    //       await ProductRepository.findProductByIDWithModify(product.product);
+    //     product.product = modifiedProduct;
+    //     return product;
+    //   })
+    // );
+    // return room;
     room.products = await Promise.all(
       room.products.map(async (product) => {
         const modifiedProduct =
-          await ProductRepository.findProductByIDWithModify(product.product);
-        product.product = modifiedProduct;
-        return product;
+          await ProductRepository.findPublishProductByIDWithModify(
+            product.product
+          );
+        return modifiedProduct;
       })
     );
+    room.products = room.products.filter(Boolean);
+
     return room;
   }
   static async editRoom(room_slug, payload) {

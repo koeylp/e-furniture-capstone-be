@@ -7,7 +7,7 @@ const {
   generateVariations,
 } = require("../utils");
 const InventoryRepository = require("../models/repositories/inventoryRepository");
-const { getCode } = require("../utils/codeUtils");
+const { getCode, getCodeByOneProperty } = require("../utils/codeUtils");
 const ProductService = require("./productService");
 const NotificationEfurnitureService = require("./NotificationEfurnitureService");
 
@@ -265,12 +265,15 @@ class WareHouseService {
 
   static async getProductAndWareHouseValue(product_id) {
     const [product, warehouse] = await Promise.all([
-      ProductRepository.findProductById(product_id),
+      ProductRepository.findProductByIdWithoutState(product_id),
       WareHouseRepository.findByQuery({}),
     ]);
 
     if (!warehouse) {
       throw new NotFoundError(`Warehouse not found`);
+    }
+    if (!product) {
+      throw new NotFoundError(`Product not found`);
     }
     return { product, warehouse };
   }
@@ -302,6 +305,25 @@ class WareHouseService {
       });
       await WareHouseRepository.save(warehouse);
     }
+  }
+
+  static async removeItemFromWareHouse(productInput, property_id) {
+    const { product, warehouse } = await this.getProductAndWareHouseValue(
+      productInput._id.toString()
+    );
+    const code = await getCodeByOneProperty(
+      productInput._id.toString(),
+      property_id
+    );
+    const productIndex = warehouse.products.findIndex(
+      (warehouseProduct) => warehouseProduct.code === code
+    );
+
+    if (productIndex !== -1) {
+      warehouse.products.splice(productIndex, 1);
+    }
+    await WareHouseRepository.save(warehouse);
+    return code;
   }
 
   static async filterProductVariationsNotInWareHouse(

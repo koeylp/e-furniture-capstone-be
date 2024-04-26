@@ -532,6 +532,18 @@ class OrderService {
     }
     return foundOrder;
   }
+
+  static async updateProductItemState(order_code, product_id, state) {
+    let order = await OrderRepository.findOrderByOrderCode(order_code);
+    const matchingProduct = order.order_products.find(
+      (product) => product.product_id._id.toString() == product_id.toString()
+    );
+
+    if (matchingProduct) {
+      matchingProduct.status = state;
+    }
+    return await OrderRepository.updateOrder(order);
+  }
   static async payAgain(order_id) {
     const order = await verifyOrderExistence(order_id);
     const pay_os = await BankService.createPaymentLink(order);

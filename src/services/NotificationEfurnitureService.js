@@ -28,7 +28,7 @@ class NotificationEfurnitureService {
   static async notiRequestDeliveryTrip() {
     const payload = {
       title: "Request Delivery Trip!",
-      message: "New Delivery Trip Has Been Request",
+      message: "New Delivery Trip Has Been Create",
       status: 2,
     };
     await this.createNotification(payload);

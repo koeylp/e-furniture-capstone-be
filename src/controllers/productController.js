@@ -4,6 +4,7 @@ const { BadRequestError } = require("../utils/errorHanlder");
 const { validateCreateProduct } = require("../utils/validation");
 const { OK } = require("../utils/successHandler");
 const WareHouseService = require("../services/warehouseService");
+const InventoryService = require("../services/inventoryService");
 
 class ProductController {
   static async createProduct(req, res) {
@@ -165,12 +166,18 @@ class ProductController {
     const { product_id } = req.params;
     const { property_id } = req.body;
     if (!product_id || !property_id) throw new BadRequestError();
+    let product = await ProductService.removeVariationItem(
+      product_id,
+      property_id
+    );
+    const code = await WareHouseService.removeItemFromWareHouse(
+      product,
+      property_id
+    );
+    await InventoryService.removeInventory(code);
     return new OK({
       message: "Update Variation Product Successfully!!",
-      metaData: await ProductService.removeVariationItem(
-        product_id,
-        property_id
-      ),
+      metaData: product,
     }).send(res);
   }
 

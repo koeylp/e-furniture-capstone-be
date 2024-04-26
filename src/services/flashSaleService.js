@@ -4,7 +4,7 @@ const CronFactory = require("../services/cronFactory/cron");
 const { NotFoundError } = require("../utils/errorHanlder");
 class FlashSaleService {
   static async create(payload) {
-    FlashSaleUtils.validateDate(payload.startDay, payload.endDay);
+    FlashSaleUtils.validateDateCreate(payload.startDay, payload.endDay);
     payload.startDay = FlashSaleUtils.convertToDate(payload.startDay);
     payload.endDay = FlashSaleUtils.convertToDate(payload.endDay);
     payload.products = await FlashSaleUtils.validateProducts(payload.products);
@@ -128,10 +128,11 @@ class FlashSaleService {
   }
 
   static async draft(flashSale_id) {
+    let flashSale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
     const result = await FlashSaleRepository.draftFlashSale(flashSale_id);
     if (result.modifiedCount < 1) throw new NotFoundError();
-    await FlashSaleRepository.findFlashSaleById(flashSale_id);
     await this.endFlashSaleCron(flashSale_id);
+    await FlashSaleUtils.modifyStopFlashSale(flashSale_id, flashSale.products);
     return result;
   }
 
