@@ -41,6 +41,13 @@ class FlashSaleUtils {
     return result.format("YYYY-MM-DDTHH:mm:ss");
   }
 
+  static validateDateCreate(startDate, endDate) {
+    let currentDate = this.validateDate(startDate, endDate);
+    if (startDate < currentDate)
+      throw new BadRequestError(
+        "The start time must be later than the current time!"
+      );
+  }
   static validateDate(startDate, endDate) {
     if (!startDate || !endDate) throw new BadRequestError("Date is required!");
     const currentDate = new Date();
@@ -49,10 +56,6 @@ class FlashSaleUtils {
     if (endDate < startDate)
       throw new BadRequestError(
         "Invalid time range, the start time must be before the end time"
-      );
-    if (startDate < currentDate)
-      throw new BadRequestError(
-        "The start time must be later than the current time!"
       );
     if (endDate < currentDate)
       throw new BadRequestError(
@@ -63,9 +66,10 @@ class FlashSaleUtils {
     );
     if (timeDifferenceInMinutes > MINUTE_THRESHOLD) {
       throw new BadRequestError(
-        "The end time must be less than 15 minutes after the start time"
+        "The end time must be less than 30 minutes after the start time"
       );
     }
+    return currentDate;
   }
 
   static async validateProducts(products) {
@@ -92,6 +96,8 @@ class FlashSaleUtils {
     if (!startDate || !endDate) {
       throw new BadRequestError("Invalid startDate and endDate");
     }
+    const { today, now, tomorrow } = this.getTodayAndTomorowDay();
+    startDate = startDate < now ? now : startDate;
     startDate = this.convertDateToString(startDate);
     endDate = this.convertDateToString(endDate);
     const startTime = FlashSaleUtils.convertTimeDate(startDate);
@@ -101,13 +107,9 @@ class FlashSaleUtils {
        ${startTime.momentDate.format("D")}
        ${startTime.momentDate.format("M")} *`,
       async () => {
-        console.log(
-          `Thực hiện công việc tại ${startTime.hour} ${
-            startTime.minute
-          } ngày ${startTime.momentDate.format("YYYY-MM-DD")}`
-        );
-        await this.updateRangeProductSalePrice(products);
-        await this.updateFlashSaleState(flashSale_id, 1);
+        await this.modifyStartFlashSale(flashSale_id, products);
+        // await this.updateRangeProductSalePrice(products);
+        // await this.updateFlashSaleState(flashSale_id, 1);
       }
     );
     const endCron = cron.schedule(
@@ -115,13 +117,9 @@ class FlashSaleUtils {
        ${endTime.momentDate.format("D")}
        ${endTime.momentDate.format("M")} *`,
       async () => {
-        await this.updateRangeProductWithOldSalePrice(products);
-        await this.updateFlashSaleState(flashSale_id, 2);
-        console.log(
-          `Thực hiện công việc tại ${endTime.hour} ${
-            endTime.minute
-          } ngày ${endTime.momentDate.format("YYYY-MM-DD")}`
-        );
+        // await this.updateRangeProductWithOldSalePrice(products);
+        // await this.updateFlashSaleState(flashSale_id, 2);
+        await this.modifyStopFlashSale(flashSale_id, products);
       }
     );
     return { start: startCron, end: endCron };
@@ -259,6 +257,16 @@ class FlashSaleUtils {
         await ProductRepository.updateProductById(product.productId, update);
       })
     );
+  }
+
+  static async modifyStartFlashSale(flashSale_id, products) {
+    await this.updateRangeProductSalePrice(products);
+    await this.updateFlashSaleState(flashSale_id, 1);
+  }
+
+  static async modifyStopFlashSale(flashSale_id, products) {
+    await this.updateRangeProductWithOldSalePrice(products);
+    await this.updateFlashSaleState(flashSale_id, 2);
   }
 }
 module.exports = FlashSaleUtils;

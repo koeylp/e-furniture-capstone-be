@@ -21,8 +21,8 @@ const schema = new Schema(
       },
     ],
     cron: { type: String, default: "" },
-    is_draft: { type: Boolean, default: true },
-    is_published: { type: Boolean, default: false },
+    is_draft: { type: Boolean, default: false },
+    is_published: { type: Boolean, default: true },
     status: { type: Number, default: 0 },
   },
   {
