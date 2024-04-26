@@ -143,7 +143,7 @@ class OrderService {
       order.payment_method === "COD" &&
       order.order_checkout.final_total < 1000000
     ) {
-      return await OrderRepository.createOrder(account_id, order);
+      var createdOrder = await OrderRepository.createOrder(account_id, order);
     } else {
       const pay_os = await BankService.createPaymentLink(order);
       order.order_checkout.pay_os = {
@@ -152,8 +152,20 @@ class OrderService {
         expiredAt: pay_os.expiredAt,
         checkoutUrl: pay_os.checkoutUrl,
       };
-      return await OrderRepository.createOrder(account_id, order);
+      var createdOrder = await OrderRepository.createOrder(account_id, order);
     }
+
+    setTimeout(async () => {
+      try {
+        await this.checkPaidForCancelling(
+          account_id,
+          createdOrder._id.toString()
+        );
+      } catch (error) {
+        console.error("Error checking paid for cancelling:", error);
+      }
+    }, 60 * 1000);
+    return createOrder;
   }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);
@@ -209,6 +221,13 @@ class OrderService {
     }
 
     await MailtrapService.send(newOrder);
+    setTimeout(async () => {
+      try {
+        await this.checkPaidForCancelling(account_id, newOrder._id.toString());
+      } catch (error) {
+        console.error("Error checking paid for cancelling:", error);
+      }
+    });
     return newOrder;
   }
 
@@ -555,6 +574,13 @@ class OrderService {
     };
     await OrderRepository.updateOrder(order);
     return pay_os.checkoutUrl;
+  }
+  static async checkPaidForCancelling(account_id, order_id) {
+    const foundOrder = await verifyOrderExistence(order_id);
+    const note = "Your order was not paid in 24 hours";
+    console.log(note);
+    if (!foundOrder.order_checkout.is_paid)
+      await this.cancelOrder(account_id, order_id, note);
   }
 }
 module.exports = OrderService;

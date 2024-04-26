@@ -1,15 +1,18 @@
 const axios = require("axios");
 
-const PROFILE = ["place", "route"];
+const PROFILE = ["search", "route"];
 
 const VIETMAP_API_BASE_URL = "https://maps.vietmap.vn/api";
-const VIETMAP_TOKEN = "c043236fde99317c90dd9599c78938470a730f3e14962b4b";
+const VIET_MAP_API_KEY = "c043236fde99317c90dd9599c78938470a730f3e14962b4b";
 
 class MappingService {
-  static async convertToCoordinate(ref_id) {
+  static async convertToCoordinate(address) {
+    const focused_latitude = 10.810753781567193;
+    const focused_longitude = 106.66189033686534;
+    const boundary_radius = 0.5;
     try {
       const response = await axios.get(
-        `${VIETMAP_API_BASE_URL}/${PROFILE[0]}/v3?apikey=${VIETMAP_TOKEN}&refid=${ref_id}`
+        `${VIETMAP_API_BASE_URL}/${PROFILE[0]}?api-version=1.1&apikey=${VIET_MAP_API_KEY}&focus.point.lat=${focused_latitude}&focus.point.lon=${focused_longitude}&boundary.circle.lon=${boundary_radius}&boundary.circle.lat=${boundary_radius}&boundary.circle.radius=${boundary_radius}&text=${address}`
       );
       return response.data;
     } catch (error) {
@@ -20,7 +23,7 @@ class MappingService {
   static async calculateDistance(origin, destination) {
     try {
       const response = await axios.get(
-        `${VIETMAP_API_BASE_URL}/${PROFILE[1]}?api-version=1.1&apikey=${VIETMAP_TOKEN}&point=${origin}&point=${destination}&vehicle=car`
+        `${VIETMAP_API_BASE_URL}/${PROFILE[1]}?api-version=1.1&apikey=${VIET_MAP_API_KEY}&point=${origin}&point=${destination}&vehicle=car`
       );
       return response.data.paths[0].distance;
     } catch (error) {
