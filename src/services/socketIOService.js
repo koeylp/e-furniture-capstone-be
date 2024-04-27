@@ -8,8 +8,8 @@ class SocketIOService {
 
     socket.on("login-user", (account_id) => {
       const user = onlineUsers.get(account_id);
-      if (user) {
-        _io.to(socket.id).emit("checkLogin", onlineUsers);
+      if (user != null) {
+        _io.to(socket.id).emit("checkLogin", user);
       }
       onlineUsers.set(account_id, socket.id);
     });
