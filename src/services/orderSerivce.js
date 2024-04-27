@@ -154,7 +154,6 @@ class OrderService {
       };
       var createdOrder = await OrderRepository.createOrder(account_id, order);
     }
-
     setTimeout(async () => {
       try {
         await this.checkPaidForCancelling(
@@ -164,7 +163,7 @@ class OrderService {
       } catch (error) {
         console.error("Error checking paid for cancelling:", error);
       }
-    }, 300000);
+    }, 60 * 1000);
     return createdOrder;
   }
   static async updateTracking(order_id, note) {
@@ -578,8 +577,10 @@ class OrderService {
   static async checkPaidForCancelling(account_id, order_id) {
     const foundOrder = await verifyOrderExistence(order_id);
     const note = "Your order was not paid in 24 hours";
-    console.log(note);
-    if (!foundOrder.order_checkout.is_paid)
+    if (
+      !foundOrder.order_checkout.is_paid &&
+      foundOrder.current_order_tracking.name === "Pending"
+    )
       await this.cancelOrder(account_id, order_id, note);
   }
 }
