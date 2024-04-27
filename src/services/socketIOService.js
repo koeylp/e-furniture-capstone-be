@@ -1,4 +1,5 @@
 class SocketIOService {
+  static onlineUsers = {};
   connection(socket) {
     socket.on("notification", () => {});
     socket.on("add-user", (account_id) => {
@@ -7,18 +8,21 @@ class SocketIOService {
     });
 
     socket.on("login-user", (account_id) => {
-      if (global.onlineUsers.has(account_id)) {
-        const user = global.onlineUsers.get(account_id);
-        _io
-          .to(user)
-          .emit(
-            "checkLogin",
-            `Tài Khoản bị đăng nhập ở nơi khác ${user} account_id: ${account_id} socketid: ${socket.id} global: ${global.onlineUsers}`
-          );
-        global.onlineUsers.set(account_id, socket.id);
-      } else {
-        global.onlineUsers.set(account_id, socket.id);
+      console.log("You Was Here!");
+      if (SocketIOService.onlineUsers[account_id]) {
+        const user = SocketIOService.onlineUsers[account_id];
+        if (user !== socket.id) {
+          _io.to(user).emit("checkLogin", {
+            message: `Tài khoản bị đăng nhập ở nơi khác ${user}`,
+            account_id: account_id,
+            socketId: user,
+            listUser: SocketIOService.onlineUsers,
+          });
+          delete SocketIOService.onlineUsers[account_id];
+        }
       }
+      SocketIOService.onlineUsers[account_id] = socket.id;
+      console.log(SocketIOService.onlineUsers);
     });
 
     socket.emit("hello", "world");
