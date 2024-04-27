@@ -13,7 +13,7 @@ class SocketIOService {
           .to(user)
           .emit(
             "checkLogin",
-            `Tài Khoản bị đăng nhập ở nơi khác ${user} ${account_id}`
+            `Tài Khoản bị đăng nhập ở nơi khác ${user} account_id: ${account_id} socketid: ${socket.id} global: ${global.onlineUsers}`
           );
         global.onlineUsers.set(account_id, socket.id);
       } else {
