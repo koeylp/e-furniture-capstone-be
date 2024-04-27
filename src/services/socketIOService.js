@@ -9,7 +9,12 @@ class SocketIOService {
     socket.on("login-user", (account_id) => {
       if (global.onlineUsers.has(account_id)) {
         const user = global.onlineUsers.get(account_id);
-        _io.to(user).emit("checkLogin", "Đã Có Tài Khoản");
+        _io
+          .to(user)
+          .emit(
+            "checkLogin",
+            `Tài Khoản bị đăng nhập ở nơi khác ${user} ${account_id}`
+          );
         global.onlineUsers.set(account_id, socket.id);
       } else {
         global.onlineUsers.set(account_id, socket.id);
