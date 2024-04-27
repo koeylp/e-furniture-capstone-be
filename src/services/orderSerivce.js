@@ -49,7 +49,7 @@ class OrderService {
     if (type === "All") {
       result = await OrderRepository.getOrdersWithoutPopulate({ page, limit });
     } else {
-      result = await OrderRepository.getOrdersByType({
+      result = await OrderRepository.getOrdersByTypeWithStatus({
         type,
         page,
         limit,
