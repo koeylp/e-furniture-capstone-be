@@ -32,4 +32,11 @@ class MappingService {
   }
 }
 
+async function functionName() {
+  const temp = await MappingService.convertToCoordinate("24 Nguyễn Thị Diệu, Phường 6, Quận 3");
+  console.log(temp);
+}
+
+functionName();
+
 module.exports = MappingService;

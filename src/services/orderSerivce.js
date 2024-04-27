@@ -154,7 +154,7 @@ class OrderService {
       };
       var createdOrder = await OrderRepository.createOrder(account_id, order);
     }
-
+    
     setTimeout(async () => {
       try {
         await this.checkPaidForCancelling(
@@ -164,8 +164,8 @@ class OrderService {
       } catch (error) {
         console.error("Error checking paid for cancelling:", error);
       }
-    }, 60 * 1000);
-    return createOrder;
+    }, 24 * 60 * 60 * 1000);
+    return createdOrder;
   }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);
