@@ -82,13 +82,25 @@
 // );
 // console.log(note);
 
+// const data = [
+//   {
+//     product_id: "661cb193840860359f2a282d",
+//     variation: [
+//       {
+//         variation_id: "661cb193840860359f2a282e",
+//         property_id: "661cb193840860359f2a282f",
+//       },
+//     ],
+//     quantity: 1,
+//   },
+// ];
 const data = [
   {
-    product_id: "661cb193840860359f2a282d",
+    product_id: "6619f1abc9ffe02c99ce7a3c",
     variation: [
       {
-        variation_id: "661cb193840860359f2a282e",
-        property_id: "661cb193840860359f2a282f",
+        variation_id: "6619f1abc9ffe02c99ce7a3d",
+        property_id: "6619f1abc9ffe02c99ce7a3e",
       },
     ],
     quantity: 1,
