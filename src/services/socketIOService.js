@@ -9,7 +9,7 @@ class SocketIOService {
     socket.on("login-user", (account_id) => {
       const user = onlineUsers.get(account_id);
       if (user) {
-        _io.to(socket.id).emit("checkLogin", "Toàn Was Here");
+        _io.to(socket.id).emit("checkLogin", onlineUsers);
       }
       onlineUsers.set(account_id, socket.id);
     });
