@@ -1,21 +1,11 @@
 const { default: mongoose } = require("mongoose");
 const _Address = require("../addressModel");
-const {
-  InternalServerError,
-  NotFoundError,
-} = require("../../utils/errorHanlder");
+const { InternalServerError } = require("../../utils/errorHanlder");
 const { checkValidId, removeUndefineObject } = require("../../utils");
 class AddressRepository {
   static async createAddress(account_id, payload) {
     checkValidId(account_id);
-    const address = await _Address.create({
-      account_id: new mongoose.Types.ObjectId(account_id),
-      phone: payload.phone,
-      province: payload.province,
-      district: payload.district,
-      ward: payload.ward,
-      address: payload.address,
-    });
+    const address = await _Address.create(payload);
     if (!address) throw new InternalServerError();
     return address;
   }
@@ -24,7 +14,7 @@ class AddressRepository {
       path: "account_id",
       select: "first_name last_name email",
     });
-    if (!address) throw new NotFoundError("Cannot Find Any Address!");
+    if (!address) return [];
     return address;
   }
   static async getAddresses(query) {

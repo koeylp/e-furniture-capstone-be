@@ -125,7 +125,8 @@ class ProductService {
     await WareHouseRepository.deleteProductInsideWareHouse(product._id);
     await CartRepository.deleteProductInCart(product._id);
     await WishlistRepositoy.deleteProductInWishList(product._id);
-    return await ProductRepository.removeProduct(product._id);
+    await ProductRepository.removeProduct(product._id);
+    return product;
   }
   static async draftProduct(type_slug, product_slug) {
     const product = await ProductRepository.findProductBySlug(product_slug);
@@ -294,6 +295,7 @@ class ProductService {
   }
 
   static async getProductDetailByVariationProperty(products) {
+    products = JSON.parse(products);
     const productPromises = products.map(async (product, index) => {
       const foundProduct =
         await ProductRepository.findPublishProductByIDWithModify(

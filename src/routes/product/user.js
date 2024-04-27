@@ -4,8 +4,8 @@ const router = express.Router();
 const ProductController = require("../../controllers/productController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
-router.post(
-  "/info",
+router.get(
+  "/info/:products",
   asyncHandler(ProductController.getProductDetailByVariationProperty)
 );
 router.get("/:type_slug", asyncHandler(ProductController.getProductsByType));

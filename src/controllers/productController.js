@@ -77,9 +77,16 @@ class ProductController {
   }
   static async publishProduct(req, res) {
     const { type_slug, product_slug } = req.params;
+    const { account_id } = req.payload;
     if (!type_slug || !product_slug) throw new BadRequestError();
     let product = await ProductService.publishProduct(type_slug, product_slug);
     await WareHouseService.addItemToWareHouse(product);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Product",
+      product.name,
+      "Draft"
+    );
     return new OK({
       message: "Publish Product!!",
       metaData: product,
@@ -87,26 +94,50 @@ class ProductController {
   }
   static async draftProduct(req, res) {
     const { type_slug, product_slug } = req.params;
+    const { account_id } = req.payload;
     if (!type_slug || !product_slug) throw new BadRequestError();
+    let product = await ProductService.draftProduct(type_slug, product_slug);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Product",
+      product.name,
+      "Draft"
+    );
     return new OK({
       message: "Draft Product!!",
-      metaData: await ProductService.draftProduct(type_slug, product_slug),
+      metaData: product,
     }).send(res);
   }
   static async updateProduct(req, res) {
     const { product_id } = req.params;
+    const { account_id } = req.payload;
     if (!product_id) throw new BadRequestError();
+    let product = await ProductFactory.updateProduct(product_id, req.body);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Product",
+      product.name,
+      "Updated"
+    );
     return new OK({
       message: "Update Product Successfully!!",
-      metaData: await ProductFactory.updateProduct(product_id, req.body),
+      metaData: product,
     }).send(res);
   }
   static async removeProduct(req, res) {
     const { product_slug } = req.params;
+    const { account_id } = req.payload;
     if (!product_slug) throw new BadRequestError();
+    let product = await ProductService.removeProduct(product_slug);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Product",
+      product.name,
+      "Removed"
+    );
     return new OK({
       message: "Remove Product Successfully!!",
-      metaData: await ProductService.removeProduct(product_slug),
+      metaData: product,
     }).send(res);
   }
   static async searchProduct(req, res) {
@@ -147,12 +178,19 @@ class ProductController {
   static async updateVariation(req, res) {
     const { product_id } = req.params;
     const { variation } = req.body;
+    const { account_id } = req.payload;
     if (!product_id || !variation) throw new BadRequestError();
     let product = await ProductService.updateVariationItem(
       product_id,
       variation
     );
     await WareHouseService.addItemToWareHouse(product);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Variation Of Product",
+      product.name,
+      "Updated"
+    );
     return new OK({
       message: "Update Variation Product Successfully!!",
       metaData: product,
@@ -162,9 +200,16 @@ class ProductController {
   static async addVariation(req, res) {
     const { product_id } = req.params;
     const { variation } = req.body;
+    const { account_id } = req.payload;
     if (!product_id || !variation) throw new BadRequestError();
     let product = await ProductService.addVariationItem(product_id, variation);
     await WareHouseService.addItemToWareHouse(product);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Variation Of Product",
+      product.name,
+      "Created"
+    );
     return new OK({
       message: "Update Variation Product Successfully!!",
       metaData: product,
@@ -174,6 +219,7 @@ class ProductController {
   static async removeVariation(req, res) {
     const { product_id } = req.params;
     const { property_id } = req.body;
+    const { account_id } = req.payload;
     if (!product_id || !property_id) throw new BadRequestError();
     let product = await ProductService.removeVariationItem(
       product_id,
@@ -184,6 +230,12 @@ class ProductController {
       property_id
     );
     await InventoryService.removeInventory(code);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Variation Of Product",
+      product.name,
+      "Removed"
+    );
     return new OK({
       message: "Update Variation Product Successfully!!",
       metaData: product,
@@ -191,7 +243,7 @@ class ProductController {
   }
 
   static async getProductDetailByVariationProperty(req, res) {
-    const products = req.body;
+    const { products } = req.params;
     if (!products) throw new BadRequestError();
     return new OK({
       message: "Product Data!!",
