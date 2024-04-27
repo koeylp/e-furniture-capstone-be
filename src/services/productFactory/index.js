@@ -87,7 +87,7 @@ class TypeProduct extends Product {
     }
     let objectParams = removeUndefineObject(this);
     const updateProduct = await super.updateProduct(product_slug, objectParams);
-    return updateProduct;
+    return this;
   }
 }
 

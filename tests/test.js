@@ -30,7 +30,7 @@
 // ];
 // const result = [];
 
-const StoreSubTypeService = require("../src/services/storeSubTypeService");
+// const StoreSubTypeService = require("../src/services/storeSubTypeService");
 
 // function generateCombinations(currentCombination, remainingArrays) {
 //   if (remainingArrays.length === 0) {
@@ -81,3 +81,20 @@ const StoreSubTypeService = require("../src/services/storeSubTypeService");
 //   "Refund Order Code: EFURNITURE-526E81C5, Reason: tui k mún mua nữa"
 // );
 // console.log(note);
+
+const data = [
+  {
+    product_id: "661cb193840860359f2a282d",
+    variation: [
+      {
+        variation_id: "661cb193840860359f2a282e",
+        property_id: "661cb193840860359f2a282f",
+      },
+    ],
+    quantity: 1,
+  },
+];
+const jsonStr = JSON.stringify(data);
+console.log(jsonStr);
+const parsedData = JSON.parse(jsonStr);
+console.log(parsedData);

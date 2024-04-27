@@ -2,7 +2,11 @@ const AccountRepository = require("../models/repositories/accountRepository");
 const AddressRepository = require("../models/repositories/addressRepository");
 class AddressService {
   static async createAddress(account_id, payload) {
-    await AccountRepository.findAccountById(account_id);
+    payload.account_id = account_id;
+    let addresses = await this.getAddressByUser(account_id);
+    if (addresses.length == 0) {
+      payload.is_default = true;
+    }
     return await AddressRepository.createAddress(account_id, payload);
   }
   static async getAddressByUser(account_id) {
