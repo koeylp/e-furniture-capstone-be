@@ -163,7 +163,9 @@ class ProductService {
     return await InventoryRepository.findAllByQueryPopulate(page, limit);
   }
   static async findVariationValues(product_id, variation) {
-    const product = await ProductRepository.findProductById(product_id);
+    const product = await ProductRepository.findPublishProductByIDWithModify(
+      product_id
+    );
     const matchingVariations = product.variation.filter((item) =>
       variation.some((inside) => inside.variation_id === item._id.toString())
     );
@@ -180,6 +182,7 @@ class ProductService {
           variation_id: item._id,
           color: data.value,
           sub_price: data.sub_price,
+          stock: data.stock,
         }))
     );
 

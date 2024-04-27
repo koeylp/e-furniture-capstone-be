@@ -73,8 +73,8 @@ class OrderController {
     const { account_id } = req.payload;
     const order = req.body;
     if (!order) throw new BadRequestError();
-    // const { error } = validateOrderInput(order);
-    // if (error) throw new BadRequestError(error.details[0].message);
+    const { error } = validateOrderInput(order);
+    if (error) throw new BadRequestError(error.details[0].message);
     return new OK({
       message: "Create Order Successfully!",
       metaData: await OrderService.createOrder(account_id, order),
