@@ -102,6 +102,32 @@ class OrderRepository {
     }
     return await this.getOrdersWithoutPopulate({ query, page, limit });
   }
+  static async getOrdersByTypeWithStatus({
+    account_id,
+    type,
+    page,
+    limit,
+    status,
+  }) {
+    const query = {
+      ...(account_id && { account_id }),
+      guest: false,
+    };
+    if (type) {
+      query.$expr = {
+        $and: [
+          { $eq: [{ $arrayElemAt: ["$order_tracking.name", -1] }, type] },
+          {
+            $eq: [
+              { $arrayElemAt: ["$order_tracking.status", -1] },
+              parseInt(status),
+            ],
+          },
+        ],
+      };
+    }
+    return await this.getOrdersWithoutPopulate({ query, page, limit });
+  }
   static async findOrderById({ account_id = null, order_id }) {
     checkValidId(order_id);
     const query = {
