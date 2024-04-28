@@ -16,7 +16,7 @@ const startServer = async (app) => {
         origin: [
           "http://localhost:3000",
           "http://localhost:5173",
-          "https://efurniture.vercel.app/",
+          "https://efurniture.vercel.app",
           "https://efurniture-admin.vercel.app",
         ],
         credentials: true,
