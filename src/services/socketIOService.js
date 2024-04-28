@@ -21,7 +21,6 @@ class SocketIOService {
         }
       }
       SocketIOService.onlineUsers[account_id] = socket.id;
-      console.log(SocketIOService.onlineUsers);
     });
 
     socket.emit("hello", "world");

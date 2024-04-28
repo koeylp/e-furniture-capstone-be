@@ -29,7 +29,6 @@
 //   ],
 // ];
 // const result = [];
-
 // const StoreSubTypeService = require("../src/services/storeSubTypeService");
 
 // function generateCombinations(currentCombination, remainingArrays) {
