@@ -8,7 +8,6 @@ class SocketIOService {
     });
 
     socket.on("login-user", (account_id) => {
-      console.log("You Was Here!");
       if (SocketIOService.onlineUsers[account_id]) {
         const user = SocketIOService.onlineUsers[account_id];
         if (user !== socket.id) {
