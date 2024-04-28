@@ -56,7 +56,8 @@ class RoomService {
           await ProductRepository.findPublishProductByIDWithModify(
             product.product
           );
-        return modifiedProduct;
+        product.product = modifiedProduct;
+        return product;
       })
     );
     room.products = room.products.filter(Boolean);

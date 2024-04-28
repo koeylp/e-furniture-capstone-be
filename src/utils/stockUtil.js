@@ -54,7 +54,6 @@ class StockUtil {
         }
       });
     }
-
     const array = [];
     for (const warehouseId in result) {
       array.push({
@@ -131,9 +130,6 @@ class StockUtil {
           nearestWarehouse.products[product_index].stock,
           product_index
         );
-      }
-      if (nearestWarehouse.products[product_index].stock < 0) {
-        nearestWarehouse = this.draftProduct(nearestWarehouse, product_index);
       }
       await this.checkLowStockQuantity(
         nearestWarehouse.products[product_index]
