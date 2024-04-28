@@ -30,6 +30,17 @@ class MappingService {
       console.error("Error making Vietmap API request:", error.message);
     }
   }
+
+  static async getRouteData(origin, destination) {
+    try {
+      const response = await axios.get(
+        `${VIETMAP_API_BASE_URL}/${PROFILE[1]}?api-version=1.1&apikey=${VIET_MAP_API_KEY}&point=${origin}&point=${destination}&vehicle=car`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error making Vietmap API request:", error.message);
+    }
+  }
 }
 
 module.exports = MappingService;
