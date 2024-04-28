@@ -11,6 +11,7 @@ const DeliveryTripUtils = require("../utils/deliveryTripUtils");
 const StateUtils = require("../utils/stateUtils");
 const WareHouseRepository = require("../models/repositories/warehouseRepository");
 const RevenueService = require("./revenueService");
+const { findOptimalRoute } = require("../utils/deliveryRouteOptimizer");
 
 class DeliveryTripService {
   static async create(payload) {
@@ -56,7 +57,7 @@ class DeliveryTripService {
     return result;
   }
 
-  static async modifyOrders(orders) {
+  /*  static async modifyOrders(orders) {
     const orderState = {};
     const orderPromise = orders.map(async (order) => {
       let result = await OrderRepository.findOrderById({
@@ -69,6 +70,23 @@ class DeliveryTripService {
     });
     await Promise.all(orderPromise);
     return { orderState, orders };
+  } */
+
+  static async modifyOrders(orders) {
+    const orderState = {};
+    const tspSortedOrders = await findOptimalRoute(orders);
+    const orderPromises = tspSortedOrders.map(async (order) => {
+      let result = await OrderRepository.findOrderById({
+        order_id: order.order,
+      });
+      order.payment = result.payment_method;
+      order.amount = result.order_checkout.final_total;
+      if (!orderState[result._id])
+        orderState[result._id] = result.current_order_tracking.name;
+      return order;
+    });
+    const modifiedOrders = await Promise.all(orderPromises);
+    return { orderState, orders: modifiedOrders };
   }
 
   static async findTrip(trip_id) {
