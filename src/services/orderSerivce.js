@@ -576,12 +576,13 @@ class OrderService {
   }
   static async checkPaidForCancelling(account_id, order_id) {
     const foundOrder = await verifyOrderExistence(order_id);
-    const note = "Your order was not paid in 24 hours";
-    if (
-      !foundOrder.order_checkout.is_paid &&
-      foundOrder.current_order_tracking.name === "Pending"
-    )
+    const note = { reason: "Your order was not paid in 24 hours" };
+    if (foundOrder.current_order_tracking.name === "Pending")
       await this.cancelOrder(account_id, order_id, note);
+  }
+  static async getAddressByOrderId(order_id) {
+    const foundOrder = await verifyOrderExistence(order_id);
+    return `${foundOrder.order_shipping.address}, ${foundOrder.order_shipping.ward}, ${foundOrder.order_shipping.district}, ${foundOrder.order_shipping.province}`;
   }
 }
 module.exports = OrderService;
