@@ -3,7 +3,18 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const _CONF = require("./config");
 const { startServer } = require("../server");
+// const initRedis = require("./databases/init.redis");
+// initRedis.initRedis();
 
+// const { getRedis } = require("./databases/init.redis");
+// const { instanceConnect: redisClient } = getRedis();
+// redisClient.ping((err) => {
+//   if (!err) {
+//     console.log("Connected to Redis with URI: " + REDIS_URL);
+//   } else {
+//     console.error("Error pinging Redis:", err);
+//   }
+// });
 const app = express();
 
 app.use(express.json());
