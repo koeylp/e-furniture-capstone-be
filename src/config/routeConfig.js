@@ -32,6 +32,7 @@ const routes = [
   { path: "/noti", route: require("../routes/notification") },
   { path: "/statistic", route: require("../routes/statistic") },
   { path: "/report", route: require("../routes/report") },
+  { path: "/mapping", route: require("../routes/mapping") },
 ];
 
 const configureRoutes = (app) => {

@@ -163,7 +163,7 @@ class OrderService {
       } catch (error) {
         console.error("Error checking paid for cancelling:", error);
       }
-    }, 24 * 60 * 60 * 1000);
+    }, 300000);
     return createdOrder;
   }
   static async updateTracking(order_id, note) {
