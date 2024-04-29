@@ -14,7 +14,8 @@ class StockUtil {
   static async checkProductStock(product) {
     const { product_id, quantity, code, variation } = product;
     const query = { code: code };
-    const productOrder = await ProductRepository.findProductById(product_id);
+    const productOrder =
+      await ProductRepository.findPublishProductByIDWithModify(product_id);
     const foundProductStock = await InventoryRepository.findByQuery(query);
     if (!foundProductStock)
       throw new NotFoundError(`Stock not found with id + ${product_id}`);
@@ -27,10 +28,7 @@ class StockUtil {
     }
 
     return {
-      name: productOrder.name,
-      thumbs: productOrder.thumbs,
-      regular_price: productOrder.regular_price,
-      variation: variation,
+      ...productOrder,
     };
   }
   static async updateStock(order) {
@@ -165,16 +163,6 @@ class StockUtil {
     const updatedStock = foundInventory.stock - quantity;
     const updatedSold = foundInventory.sold + quantity;
 
-    if (updatedStock <= 0) {
-      console.log("Draft");
-      // const productToDraft = await ProductRepository.findProductById(
-      //   product_id
-      // );
-      // await ProductService.draftProduct(
-      //   productToDraft.type,
-      //   productToDraft.slug
-      // );
-    }
     const savedInventory = await InventoryRepository.save(
       foundInventory._id,
       updatedSold,

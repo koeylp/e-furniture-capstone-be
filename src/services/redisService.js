@@ -1,8 +1,9 @@
 const { promisify } = require("util");
 
 const redisClient = require("../databases/initRedis");
-const { promisify } = require("util");
-const { checkProductStock } = require("../utils/stockUtil");
+const StockUtil = require("../utils/stockUtil");
+const WareHouseService = require("./warehouseService");
+const { BadRequestError } = require("../utils/errorHanlder");
 
 const pexpire = promisify(redisClient.pExpire).bind(redisClient);
 const setnxAsync = promisify(redisClient.setNX).bind(redisClient);
@@ -44,27 +45,41 @@ const setnxAsync = promisify(redisClient.setNX).bind(redisClient);
 //     );
 //   }
 // }
-
-const acquireLock = async (productId, quantity, cartId) => {
-  const key = `lock_v2023_${productId}`;
+const handleProductsOrder = async (account_id, order) => {
+  await acquireLock(account_id, order)
+    .then(async (key) => {
+      if (key) {
+        await releaseLock(key);
+      }
+    })
+    .catch((error) => {
+      throw new BadRequestError(error);
+    });
+};
+const acquireLock = async (account_id, order) => {
+  const key = `lock_efurniture_${account_id}`;
   const retryTimes = 10;
   const expireTime = 3000;
+
   for (let index = 0; index < retryTimes; index++) {
     const result = await setnxAsync(key, expireTime);
     if (result === 1) {
-      //đặt hàng
-      const isReservation = true;
-      if (isReservation) {
-        console.log("Here");
+      try {
+        await this.verifyProducts(order);
+        await this.handleStock(order);
         await pexpire(key, expireTime);
         return key;
+      } catch (ex) {
+        return Promise.reject(ex);
+      } finally {
+        await pexpire(key, expireTime);
       }
-      return null;
     } else {
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
   }
-  return null;
+
+  return Promise.reject(new BadRequestError("Lock acquisition failed"));
 };
 
 const releaseLock = async (keyLock) => {
@@ -75,20 +90,20 @@ const releaseLock = async (keyLock) => {
 const verifyProducts = async (order) => {
   const products = order.order_products;
   for (const product of products) {
-    product.product = await checkProductStock(product);
+    product.product = await StockUtil.checkProductStock(product);
   }
   return products;
 };
-const handleStock = async () => {
+const handleStock = async (order) => {
   const products = order.order_products;
   for (const product of products) {
-    await this.updateInventoryStock(product);
-  }
-  for (const product of products) {
-    this.updateWarehouseStock(product, order.order_shipping);
+    await StockUtil.updateInventoryStock(product);
+    await WareHouseService.increaseProductSold(product, product.quantity);
+    await WareHouseService.decreaseProductStock(product, product.quantity);
   }
 };
 module.exports = {
   acquireLock,
   releaseLock,
+  handleProductsOrder,
 };
