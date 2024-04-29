@@ -2,6 +2,7 @@ const { promisify } = require("util");
 
 const redisClient = require("../databases/initRedis");
 const { promisify } = require("util");
+const { checkProductStock } = require("../utils/stockUtil");
 
 const pexpire = promisify(redisClient.pExpire).bind(redisClient);
 const setnxAsync = promisify(redisClient.setNX).bind(redisClient);
@@ -69,6 +70,23 @@ const acquireLock = async (productId, quantity, cartId) => {
 const releaseLock = async (keyLock) => {
   const delAsyncKey = promisify(redisClient.del).bind(redisClient);
   return await delAsyncKey(keyLock);
+};
+
+const verifyProducts = async (order) => {
+  const products = order.order_products;
+  for (const product of products) {
+    product.product = await checkProductStock(product);
+  }
+  return products;
+};
+const handleStock = async () => {
+  const products = order.order_products;
+  for (const product of products) {
+    await this.updateInventoryStock(product);
+  }
+  for (const product of products) {
+    this.updateWarehouseStock(product, order.order_shipping);
+  }
 };
 module.exports = {
   acquireLock,

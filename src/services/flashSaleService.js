@@ -68,11 +68,11 @@ class FlashSaleService {
       );
     } else if (payload.startDay > flashsale.startDay) {
       payload.status = 0;
+    } else if (payload.endDay < flashsale.startDay) {
+      payload.status = 2;
     }
     flashsale = await FlashSaleRepository.updateById(flashSale_id, payload);
-    console.log(flashsale);
     await this.startFlashSaleCron(flashsale);
-    console.log(CronFactory.cronRegistry);
     return flashsale;
   }
 
@@ -146,7 +146,6 @@ class FlashSaleService {
     if (result.modifiedCount < 1) throw new NotFoundError();
     await this.endFlashSaleCron(flashSale_id);
     await FlashSaleUtils.modifyStopFlashSale(flashSale_id, flashSale.products);
-
     return result;
   }
 
