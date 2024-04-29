@@ -1,10 +1,12 @@
 const { default: mongoose } = require("mongoose");
 const BankInforRepository = require("../models/repositories/bankInforRepository");
-const AccountRepository = require("../models/repositories/accountRepository");
 class BankInforService {
   static async createBankInfor(account_id, payload) {
-    await AccountRepository.findAccountById(account_id);
     payload.account_id = account_id;
+    let accounts = await this.findBankInforByAccount(account_id);
+    if (accounts.length == 0) {
+      payload.is_default = true;
+    }
     return await BankInforRepository.createBankInfor(payload);
   }
   static async findBankInforById(account_id, bankInfor_id) {
