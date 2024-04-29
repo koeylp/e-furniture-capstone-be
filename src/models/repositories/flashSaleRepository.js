@@ -45,7 +45,9 @@ class FlashSaleRepository {
 
   static async update(query, update) {
     update = removeUndefineObject(update);
-    const result = await _FlashSale.updateOne(query, update, { new: true });
+    const result = await _FlashSale.findOneAndUpdate(query, update, {
+      new: true,
+    });
     if (!result) throw new BadRequestError("Cannot Update FlashSale!");
     return result;
   }
