@@ -312,7 +312,7 @@ class OrderService {
     if (foundOrder.order_checkout.paid.must_paid != transaction.amount)
       throw new BadRequestError(
         "The amount of money must be equal to " +
-          foundOrder.order_checkout.paid.must_paid
+          Math.floor(foundOrder.order_checkout.paid.must_paid)
       );
     const key_of_type = getKeyByValue(
       orderTrackingMap,
@@ -332,8 +332,7 @@ class OrderService {
 
     // if (!transactionCreation)
     //   throw new InternalServerError("Saving transaction failed!");
-    const updatedOrder = await OrderRepository.paid(
-      null,
+    const updatedOrder = await OrderRepository.paidGuest(
       order_id,
       Math.floor(transaction.amount)
     );
