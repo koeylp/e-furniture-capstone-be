@@ -14,9 +14,12 @@ class BankService {
     const orderCode = await generateOrderCodePayOS(
       BankService.checkOrderCodeExists
     );
-    let returnUrl = "http://localhost:5173/order-confirmation";
-    if (order.order_shipping.mobile)
+    let returnUrl = "https://efurniture.vercel.app/order-confirmation";
+    let cancelUrl = "https://efurniture.vercel.app/order-cancelled";
+    if (order.order_shipping.mobile) {
       returnUrl = "exp://192.168.0.101:8081/--/order-confirmation";
+      cancelUrl = "exp://192.168.0.101:8081/--/order-cancelled";
+    }
     const body = {
       orderCode: orderCode,
       // amount: order.order_checkout.final_total,
@@ -27,7 +30,7 @@ class BankService {
       buyerPhone: order.order_shipping.phone,
       buyerAddress: buyerAddress,
       expiredAt: Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000),
-      cancelUrl: "http://localhost:5173/order-cancelled",
+      cancelUrl: cancelUrl,
       returnUrl: returnUrl,
     };
     const paymentLinkRes = await payOS.createPaymentLink(body);
