@@ -61,15 +61,15 @@ class FlashSaleService {
     await FlashSaleUtils.validateProducts(payload.products);
 
     payload.startDay = FlashSaleUtils.convertToDate(payload.startDay);
-    if (payload.startDay > flashsale.startDay) {
+    if (payload.startDay < flashsale.startDay) {
       await FlashSaleUtils.modifyStartFlashSale(
         flashSale_id,
         flashsale.products
       );
     }
     flashsale = await FlashSaleRepository.updateById(flashSale_id, payload);
-
     await this.startFlashSaleCron(flashsale);
+    return flashsale;
   }
 
   static async publish(flashSale_id) {
