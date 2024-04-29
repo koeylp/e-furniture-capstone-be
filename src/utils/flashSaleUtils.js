@@ -86,6 +86,11 @@ class FlashSaleUtils {
         if (product.salePrice < 0) {
           throw new BadRequestError("The Sale Price must be positive!");
         }
+        if (product.salePrice > productFound.sale_price) {
+          throw new BadRequestError(
+            "The Sale Price must be less than Product Price Now!"
+          );
+        }
         product.oldSalePrice = productFound.sale_price;
       })
     );
