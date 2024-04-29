@@ -66,6 +66,8 @@ class FlashSaleService {
         flashSale_id,
         flashsale.products
       );
+    } else if (payload.startDay > flashsale.startDay) {
+      payload.status = 0;
     }
     flashsale = await FlashSaleRepository.updateById(flashSale_id, payload);
     await this.startFlashSaleCron(flashsale);
@@ -132,8 +134,8 @@ class FlashSaleService {
     const cronEnd = CronFactory.cronRegistry[`${flashSale_id}_end`];
     cronStart.stop();
     cronEnd.stop();
-    CronFactory.unregisterCronType(`${flashSale_id}_start`);
-    CronFactory.unregisterCronType(`${flashSale_id}_end`);
+    await CronFactory.unregisterCronType(`${flashSale_id}_start`);
+    await CronFactory.unregisterCronType(`${flashSale_id}_end`);
   }
 
   static async draft(flashSale_id) {

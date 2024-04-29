@@ -5,7 +5,7 @@ class CronFactory {
       CronFactory.cronRegistry[cron_id] = cronJob;
     }
   }
-  static unregisterCronType(cron_id) {
+  static async unregisterCronType(cron_id) {
     if (CronFactory.cronRegistry[cron_id]) {
       delete CronFactory.cronRegistry[cron_id];
     }
