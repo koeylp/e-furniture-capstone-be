@@ -289,8 +289,7 @@ class OrderRepository {
       .findOneAndUpdate(
         {
           _id: new mongoose.Types.ObjectId(order_id),
-          account_id: account_id,
-          guest: false,
+          guest: true,
           "order_tracking.name": { $ne: "Processing" },
         },
         {
