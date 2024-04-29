@@ -154,7 +154,6 @@ class OrderService {
       };
       var createdOrder = await OrderRepository.createOrder(account_id, order);
     }
-
     setTimeout(async () => {
       try {
         await this.checkPaidForCancelling(
@@ -164,8 +163,8 @@ class OrderService {
       } catch (error) {
         console.error("Error checking paid for cancelling:", error);
       }
-    }, 60 * 1000);
-    return createOrder;
+    }, 300000);
+    return createdOrder;
   }
   static async updateTracking(order_id, note) {
     const order = await verifyOrderExistence(order_id);
@@ -313,7 +312,7 @@ class OrderService {
     if (foundOrder.order_checkout.paid.must_paid != transaction.amount)
       throw new BadRequestError(
         "The amount of money must be equal to " +
-          foundOrder.order_checkout.paid.must_paid
+          Math.floor(foundOrder.order_checkout.paid.must_paid)
       );
     const key_of_type = getKeyByValue(
       orderTrackingMap,
@@ -333,8 +332,7 @@ class OrderService {
 
     // if (!transactionCreation)
     //   throw new InternalServerError("Saving transaction failed!");
-    const updatedOrder = await OrderRepository.paid(
-      null,
+    const updatedOrder = await OrderRepository.paidGuest(
       order_id,
       Math.floor(transaction.amount)
     );
@@ -577,10 +575,13 @@ class OrderService {
   }
   static async checkPaidForCancelling(account_id, order_id) {
     const foundOrder = await verifyOrderExistence(order_id);
-    const note = "Your order was not paid in 24 hours";
-    console.log(note);
-    if (!foundOrder.order_checkout.is_paid)
+    const note = { reason: "Your order was not paid in 24 hours" };
+    if (foundOrder.current_order_tracking.name === "Pending")
       await this.cancelOrder(account_id, order_id, note);
+  }
+  static async getAddressByOrderId(order_id) {
+    const foundOrder = await verifyOrderExistence(order_id);
+    return `${foundOrder.order_shipping.address}, ${foundOrder.order_shipping.ward}, ${foundOrder.order_shipping.district}, ${foundOrder.order_shipping.province}`;
   }
 }
 module.exports = OrderService;

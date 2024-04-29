@@ -1,8 +1,23 @@
 const MappingService = require("../services/mappingService");
+const OrderService = require("../services/orderSerivce");
+
+const warehouseCoordinates = [106.80986153779497, 10.84132779895856];
+const distanceCache = new Map();
 
 const calculateDistance = async (origin, destination) => {
-  const distance = await MappingService.calculateDistance(origin, destination);
-  return distance;
+  const key = `${origin}_${destination}`;
+  if (distanceCache.has(key)) {
+    return distanceCache.get(key);
+  } else {
+    let textOrigin = `${origin[1]},${origin[0]}`;
+    let textDestination = `${destination[1]},${destination[0]}`;
+    const distance = await MappingService.calculateDistance(
+      textOrigin,
+      textDestination
+    );
+    distanceCache.set(key, distance);
+    return distance;
+  }
 };
 
 const permuteCoordinates = (coordinates) => {
@@ -25,38 +40,41 @@ const permuteCoordinates = (coordinates) => {
 const calculateTotalDistance = async (route) => {
   let totalDistance = 0;
   for (let i = 0; i < route.length - 1; i++) {
-    const origin = route[i];
-    const destination = route[i + 1];
+    const origin = route[i].coordinates;
+    const destination = route[i + 1].coordinates;
     const distance = await calculateDistance(origin, destination);
     totalDistance += distance;
   }
   return totalDistance;
 };
 
-const findOptimalRoute = async (coordinates) => {
-  const permutations = permuteCoordinates(coordinates);
-  let shortestDistance = Infinity;
-  let optimalRoute = null;
-  for (const permutation of permutations) {
-    const totalDistance = await calculateTotalDistance(permutation);
-    if (totalDistance < shortestDistance) {
-      shortestDistance = totalDistance;
-      optimalRoute = permutation;
-    }
+const convertAllLocationsToCoordinates = async (orders) => {
+  for (let i = 0; i < orders.length; i++) {
+    let address = await OrderService.getAddressByOrderId(orders[i].order);
+    orders[i].coordinates = await MappingService.fetchCoordinateFromAddress(
+      address
+    );
   }
-  return optimalRoute;
+  return orders;
 };
 
-const coordinates = [
-  "10.79628438955497,106.70592293472612",
-  "10.801891047584164,106.70660958023404",
-  "10.84129618691939,106.80987226663068",
-];
+const findOptimalRoute = async (orders) => {
+  await convertAllLocationsToCoordinates(orders);
+  const permutations = permuteCoordinates(orders);
+  let shortestDistance = Infinity;
+  let optimalPermutation = null;
+  for (const permutation of permutations) {
+    const totalDistance = await calculateTotalDistance([
+      { coordinates: warehouseCoordinates },
+      ...permutation,
+      { coordinates: warehouseCoordinates },
+    ]);
+    if (totalDistance < shortestDistance) {
+      shortestDistance = totalDistance;
+      optimalPermutation = permutation;
+    }
+  }
+  return optimalPermutation;
+};
 
-findOptimalRoute(coordinates)
-  .then((optimalRoute) => {
-    console.log("Optimal Route:", optimalRoute);
-  })
-  .catch((err) => {
-    console.error("Error:", err);
-  });
+module.exports = { findOptimalRoute };
