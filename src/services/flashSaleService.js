@@ -59,15 +59,17 @@ class FlashSaleService {
     let flashsale = await FlashSaleRepository.findFlashSaleById(flashSale_id);
     FlashSaleUtils.validateDate(payload.startDay, payload.endDay);
     await FlashSaleUtils.validateProducts(payload.products);
-    await this.startFlashSaleCron(flashsale);
+
     payload.startDay = FlashSaleUtils.convertToDate(payload.startDay);
+
+    flashsale = await FlashSaleRepository.updateById(flashSale_id, payload);
     if (payload.startDay > flashsale.startDay) {
       await FlashSaleUtils.modifyStartFlashSale(
         flashSale_id,
         flashsale.products
       );
     }
-    return await FlashSaleRepository.updateById(flashSale_id, payload);
+    await this.startFlashSaleCron(flashsale);
   }
 
   static async publish(flashSale_id) {
