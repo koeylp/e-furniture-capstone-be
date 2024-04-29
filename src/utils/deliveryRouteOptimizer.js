@@ -48,6 +48,19 @@ const calculateTotalDistance = async (route) => {
   return totalDistance;
 };
 
+const memo = {};
+
+const memoizedCalculateTotalDistance = async (route) => {
+  const key = JSON.stringify(route.map(point => point.coordinates));
+  if (memo[key] !== undefined) {
+    return memo[key];
+  } else {
+    const totalDistance = await calculateTotalDistance(route);
+    memo[key] = totalDistance;
+    return totalDistance;
+  }
+};
+
 const convertAllLocationsToCoordinates = async (orders) => {
   for (let i = 0; i < orders.length; i++) {
     let address = await OrderService.getAddressByOrderId(orders[i].order);
@@ -64,7 +77,7 @@ const findOptimalRoute = async (orders) => {
   let shortestDistance = Infinity;
   let optimalPermutation = null;
   for (const permutation of permutations) {
-    const totalDistance = await calculateTotalDistance([
+    const totalDistance = await memoizedCalculateTotalDistance([
       { coordinates: warehouseCoordinates },
       ...permutation,
       { coordinates: warehouseCoordinates },
