@@ -2,8 +2,8 @@
 const { BadRequestError, ForbiddenError } = require("../utils/errorHanlder");
 const TokenService = require("../services/tokenService");
 const AccountRepository = require("../models/repositories/accountRepository");
-const client = require("../databases/initRedis");
-const { promisify } = require("util");
+// const client = require("../databases/initRedis");
+// const { promisify } = require("util");
 const { hashCode, encryptCode } = require("../utils/hashCode");
 const { createToken } = require("../jwt/jwtHandler");
 const { verifyRefreshToken } = require("../jwt/verifyToken");
@@ -11,7 +11,7 @@ const { checkPermissionLogin } = require("../utils/authUtils");
 
 class AuthService {
   static async login(username, password, role_login = "login_user") {
-    const setAsync = promisify(client.set).bind(client);
+    // const setAsync = promisify(client.set).bind(client);
     const userCheck = await AccountRepository.findAccountByUsername(username);
     if (!userCheck) throw new BadRequestError("Invalid Username!");
     const isValid = await encryptCode(password, userCheck.password);
@@ -51,8 +51,8 @@ class AuthService {
   static async logout(account_id) {
     await Promise.all([
       TokenService.deleteToken(account_id),
-      client.del(`access_token_efurniture_${account_id}`),
-      client.del(`refresh_token_efurniture_${account_id}`),
+      // client.del(`access_token_efurniture_${account_id}`),
+      // client.del(`refresh_token_efurniture_${account_id}`),
     ]);
     return 1;
   }

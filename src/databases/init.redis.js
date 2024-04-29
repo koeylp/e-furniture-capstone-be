@@ -47,7 +47,10 @@ const handleEventConnect = ({ connectionRedis }) => {
   });
 };
 const initRedis = () => {
-  const instanceRedis = redis.createClient();
+  const instanceRedis = redis.createClient({
+    url: REDIS_URL,
+    legacyMode: true,
+  });
   client.instanceConnect = instanceRedis;
   handleEventConnect({
     connectionRedis: instanceRedis,

@@ -29,6 +29,7 @@ const BankService = require("./bankService");
 const ReportService = require("./reportService");
 const StateUtils = require("../utils/stateUtils");
 const { generateOrderCode } = require("../utils/generateOrderCode");
+const { acquireLock, releaseLock } = require("./redisService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -122,7 +123,10 @@ class OrderService {
   static async createOrder(account_id, order) {
     const products = await verifyProductStockExistence(order);
     await StockUtil.updateStock(order);
-
+    // let key = await acquireLock(account_id, order);
+    // if (key) {
+    //   await releaseLock(key);
+    // }
     order = await this.categorizePaymentMethod(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
