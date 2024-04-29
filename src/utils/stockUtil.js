@@ -12,7 +12,7 @@ const ProductRepository = require("../models/repositories/productRepository");
 
 class StockUtil {
   static async checkProductStock(product) {
-    const { product_id, quantity, code } = product;
+    const { product_id, quantity, code, variation } = product;
     const query = { code: code };
     const productOrder = await ProductRepository.findProductById(product_id);
     const foundProductStock = await InventoryRepository.findByQuery(query);
@@ -30,6 +30,7 @@ class StockUtil {
       name: productOrder.name,
       thumbs: productOrder.thumbs,
       regular_price: productOrder.regular_price,
+      variation: variation,
     };
   }
   static async updateStock(order) {
