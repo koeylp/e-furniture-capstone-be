@@ -105,7 +105,7 @@ class WareHouseRepository {
       .populate("products.product")
       .lean();
     const productFilter = result.products.filter(
-      (product) => product.is_published === true
+      (product) => product.is_published === true && product._id !== null
     );
     result.products = productFilter;
     return result;

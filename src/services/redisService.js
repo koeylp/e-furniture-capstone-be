@@ -59,7 +59,7 @@ const handleProductsOrder = async (account_id, order) => {
 const acquireLock = async (product) => {
   const key = `lock_efurniture_${product.product_id.toString()}`;
   const retryTimes = 10;
-  const expireTime = 150000;
+  const expireTime = 50;
 
   for (let index = 0; index < retryTimes; index++) {
     const result = await setnxAsync(key, "");
@@ -103,7 +103,7 @@ const handleStockWithRedisKey = async (order) => {
       const { result, key } = await acquireLock(product);
       product.product = result;
       if (key) {
-        // await releaseLock(key);
+        await releaseLock(key);
       }
       restore.push(product);
     } catch (error) {
