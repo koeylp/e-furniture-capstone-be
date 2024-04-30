@@ -17,8 +17,8 @@ class BankService {
     let returnUrl = "https://efurniture.vercel.app/order-confirmation";
     let cancelUrl = "https://efurniture.vercel.app/order-cancelled";
     if (order.order_shipping.mobile) {
-      returnUrl = mobile.returnUrl;
-      cancelUrl = mobile.cancelUrl;
+      returnUrl = order.order_shipping.mobile.returnUrl;
+      cancelUrl = order.order_shipping.mobile.cancelUrl;
     }
     const body = {
       orderCode: orderCode,
