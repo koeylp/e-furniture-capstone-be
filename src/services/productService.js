@@ -17,11 +17,11 @@ const { getCode } = require("../utils/codeUtils");
 const VariationUtils = require("../utils/variationUtils");
 
 class ProductService {
-  static async getAllDraft(page = 1, limit = 12, sortType = "default") {
+  static async getAllDraft(page = 1, limit = 200, sortType = "default") {
     sortType = returnSortType(sortType);
     return await ProductRepository.getAllDraft(page, limit, sortType);
   }
-  static async getAllPublished(page = 1, limit = 12, sortType = "default") {
+  static async getAllPublished(page = 1, limit = 200, sortType = "default") {
     sortType = returnSortType(sortType);
     return await ProductRepository.getAllPublished(page, limit, sortType);
   }

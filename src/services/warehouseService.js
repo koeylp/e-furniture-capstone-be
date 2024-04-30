@@ -28,16 +28,7 @@ class WareHouseService {
   }
 
   static async findWareHouseById(warehouse_id) {
-    const warehouse = await WareHouseRepository.findWareHouseById(warehouse_id);
-    if (!warehouse) throw new NotFoundError("WareHouse Not Found");
-    const productPromises = warehouse.products.map(async (item) => {
-      let variation = await ProductService.findVariationValues(
-        item.product._id.toString(),
-        item.variation
-      );
-      item.variation = variation == null ? product.variation : variation;
-    });
-    await Promise.all(productPromises);
+    const warehouse = await WareHouseRepository.findFirst();
     return warehouse;
   }
 
