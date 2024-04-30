@@ -289,9 +289,9 @@ class ProductService {
       (property) => property._id == property_id
     );
     if (index == -1) throw new NotFoundError("Cannot Found Any Item Result!");
-    product.variation[0].properties = product.variation[0].properties.slice(
-      0,
-      index
+    product.variation[0].properties = product.variation[0].properties.splice(
+      index,
+      1
     );
     await ProductRepository.updateProductById(product_id, product);
     return product;

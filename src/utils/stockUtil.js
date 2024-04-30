@@ -21,7 +21,7 @@ class StockUtil {
       throw new NotFoundError(`Stock not found with id + ${product_id}`);
     if (foundProductStock.stock === 0)
       throw new BadRequestError(
-        `The product with id ${product_id} is out of stock`
+        `The product with name ${productOrder.name} is out of stock`
       );
     if (foundProductStock.stock < quantity) {
       throw new BadRequestError(`Product is out of stock`);

@@ -56,30 +56,31 @@ const handleProductsOrder = async (account_id, order) => {
       throw new BadRequestError(error);
     });
 };
-const acquireLock = async (account_id, order) => {
-  const key = `lock_efurniture_${account_id}`;
+const acquireLock = async (product) => {
+  const key = `lock_efurniture_${product.product_id.toString()}`;
   const retryTimes = 10;
-  const expireTime = 3000;
+  const expireTime = 150000;
 
   for (let index = 0; index < retryTimes; index++) {
-    const result = await setnxAsync(key, expireTime);
+    const result = await setnxAsync(key, "");
     if (result === 1) {
       try {
-        await this.verifyProducts(order);
-        await this.handleStock(order);
+        const result = await StockUtil.checkProductStock(product);
+        await StockUtil.updateInventoryStock(product);
+        await WareHouseService.increaseProductSold(product, product.quantity);
+        await WareHouseService.decreaseProductStock(product, product.quantity);
         await pexpire(key, expireTime);
-        return key;
+        return { result, key };
       } catch (ex) {
-        return Promise.reject(ex);
-      } finally {
-        await pexpire(key, expireTime);
+        await releaseLock(key);
+        throw new BadRequestError(ex.message);
       }
     } else {
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
   }
 
-  return Promise.reject(new BadRequestError("Lock acquisition failed"));
+  throw new BadRequestError("Order Failed!");
 };
 
 const releaseLock = async (keyLock) => {
@@ -94,16 +95,34 @@ const verifyProducts = async (order) => {
   }
   return products;
 };
-const handleStock = async (order) => {
+const handleStockWithRedisKey = async (order) => {
+  let restore = [];
   const products = order.order_products;
   for (const product of products) {
-    await StockUtil.updateInventoryStock(product);
-    await WareHouseService.increaseProductSold(product, product.quantity);
-    await WareHouseService.decreaseProductStock(product, product.quantity);
+    try {
+      const { result, key } = await acquireLock(product);
+      product.product = result;
+      if (key) {
+        // await releaseLock(key);
+      }
+      restore.push(product);
+    } catch (error) {
+      await restoreStock(restore);
+      throw new BadRequestError(error.message);
+    }
+  }
+  return products;
+};
+const restoreStock = async (restore) => {
+  for (const product of restore) {
+    await StockUtil.restoreInventoryStock(product);
+    await WareHouseService.decreaseProductSold(product, product.quantity);
+    await WareHouseService.increaseProductStock(product, product.quantity);
   }
 };
 module.exports = {
   acquireLock,
   releaseLock,
   handleProductsOrder,
+  handleStockWithRedisKey,
 };
