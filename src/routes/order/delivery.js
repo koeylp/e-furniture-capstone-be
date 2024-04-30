@@ -40,10 +40,17 @@ router.put(
   hasPermission(global.PermissionConstants.DELIVERY_PUT),
   asyncHandler(OrderController.updateSubstateShipping)
 );
+
 router.put(
   "/update-tracking/shipping/done/:order_id",
   hasPermission(global.PermissionConstants.DELIVERY_PUT),
   asyncHandler(OrderController.doneShipping)
+);
+
+router.put(
+  "/pay-again/:order_id",
+  hasPermission(global.PermissionConstants.DELIVERY_PUT),
+  asyncHandler(OrderController.payAgain)
 );
 
 module.exports = router;

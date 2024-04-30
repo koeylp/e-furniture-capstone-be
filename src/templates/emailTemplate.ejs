@@ -758,16 +758,23 @@
                                                                                                         align="left"
                                                                                                         bgcolor="#ffffff"
                                                                                                         valign="middle">
+                                                                                                        <% if (payment_method === "COD") { %>
                                                                                                         <img width="40"
                                                                                                             style="width: 40px; vertical-align: middle; height: auto !important; font-weight: bold;"
                                                                                                             alt="COD Icon"
                                                                                                             src="https://c8.alamy.com/comp/M0FJ47/cod-cash-on-delivery-rubber-stamp-M0FJ47.jpg">
+                                                                                                            <% } else { %>
+                                                                                                        <img width="40"
+                                                                                                            style="width: 40px; vertical-align: middle; height: auto !important; font-weight: bold;"
+                                                                                                            alt="PayOS Icon"
+                                                                                                            src="https://payos.vn/wp-content/uploads/sites/13/2023/12/payos-hop-tac-ocb.jpg">
+                                                                                                            <% } %>
                                                                                                     </th>
                                                                                                     <th style="mso-line-height-rule: exactly; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,'Karla'; font-size: 16px; line-height: 26px; font-weight: bold; color: #666363; padding: 8px 0;"
                                                                                                         align="left"
                                                                                                         bgcolor="#ffffff"
                                                                                                         valign="middle">
-                                                                                                        Cash On Delivery
+                                                                                                        <%= payment_method %>
                                                                                                     </th>
                                                                                                 </tr>
                                                                                             </tbody>
@@ -927,7 +934,7 @@
                                                                         <p style="mso-line-height-rule: exactly; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,'Karla'; font-size: 16px; line-height: 26px; font-weight: 400; color: #666363; margin: 0;"
                                                                             align="center">If you need help with
                                                                             anything please don't hesitate to drop us an
-                                                                            email: care@tens.co :)</p>
+                                                                            email: care@efurniturenotification.live :)</p>
                                                                     </th>
                                                                 </tr>
                                                                 <!-- END SECTION: Closing Text -->

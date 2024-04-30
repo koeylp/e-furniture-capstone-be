@@ -1,17 +1,13 @@
-const ProductRepository = require("../models/repositories/productRepository");
 const { vndFormatCurrency } = require("../utils/format");
 
 class MailtrapUtil {
   static async collectData(order) {
     const productsPromises = order.order_products.map(async (product) => {
-      const foundProduct = await ProductRepository.findProductById(
-        product.product_id
-      );
       return {
-        name: foundProduct.name,
-        thumb: foundProduct.thumbs[0],
+        name: product.product_id.name,
+        thumb: product.product_id.thumbs[0],
         quantity: product.quantity,
-        price: vndFormatCurrency(product.price),
+        price: vndFormatCurrency(product.product_id.sale_price),
       };
     });
     const products = await Promise.all(productsPromises);
@@ -20,6 +16,7 @@ class MailtrapUtil {
       products: products,
       total: vndFormatCurrency(order.order_checkout.final_total),
       order_code: order.order_code,
+      payment_method: order.payment_method,
     };
 
     return data;
