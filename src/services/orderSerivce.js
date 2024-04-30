@@ -144,6 +144,7 @@ class OrderService {
       order.order_checkout.final_total < 1000000
     ) {
       var createdOrder = await OrderRepository.createOrder(account_id, order);
+      await MailtrapService.send(createdOrder);
     } else {
       const pay_os = await BankService.createPaymentLink(order);
       order.order_checkout.pay_os = {
@@ -220,13 +221,13 @@ class OrderService {
     }
 
     await MailtrapService.send(newOrder);
-    setTimeout(async () => {
-      try {
-        await this.checkPaidForCancelling(account_id, newOrder._id.toString());
-      } catch (error) {
-        console.error("Error checking paid for cancelling:", error);
-      }
-    });
+    // setTimeout(async () => {
+    //   try {
+    //     await this.checkPaidForCancelling(newOrder._id.toString());
+    //   } catch (error) {
+    //     console.error("Error checking paid for cancelling:", error);
+    //   }
+    // });
     return newOrder;
   }
 
@@ -300,6 +301,7 @@ class OrderService {
       order_id,
       Math.floor(transaction.amount)
     );
+    await MailtrapService.send(updatedOrder);
     return updatedOrder;
   }
 
@@ -579,6 +581,7 @@ class OrderService {
     if (foundOrder.current_order_tracking.name === "Pending")
       await this.cancelOrder(account_id, order_id, note);
   }
+
   static async getAddressByOrderId(order_id) {
     const foundOrder = await verifyOrderExistence(order_id);
     return `${foundOrder.order_shipping.address}, ${foundOrder.order_shipping.ward}, ${foundOrder.order_shipping.district}, ${foundOrder.order_shipping.province}`;
