@@ -29,7 +29,11 @@ const BankService = require("./bankService");
 const ReportService = require("./reportService");
 const StateUtils = require("../utils/stateUtils");
 const { generateOrderCode } = require("../utils/generateOrderCode");
-const { acquireLock, releaseLock } = require("./redisService");
+const {
+  acquireLock,
+  releaseLock,
+  handleStockWithRedisKey,
+} = require("./redisService");
 
 const TRACKING = ["Pending", "Processing", "Shipping", "Done", "Cancelled"];
 const PAY_TYPE = ["Not Paid", "Deposit"];
@@ -121,12 +125,9 @@ class OrderService {
     return await this.createOrder(account_id, order);
   }
   static async createOrder(account_id, order) {
-    const products = await verifyProductStockExistence(order);
-    await StockUtil.updateStock(order);
-    // let key = await acquireLock(account_id, order);
-    // if (key) {
-    //   await releaseLock(key);
-    // }
+    // const products = await verifyProductStockExistence(order);
+    // await StockUtil.updateStock(order);
+    const products = await handleStockWithRedisKey(order);
     order = await this.categorizePaymentMethod(order);
     if (order.order_checkout.voucher) {
       const updatedVoucher = await VoucherRepository.save(
@@ -137,9 +138,9 @@ class OrderService {
           `Voucher ${found_voucher._id} was applied failed`
         );
     }
-    for (let product of order.order_products) {
-      await CartUtils.removeItem(account_id, product);
-    }
+    // for (let product of order.order_products) {
+    //   await CartUtils.removeItem(account_id, product);
+    // }
 
     order.order_products = products;
     order.order_code = generateOrderCode();
