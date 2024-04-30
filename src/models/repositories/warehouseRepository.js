@@ -105,7 +105,7 @@ class WareHouseRepository {
       .populate("products.product")
       .lean();
     const productFilter = result.products.filter(
-      (product) => product.is_published === true && product._id !== null
+      (product) => product.is_published === true && product.product !== null
     );
     result.products = productFilter;
     return result;
@@ -152,6 +152,18 @@ class WareHouseRepository {
     }
     await this.save(warehouse);
   }
+  static async deleteProduct({ warehouse, product_id }) {
+    for (let index = 0; index < warehouse.products.length; index++) {
+      if (
+        warehouse.products[index].product.equals(
+          new mongoose.Types.ObjectId(product_id)
+        )
+      ) {
+        warehouse.products.splice(index, 1);
+      }
+    }
+    await this.save(warehouse);
+  }
   static async draftProductInsideWareHouse(product_id) {
     _WareHouse
       .find({
@@ -189,18 +201,16 @@ class WareHouseRepository {
       .find({
         "products.product": { $eq: new mongoose.Types.ObjectId(product_id) },
       })
-      .then((warehouses) => {
-        if (warehouses.length > 0) {
-          warehouses.forEach((warehouse) => {
-            const productIndex = warehouse.products.findIndex((product) =>
-              product.product.equals(new mongoose.Types.ObjectId(product_id))
-            );
-            warehouse.products.splice(productIndex, 1);
-          });
-          Promise.all(warehouses.map((warehouse) => warehouse.save())).catch(
-            (error) => console.error(error)
-          );
-        }
+      .then(async (warehouses) => {
+        if (warehouses.length < 0) return;
+        await Promise.all(
+          warehouses.map(async (warehouse) =>
+            this.deleteProduct({
+              warehouse,
+              product_id,
+            })
+          )
+        );
       })
       .catch((error) => {
         console.error(error);
