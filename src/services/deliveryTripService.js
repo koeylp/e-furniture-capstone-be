@@ -175,16 +175,16 @@ class DeliveryTripService {
       StateUtils.DeliveryTripState("ReturnWareHouse")
     )
       throw new BadRequestError("You Cannot Done The Delivery Trip!");
-
-    await this.modifyFinishedOrders(deliveryTrip.orders);
-
     const accountResult = await AccountRepository.updateStateAccount(
       account._id,
       1
     );
+    await this.modifyFinishedOrders(deliveryTrip.orders);
 
     let stateValue = "Done";
+
     await this.updateStateDeliveryTrip(trip_id, deliveryTrip, stateValue);
+
     const payloadNoti = {
       account_id: account._id.toString(),
       title: "Done Delivery Trip",
@@ -193,6 +193,7 @@ class DeliveryTripService {
     };
 
     await this.SendNotification(payloadNoti, 1);
+
     return await this.updateOrdersWithMainStatus(trip_id);
   }
 
