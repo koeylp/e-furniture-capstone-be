@@ -512,7 +512,7 @@ class OrderService {
     }
   }
 
-  static async payPayOS(account_id, orderCode) {
+  static async payPayOS(orderCode) {
     const query = {
       "order_checkout.pay_os.orderCode": parseInt(orderCode),
     };
@@ -526,7 +526,7 @@ class OrderService {
           description: transaction.transactions[0].description,
           when: transaction.createdAt,
         };
-        return await this.paid(account_id, db_transaction);
+        return await this.paid(foundOrder.account_id, db_transaction);
       }
     }
     return foundOrder;
