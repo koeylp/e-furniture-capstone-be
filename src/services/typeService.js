@@ -39,7 +39,7 @@ class TypeService {
 
     ProductFactory.registerProductType(type.slug, model);
     global.subTypeSchemasMap.set(type.slug, model);
-    return result;
+    return type;
   }
   static async draftType(type_slug) {
     const type = await TypeRepository.findTypeBySlug(type_slug);
@@ -57,7 +57,7 @@ class TypeService {
       ProductRepository.draftRangeProductByType(type._id),
     ]);
     deleteSubTypeSchema(type);
-    return result;
+    return type;
   }
   static async editTypeName(type_id, typeName) {
     await TypeRepository.findTypeById(type_id);

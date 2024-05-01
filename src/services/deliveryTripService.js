@@ -56,6 +56,17 @@ class DeliveryTripService {
         `${accountData.first_name} ${accountData.last_name}`
       ),
     ]);
+    const payloadNoti = {
+      account_id: accountData._id,
+      title: "Assign Delivery Trip",
+      message: "Delivery Trip Has Been Assign",
+      status: 1,
+    };
+
+    await this.SendNotification(
+      payloadNoti,
+      StateUtils.AccountState("Shipping")
+    );
     return result;
   }
 
@@ -183,7 +194,7 @@ class DeliveryTripService {
       status: 1,
     };
 
-    await this.SendNotification(payload, accountResult.status);
+    await this.SendNotification(payload, StateUtils.AccountState("Available"));
     return await this.updateOrdersWithMainStatus(trip_id);
   }
 

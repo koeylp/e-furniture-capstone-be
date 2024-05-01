@@ -3,7 +3,7 @@ class SocketIOService {
   connection(socket) {
     socket.on("notification", () => {});
     socket.on("add-user", (account_id) => {
-      onlineUsers.set(account_id, socket.id);
+      onlineDelivery.set(account_id, socket.id);
       _io.to(socket.id).emit("checkRegister", "Toàn Was Here");
     });
 
@@ -26,7 +26,7 @@ class SocketIOService {
     socket.emit("hello", "world");
   }
   sendNotifiToDelivery(account_id, state) {
-    const user = onlineUsers.get(account_id);
+    const user = onlineDelivery.get(account_id);
     if (user) {
       _io.to(user).emit("send-noti-to-delivery", state);
     }
