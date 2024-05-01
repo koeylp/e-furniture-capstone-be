@@ -5,7 +5,7 @@ class SocketIOService {
     socket.on("notification", () => {});
     socket.on("add-user", (account_id) => {
       SocketIOService.onlineDelivery[account_id] = socket.id;
-      const user = SocketIOService.onlineUsers[account_id];
+      const user = SocketIOService.onlineDelivery[account_id];
       _io
         .to(user)
         .emit(
@@ -33,7 +33,7 @@ class SocketIOService {
     socket.emit("hello", "world");
   }
   sendNotifiToDelivery(account_id, state) {
-    const user = SocketIOService.onlineUsers[account_id];
+    const user = SocketIOService.onlineDelivery[account_id];
     console.log("Here", user);
     if (user) {
       _io.to(user).emit("send-noti-to-delivery", {
