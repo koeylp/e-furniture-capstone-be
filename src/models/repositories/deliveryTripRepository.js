@@ -19,7 +19,7 @@ class DeliveryRepository {
       .populate({
         path: "orders.order orders.order.warehouses warehouse",
         select:
-          "order_shipping order_code payment_method order_tracking order_checkout order_products warehouses -products",
+          "account_id order_shipping order_code payment_method order_tracking order_checkout order_products warehouses -products",
       })
       .lean({ virtuals: true });
 

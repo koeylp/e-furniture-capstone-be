@@ -596,5 +596,12 @@ class OrderService {
     const foundOrder = await verifyOrderExistence(order_id);
     return `${foundOrder.order_shipping.address}, ${foundOrder.order_shipping.ward}, ${foundOrder.order_shipping.district}, ${foundOrder.order_shipping.province}`;
   }
+
+  static async paidOrder(order_id) {
+    const order = await OrderRepository.findOrderById({ order_id });
+    order.order_checkout.is_paid = true;
+    await OrderRepository.updateOrder(order);
+    return order;
+  }
 }
 module.exports = OrderService;

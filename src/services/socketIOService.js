@@ -34,7 +34,6 @@ class SocketIOService {
   }
   sendNotifiToDelivery(account_id, state) {
     const user = SocketIOService.onlineDelivery[account_id];
-    console.log("Here", user);
     _io.emit("hello", { user: user, name: "Fuck", state: state });
     if (user) {
       _io.to(user).emit("send-noti-to-delivery", {

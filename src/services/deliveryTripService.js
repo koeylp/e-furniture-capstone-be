@@ -12,6 +12,7 @@ const StateUtils = require("../utils/stateUtils");
 const WareHouseRepository = require("../models/repositories/warehouseRepository");
 const RevenueService = require("./revenueService");
 const { findOptimalRoute } = require("../utils/deliveryRouteOptimizer");
+const TransactionService = require("./transactionService");
 
 class DeliveryTripService {
   static async create(payload) {
@@ -204,6 +205,15 @@ class DeliveryTripService {
           await RevenueService.addRevenueOrder(
             order.order.toString(),
             order.amount
+          );
+          let result = await OrderService.paidOrder(order.order.toString());
+          let transaction = {
+            amount: order.amount,
+          };
+          await TransactionService.createPaidTransaction(
+            result.account_id.toString(),
+            transaction,
+            result.order_code
           );
         }
       })
