@@ -347,7 +347,7 @@ class WareHouseService {
   static async checkLowStockQuantity(product) {
     let lowStock = product.lowStock;
     let isNoti = product.isNoti;
-    if (isNoti && product.stock < lowStock) {
+    if (isNoti && product.stock <= lowStock) {
       await NotificationEfurnitureService.notiLowStock(product.product.name);
     }
   }
