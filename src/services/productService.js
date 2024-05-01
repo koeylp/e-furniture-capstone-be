@@ -118,6 +118,10 @@ class ProductService {
   }
   static async removeProduct(product_slug) {
     const product = await ProductRepository.findProductBySlug(product_slug);
+    if (product.stock > 0)
+      throw new BadRequestError(
+        "A product can only be deleted if its quantity reaches a threshold of 0"
+      );
     if (!product)
       throw new BadRequestError("Cannot Find Any Product To Draft!");
     await this.pullProductFromSubType(product);
@@ -135,7 +139,7 @@ class ProductService {
     if (product.is_draft)
       throw new BadRequestError("Product is already Draft!");
     await this.pullProductFromSubType(product);
-    await InventoryRepository.draftInventoryByProduct(product._id);
+    await InventoryRepository.draftInventoryByProduct(product._id.toString());
     await WareHouseRepository.draftProductInsideWareHouse(product._id);
     await CartRepository.deleteProductInCart(product._id);
     await WishlistRepositoy.deleteProductInWishList(product._id);
@@ -157,7 +161,7 @@ class ProductService {
     let query = {
       _id: { $in: data },
     };
-    return await ProductRepository.getAlls(query);
+    return await ProductRepository.getAlls(query, 1, 12);
   }
   static async getAllProducts(page, limit) {
     return await InventoryRepository.findAllByQueryPopulate(page, limit);

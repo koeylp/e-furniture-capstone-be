@@ -153,15 +153,17 @@ class WareHouseRepository {
     await this.save(warehouse);
   }
   static async deleteProduct({ warehouse, product_id }) {
+    let products = [];
     for (let index = 0; index < warehouse.products.length; index++) {
       if (
-        warehouse.products[index].product.equals(
+        !warehouse.products[index].product.equals(
           new mongoose.Types.ObjectId(product_id)
         )
       ) {
-        warehouse.products.splice(index, 1);
+        products.push(warehouse.products[index]);
       }
     }
+    warehouse.products = products;
     await this.save(warehouse);
   }
   static async draftProductInsideWareHouse(product_id) {
