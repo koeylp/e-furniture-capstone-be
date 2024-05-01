@@ -45,7 +45,6 @@ class DeliveryTripService {
       location: warehouse.location,
     };
     const result = await DeliveryTripRepository.createTrip(payload);
-
     await Promise.all([
       this.updateSubState(payload, orderState, "Processing"),
       AccountRepository.updateStateAccount(

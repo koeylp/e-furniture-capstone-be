@@ -203,9 +203,10 @@ class OrderController {
 
   static async payAgain(req, res) {
     const { order_id } = req.params;
+    const { returnUrl, cancelUrl } = req.body;
     return new OK({
       message: "Your order!",
-      metaData: await OrderService.payAgain(order_id),
+      metaData: await OrderService.payAgain(order_id, returnUrl, cancelUrl),
     }).send(res);
   }
 }
