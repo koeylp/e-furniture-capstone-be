@@ -56,7 +56,7 @@ class ProductController {
   static async getProductsBySubType(req, res) {
     const { type_slug, slug } = req.params;
     const { page, limit } = req.query;
-    if (!type_slug || !slug) throw new BadRequestError();
+    if (!type_slug) throw new BadRequestError();
     return new OK({
       message: "List Published Product!!",
       metaData: await ProductService.getProductsBySubTypeV2(
