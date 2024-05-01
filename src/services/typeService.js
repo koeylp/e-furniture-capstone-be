@@ -36,7 +36,6 @@ class TypeService {
     const model = generateSubTypeSchema(type);
 
     await StoreSubTypeService.store(type._id.toString(), model);
-
     ProductFactory.registerProductType(type.slug, model);
     global.subTypeSchemasMap.set(type.slug, model);
     return type;

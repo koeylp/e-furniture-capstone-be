@@ -57,8 +57,6 @@ class TypeProduct extends Product {
     if (!subType)
       throw new BadRequestError("Cannot Find Any Sub Type For Adding!");
     this.type = type._id;
-    this.regular_price = this.regular_price + SHIPPING_AMOUNT;
-    this.sale_price = this.sale_price + SHIPPING_AMOUNT;
     return await super.createProduct();
   }
   async updateProduct(product_slug) {
