@@ -138,9 +138,9 @@ class OrderService {
           `Voucher ${found_voucher._id} was applied failed`
         );
     }
-    // for (let product of order.order_products) {
-    //   await CartUtils.removeItem(account_id, product);
-    // }
+    for (let product of order.order_products) {
+      await CartUtils.removeItem(account_id, product);
+    }
 
     order.order_products = products;
     order.order_code = generateOrderCode();
