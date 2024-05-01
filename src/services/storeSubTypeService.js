@@ -21,6 +21,7 @@ class StoreSubTypeService {
     const type = await storeSubType.findOne({
       code: type_id,
     });
+    if (!type) return;
     type.subTypes.forEach((type) => {
       products.push(...type.products);
       subtypeModel.create(type);
