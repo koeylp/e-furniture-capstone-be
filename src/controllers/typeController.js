@@ -71,5 +71,12 @@ class TypeController {
       metaData: await TypeService.getUnPublishedType(page, limit),
     }).send(res);
   }
+  static async getTypeDetail(req, res) {
+    const { type } = req.params;
+    return new OK({
+      message: "List Of Type!",
+      metaData: await TypeService.findType(type),
+    }).send(res);
+  }
 }
 module.exports = TypeController;

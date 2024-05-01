@@ -4,11 +4,10 @@ const SubTypeController = require("../../controllers/subTypeController");
 const { asyncHandler } = require("../../utils/asyncHandler");
 
 router.get("/publish", asyncHandler(SubTypeController.getPublishSubType));
+router.post("/", asyncHandler(SubTypeController.restore));
 router.get(
   "/:type_slug/:slug",
   asyncHandler(SubTypeController.getSubTypeDetail)
 );
-
-router.post("/", asyncHandler(SubTypeController.restore));
 
 module.exports = router;
