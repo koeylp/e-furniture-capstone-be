@@ -526,7 +526,10 @@ class OrderService {
           description: transaction.transactions[0].description,
           when: transaction.createdAt,
         };
-        return await this.paid(foundOrder.account_id, db_transaction);
+        return await this.paid(
+          foundOrder.account_id.toString(),
+          db_transaction
+        );
       }
     }
     return foundOrder;
