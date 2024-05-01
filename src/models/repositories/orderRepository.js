@@ -223,7 +223,6 @@ class OrderRepository {
     return populatedOrder;
   }
   static async paid(account_id, order_id, paid_amount) {
-    console.log("repo: " + account_id);
     let order = await _Order
       .findOne({
         _id: new mongoose.Types.ObjectId(order_id),
