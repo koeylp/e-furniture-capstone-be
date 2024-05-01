@@ -284,7 +284,6 @@ class OrderService {
         "The amount of money must be equal to " +
           foundOrder.order_checkout.paid.must_paid
       );
-      console.log(foundOrder);
     const key_of_type = getKeyByValue(
       orderTrackingMap,
       capitalizeFirstLetter(
@@ -533,8 +532,6 @@ class OrderService {
           description: transaction.transactions[0].description,
           when: transaction.createdAt,
         };
-        console.log(foundOrder.account_id.toString());
-        console.log("asf");
         return await this.paid(
           foundOrder.account_id.toString(),
           db_transaction
