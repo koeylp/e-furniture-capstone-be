@@ -60,7 +60,7 @@ class DeliveryRepository {
       .populate([
         {
           path: "orders.order",
-          select: "order_products order_shipping warehouses",
+          select: "order_products order_shipping order_tracking",
         },
         {
           path: "account_id",
