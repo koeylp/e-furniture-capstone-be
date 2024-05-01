@@ -48,6 +48,7 @@ const validateCreateRoom = (data) => {
     description: Joi.string().min(3).required(),
     thumb: Joi.string().min(3).required(),
     products: Joi.array().required(),
+    model3D: Joi.string().min(0),
   });
   return schema.validate(data);
 };
