@@ -184,14 +184,14 @@ class DeliveryTripService {
 
     let stateValue = "Done";
     await this.updateStateDeliveryTrip(trip_id, deliveryTrip, stateValue);
-    const payload = {
+    const payloadNoti = {
       account_id: account._id.toString(),
       title: "Done Delivery Trip",
-      message: "Your Delivery Trip Has Been Done",
+      message: "Delivery Trip Has Been Done",
       status: 1,
     };
 
-    await this.SendNotification(payload, 1);
+    await this.SendNotification(payloadNoti, 1);
     return await this.updateOrdersWithMainStatus(trip_id);
   }
 
