@@ -232,7 +232,8 @@ class OrderRepository {
       })
       .populate("order_products.product_id")
       .lean();
-
+    console.log(account_id);
+    console.log(order);
     if (!order) {
       throw new InternalServerError("This order is already in processing.");
     }
