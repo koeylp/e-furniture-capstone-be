@@ -6,7 +6,7 @@ const { validateCreateSubType } = require("../utils/validation");
 class SubTypeController {
   static async getSubTypeDetail(req, res) {
     const { slug, type_slug } = req.params;
-    if (!slug || !type_slug) throw new BadRequestError();
+    if (!type_slug) throw new BadRequestError();
     return new OK({
       message: "SubType Detail!",
       metaData: await SubTypeService.getSubTypeDetail(slug, type_slug),

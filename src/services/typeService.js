@@ -65,8 +65,8 @@ class TypeService {
     if (type) throw new BadRequestError(`${typeName} is already in use`);
     return await TypeRepository.editTypeName(type_id, typeName);
   }
-  static async findType(type_id) {
-    return await TypeRepository.findTypeById(type_id);
+  static async findType(type) {
+    return await TypeRepository.findTypeBySlug(type);
   }
   static async getTypes(page = 1, limit = 12) {
     return await TypeRepository.getTypes(page, limit);
