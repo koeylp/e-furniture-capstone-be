@@ -17,6 +17,7 @@ const schema = new Schema(
         quantity: { type: Number },
       },
     ],
+    model3D: { type: String },
     is_draft: { type: Boolean, default: true },
     is_published: { type: Boolean, default: false },
   },
