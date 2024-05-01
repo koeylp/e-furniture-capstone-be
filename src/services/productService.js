@@ -161,7 +161,7 @@ class ProductService {
     let query = {
       _id: { $in: data },
     };
-    return await ProductRepository.getAlls(query, 1, 12);
+    return await ProductRepository.getAlls(query, 1, 6);
   }
   static async getAllProducts(page, limit) {
     return await InventoryRepository.findAllByQueryPopulate(page, limit);

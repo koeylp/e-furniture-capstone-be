@@ -129,6 +129,7 @@ class InventoryRepository {
     const query = {
       is_draft: false,
       is_published: true,
+      sold: { $gte: 1 },
     };
     const sortType = { ["sold"]: -1 };
     let inventories = await this.getInventoryWithDistinctProduct({
