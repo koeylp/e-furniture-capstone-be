@@ -568,8 +568,13 @@ class OrderService {
     }
     return await OrderRepository.updateOrder(order);
   }
-  static async payAgain(order_id) {
+  static async payAgain(order_id, returnUrl, cancelUrl) {
     const order = await verifyOrderExistence(order_id);
+    if (returnUrl && cancelUrl) {
+      console.log(returnUrl + " " + cancelUrl);
+      order.order_shipping.mobile.returnUrl = returnUrl;
+      order.order_shipping.mobile.cancelUrl = cancelUrl;
+    }
     const pay_os = await BankService.createPaymentLink(order);
     order.order_checkout.pay_os = {
       orderCode: pay_os.orderCode,
