@@ -28,7 +28,12 @@ class SocketIOService {
   sendNotifiToDelivery(account_id, state) {
     const user = onlineDelivery.get(account_id);
     if (user) {
-      _io.to(user).emit("send-noti-to-delivery", state);
+      _io.to(user).emit("send-noti-to-delivery", {
+        message: `Be Assign`,
+        account_id: account_id,
+        socketId: user,
+        state: state,
+      });
     }
   }
 }
