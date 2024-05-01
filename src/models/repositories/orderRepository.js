@@ -159,6 +159,7 @@ class OrderRepository {
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
       order_code: order.order_code,
+      note: order.note
     });
     if (!newOrder) throw new InternalServerError();
     let note = order.note || "Efurniture staff is preparing the order";
