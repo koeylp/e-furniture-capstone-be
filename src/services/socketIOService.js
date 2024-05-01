@@ -1,10 +1,17 @@
 class SocketIOService {
   static onlineUsers = {};
+  static onlineDelivery = {};
   connection(socket) {
     socket.on("notification", () => {});
     socket.on("add-user", (account_id) => {
-      onlineDelivery.set(account_id, socket.id);
-      _io.to(socket.id).emit("checkRegister", "Toàn Was Here");
+      SocketIOService.onlineDelivery[account_id] = socket.id;
+      const user = SocketIOService.onlineUsers[account_id];
+      _io
+        .to(user)
+        .emit(
+          "checkRegister",
+          `Toàn Was Here ${SocketIOService.onlineDelivery}`
+        );
     });
 
     socket.on("login-user", (account_id) => {
@@ -26,7 +33,8 @@ class SocketIOService {
     socket.emit("hello", "world");
   }
   sendNotifiToDelivery(account_id, state) {
-    const user = onlineDelivery.get(account_id);
+    const user = SocketIOService.onlineUsers[account_id];
+    console.log("Here", user);
     if (user) {
       _io.to(user).emit("send-noti-to-delivery", {
         message: `Be Assign`,

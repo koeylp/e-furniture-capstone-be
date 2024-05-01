@@ -63,10 +63,7 @@ class DeliveryTripService {
       status: 1,
     };
 
-    await this.SendNotification(
-      payloadNoti,
-      StateUtils.AccountState("Shipping")
-    );
+    await this.SendNotification(payloadNoti, 2);
     return result;
   }
 
