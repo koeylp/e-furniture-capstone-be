@@ -1,29 +1,54 @@
 const TypeService = require("../services/typeService");
 const { BadRequestError } = require("../utils/errorHanlder");
 const { OK } = require("../utils/successHandler");
+const NotificationEfurnitureService = require("../services/NotificationEfurnitureService");
 class TypeController {
   static async createType(req, res) {
     const { name, thumb } = req.body;
+    const { account_id } = req.payload;
     if (!name || !thumb) throw new BadRequestError();
+    const type = await TypeService.createType(name, thumb);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Type",
+      type.name,
+      "Created"
+    );
     return new OK({
       message: "Create Successfully!",
-      metaData: await TypeService.createType(name, thumb),
+      metaData: type,
     }).send(res);
   }
   static async publishType(req, res) {
     const { type_slug } = req.params;
     if (!type_slug) throw new BadRequestError();
+    const { account_id } = req.payload;
+    let type = await TypeService.publishType(type_slug);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Type",
+      type.name,
+      "Published"
+    );
     return new OK({
       message: "Publish SubType Successfully!",
-      metaData: await TypeService.publishType(type_slug),
+      metaData: type,
     }).send(res);
   }
   static async draftType(req, res) {
     const { type_slug } = req.params;
     if (!type_slug) throw new BadRequestError();
+    const { account_id } = req.payload;
+    let type = await TypeService.draftType(type_slug);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      "Type",
+      type.name,
+      "Draft"
+    );
     return new OK({
       message: "Draft SubType Successfully!",
-      metaData: await TypeService.draftType(type_slug),
+      metaData: type,
     }).send(res);
   }
   static async getAllType(req, res) {

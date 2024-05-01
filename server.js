@@ -5,6 +5,7 @@ const { Server } = require("socket.io");
 const SocketIOService = require("./src/services/socketIOService");
 
 global._io = io;
+global.onlineDelivery = new Map();
 
 const startServer = async (app) => {
   try {
