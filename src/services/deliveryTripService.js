@@ -45,6 +45,7 @@ class DeliveryTripService {
       location: warehouse.location,
     };
     const result = await DeliveryTripRepository.createTrip(payload);
+
     await Promise.all([
       this.updateSubState(payload, orderState, "Processing"),
       AccountRepository.updateStateAccount(
@@ -56,7 +57,7 @@ class DeliveryTripService {
       ),
     ]);
     const payloadNoti = {
-      account_id: accountData._id,
+      account_id: accountData._id.toString(),
       title: "Assign Delivery Trip",
       message: "Delivery Trip Has Been Assign",
       status: 1,
@@ -184,13 +185,13 @@ class DeliveryTripService {
     let stateValue = "Done";
     await this.updateStateDeliveryTrip(trip_id, deliveryTrip, stateValue);
     const payload = {
-      account_id: account._id,
+      account_id: account._id.toString(),
       title: "Done Delivery Trip",
       message: "Your Delivery Trip Has Been Done",
       status: 1,
     };
 
-    await this.SendNotification(payload, StateUtils.AccountState("Available"));
+    await this.SendNotification(payload, 1);
     return await this.updateOrdersWithMainStatus(trip_id);
   }
 
@@ -271,7 +272,7 @@ class DeliveryTripService {
       3
     );
     const payload = {
-      account_id: result.account_id,
+      account_id: result.account_id.toString(),
       title: "Confirm Delivery Trip",
       message: "Your Delivery Trip Has Been Confirm By Staff",
       status: 1,
@@ -336,7 +337,7 @@ class DeliveryTripService {
     );
 
     const payload = {
-      account_id: account._id,
+      account_id: account._id.toString(),
       title: "Reject Delivery Trip",
       message: note,
       status: 1,
