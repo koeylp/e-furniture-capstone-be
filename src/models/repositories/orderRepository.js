@@ -159,10 +159,10 @@ class OrderRepository {
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
       order_code: order.order_code,
-      note: order.note
+      note: order.note,
     });
     if (!newOrder) throw new InternalServerError();
-    let note = order.note || "Efurniture staff is preparing the order";
+    let note = "Efurniture staff is preparing the order";
     if (
       order.payment_method === "COD" &&
       order.order_checkout.final_total < 1000000
@@ -232,7 +232,6 @@ class OrderRepository {
       })
       .populate("order_products.product_id")
       .lean();
-
     if (!order) {
       throw new InternalServerError("This order is already in processing.");
     }

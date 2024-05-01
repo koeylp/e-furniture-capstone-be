@@ -83,6 +83,7 @@ const schema = new Schema(
         ],
       },
     ],
+    note: { type: String, default: "" },
     status: { type: Number, default: 1 },
   },
   {

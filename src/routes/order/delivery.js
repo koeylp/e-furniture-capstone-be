@@ -53,4 +53,10 @@ router.put(
   asyncHandler(OrderController.payAgain)
 );
 
+router.put(
+  "/payos/:orderCode",
+  hasPermission(global.PermissionConstants.DELIVERY_PUT),
+  asyncHandler(OrderController.payPayOS)
+);
+
 module.exports = router;

@@ -277,6 +277,7 @@ class OrderService {
       account_id,
       order_id,
     });
+    
     if (!foundOrder) throw new NotFoundError("Order not found for this user");
     if (foundOrder.order_checkout.paid.must_paid != transaction.amount)
       throw new BadRequestError(
@@ -517,7 +518,7 @@ class OrderService {
     }
   }
 
-  static async payPayOS(account_id, orderCode) {
+  static async payPayOS(orderCode) {
     const query = {
       "order_checkout.pay_os.orderCode": parseInt(orderCode),
     };
@@ -531,7 +532,10 @@ class OrderService {
           description: transaction.transactions[0].description,
           when: transaction.createdAt,
         };
-        return await this.paid(account_id, db_transaction);
+        return await this.paid(
+          foundOrder.account_id.toString(),
+          db_transaction
+        );
       }
     }
     return foundOrder;
@@ -571,9 +575,10 @@ class OrderService {
   static async payAgain(order_id, returnUrl, cancelUrl) {
     const order = await verifyOrderExistence(order_id);
     if (returnUrl && cancelUrl) {
-      console.log(returnUrl + " " + cancelUrl);
-      order.order_shipping.mobile.returnUrl = returnUrl;
-      order.order_shipping.mobile.cancelUrl = cancelUrl;
+      order.order_shipping.mobile = {
+        returnUrl: returnUrl,
+        cancelUrl: cancelUrl,
+      };
     }
     const pay_os = await BankService.createPaymentLink(order);
     order.order_checkout.pay_os = {
