@@ -223,6 +223,7 @@ class OrderRepository {
     return populatedOrder;
   }
   static async paid(account_id, order_id, paid_amount) {
+    console.log("repo: " + account_id);
     let order = await _Order
       .findOne({
         _id: new mongoose.Types.ObjectId(order_id),
@@ -232,8 +233,6 @@ class OrderRepository {
       })
       .populate("order_products.product_id")
       .lean();
-    console.log(account_id);
-    console.log(order);
     if (!order) {
       throw new InternalServerError("This order is already in processing.");
     }
