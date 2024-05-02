@@ -58,6 +58,7 @@ const validateEditRoom = (data) => {
     description: Joi.string().min(3),
     thumb: Joi.string().min(3),
     products: Joi.array().required(),
+    model3D: Joi.string().min(0),
   });
   return schema.validate(data);
 };

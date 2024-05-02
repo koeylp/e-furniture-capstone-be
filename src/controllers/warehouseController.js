@@ -1,3 +1,4 @@
+const NotificationEfurnitureService = require("../services/NotificationEfurnitureService");
 const InventoryService = require("../services/inventoryService");
 const WareHouseService = require("../services/warehouseService");
 const { BadRequestError } = require("../utils/errorHanlder");
@@ -69,10 +70,17 @@ class WareHouseController {
   }
   static async updateProductStockInWarehouse(req, res) {
     let product = req.body;
+    const { account_id } = req.payload;
     await InventoryService.updateInventoryStock(req.body);
     let result = await WareHouseService.updateProductStock(
       product,
       product.stock
+    );
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      `Product Stock From ${result.oldStock} To ${result.newStock}`,
+      result.name,
+      "Updated"
     );
     return new OK({
       message: "Update Product Stock Warehouse Successfully!",
@@ -80,15 +88,33 @@ class WareHouseController {
     }).send(res);
   }
   static async updateIsLowStock(req, res) {
+    const { account_id } = req.payload;
+    let result = await WareHouseService.UpdateIsLowStockNotification(req.body);
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      `Receive Notification Low Stock`,
+      result.name,
+      "Updated"
+    );
     return new OK({
       message: "Update Notification Of LowStock Successfully!",
-      metaData: await WareHouseService.UpdateIsLowStockNotification(req.body),
+      metaData: result,
     }).send(res);
   }
   static async updateLowStockValue(req, res) {
+    const { account_id } = req.payload;
+    let result = await WareHouseService.updateLowStockValueInWarehouse(
+      req.body
+    );
+    await NotificationEfurnitureService.notiToAdmin(
+      account_id,
+      `Product LowStock Threshold From ${result.oldThreshold} To ${result.newThreshold}`,
+      result.name,
+      "Updated"
+    );
     return new OK({
       message: "Update Notification Of LowStock Successfully!",
-      metaData: await WareHouseService.updateLowStockValueInWarehouse(req.body),
+      metaData: result,
     }).send(res);
   }
   static async removeProductFromWareHouse(req, res) {

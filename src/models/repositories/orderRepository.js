@@ -202,7 +202,6 @@ class OrderRepository {
       order_products: order.order_products,
       payment_method: order.payment_method,
       order_shipping: order.order_shipping,
-      warehouses: order.warehouses,
       order_code: order.order_code,
     });
     if (!newOrder) throw new InternalServerError();

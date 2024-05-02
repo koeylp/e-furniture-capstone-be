@@ -201,13 +201,13 @@ class OrderService {
     );
   }
   static async createOrderGuest(order) {
-    await verifyProductStockExistence(order);
+    const products = await handleStockWithRedisKey(order);
+    // await verifyProductStockExistence(order);
     order = await this.categorizePaymentMethod(order);
-    const warehouses = await StockUtil.updateStock(order);
+    // await StockUtil.updateStock(order);
     order = await this.categorizePaymentMethod(order);
-    order.warehouses = warehouses;
     order.order_code = generateOrderCode();
-
+    order.order_products = products;
     let newOrder;
     if (
       order.payment_method === "COD" &&
@@ -277,7 +277,7 @@ class OrderService {
       account_id,
       order_id,
     });
-    
+
     if (!foundOrder) throw new NotFoundError("Order not found for this user");
     if (foundOrder.order_checkout.paid.must_paid != transaction.amount)
       throw new BadRequestError(
