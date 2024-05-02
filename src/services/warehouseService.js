@@ -103,9 +103,16 @@ class WareHouseService {
     const { foundWarehouse, product_index } =
       await this.findProductInFirstWareHouse(product);
     this.validateStock(product.stock);
+    let productModify = foundWarehouse.products[product_index];
+    let oldStock = foundWarehouse.products[product_index].stock;
     foundWarehouse.products[product_index].stock = stock;
     await this.checkLowStockQuantity(foundWarehouse.products[product_index]);
-    return await WareHouseRepository.save(foundWarehouse);
+    await WareHouseRepository.save(foundWarehouse);
+    return {
+      oldStock: oldStock,
+      newStock: stock,
+      name: productModify.product.name,
+    };
   }
 
   static async increaseProductStock(product, stock) {
@@ -162,16 +169,25 @@ class WareHouseService {
   static async UpdateIsLowStockNotification(product) {
     const { foundWarehouse, product_index } =
       await this.findProductInFirstWareHouse(product);
+    let productModify = foundWarehouse.products[product_index];
     foundWarehouse.products[product_index].isNoti = product.isNoti;
-    return await WareHouseRepository.save(foundWarehouse);
+    await WareHouseRepository.save(foundWarehouse);
+    return { name: productModify.product.name };
   }
 
   static async updateLowStockValueInWarehouse(product) {
     const { foundWarehouse, product_index } =
       await this.findProductInFirstWareHouse(product);
     this.validateStock(product.stock);
+    let productModify = foundWarehouse.products[product_index];
+    let oldThreshold = foundWarehouse.products[product_index].lowStock;
     foundWarehouse.products[product_index].lowStock = product.lowStock;
-    return await WareHouseRepository.save(foundWarehouse);
+    await WareHouseRepository.save(foundWarehouse);
+    return {
+      oldThreshold: oldThreshold,
+      newThreshold: product.lowStock,
+      name: productModify.product.name,
+    };
   }
 
   static async findProductInWareHouse(warehouse_id, product) {
