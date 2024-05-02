@@ -22,8 +22,7 @@ class BankService {
     }
     const body = {
       orderCode: orderCode,
-      // amount: order.order_checkout.final_total,
-      amount: 2000,
+      amount: order.order_checkout.paid.must_paid,
       description: order.order_code,
       buyerName: order.order_shipping.first_name,
       buyerEmail: order.order_shipping.email,
