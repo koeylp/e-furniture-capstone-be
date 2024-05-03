@@ -13,7 +13,7 @@ class OrderRepository {
         .populate({
           path: "order_products.product_id",
         })
-        .sort([["createdAt", -1]])
+        .sort([["updatedAt", -1]])
         .select(getUnSelectData(["__v"]))
         .skip(skip)
         .limit(limit)
