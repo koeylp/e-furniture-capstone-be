@@ -17,7 +17,7 @@ class ReportService {
         email: account.email,
       },
       note: `Refund Order Code: ${order.order_code}, Reason: ${payload.reason}`,
-      amount: calculateAmountRefund(order.order_checkout.final_total),
+      amount: calculateAmountRefund(order.order_checkout.paid.paid_amount),
     };
     return await this.create(report);
   }

@@ -7,7 +7,7 @@ const calculateOrderTotal = (products) => {
 };
 
 const calculateAmountRefund = (amount) => {
-  return (amount * 90) / 100;
+  return amount;
 };
 
 module.exports = { calculateOrderTotal, calculateAmountRefund };
