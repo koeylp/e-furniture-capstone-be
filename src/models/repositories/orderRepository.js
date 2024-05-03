@@ -46,7 +46,7 @@ class OrderRepository {
     const [result, total] = await Promise.all([
       _Order
         .find(query)
-        .sort([["createdAt", -1]])
+        .sort([["updatedAt", -1]])
         .select(getUnSelectData(["__v"]))
         .skip(skip)
         .limit(limit)
