@@ -60,7 +60,7 @@ class RoomService {
         return product;
       })
     );
-    room.products = room.products.filter(Boolean);
+    room.products = room.products.filter((product) => product.product);
 
     return room;
   }
